@@ -25,6 +25,10 @@ Route::middleware(['auth:sanctum'])->group(function() {
         }
         return response()->json(['message'=> 'Welcome Admin!']);
     });
-    Route::post('/logout',[AuthController::class,'logout']);
-
 });
+
+Route::post('/logout',[AuthController::class,'logout'])
+    ->middleware('auth:sanctum');
+
+
+
