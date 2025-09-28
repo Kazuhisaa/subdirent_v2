@@ -29,4 +29,20 @@ class AuthController extends Controller
             'user' =>$user,
         ]);
     }
+
+   public function logout(Request $request)
+{
+    $accessToken = $request->bearerToken();
+
+    if ($accessToken) {
+        $request->user()->tokens()
+            ->where('token', hash('sha256', $accessToken))
+            ->delete();
+    }
+
+    return response()->json([
+        'message' => 'Logged out successfully'
+    ]);
+}
+
 }
