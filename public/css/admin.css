@@ -1,0 +1,141 @@
+/* ================================
+   Global Layout
+================================= */
+.admin-root {
+  min-height: 100vh;
+  display: flex;
+  background-color: #fdfdfb; /* very light background */
+  color: #333;
+}
+
+/* ================================
+   Sidebar
+================================= */
+#sidebar {
+  width: 240px;
+  background-color: #FFF3C2; /* main beige */
+  color: #333;
+  transition: width .2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+#sidebar.collapsed {
+  width: 64px;
+}
+
+/* Brand */
+#sidebar .sidebar-brand h5 {
+  color: #5c4d00; /* darker brown text */
+  font-weight: 700;
+}
+
+#sidebar .sidebar-brand small {
+  color: #7a6f3a; /* softer brown */
+}
+
+/* Links */
+#sidebar .nav-link {
+  color: #333;
+  padding: 0.65rem 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+#sidebar .nav-link.active,
+#sidebar .nav-link:hover {
+  background-color: #e6db9f; /* slightly darker beige hover */
+  color: #000;
+}
+
+/* Divider */
+#sidebar .nav-divider {
+  color: #7a6f3a;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+/* ================================
+   Topbar
+================================= */
+header {
+  background: #fffdf5;
+  border-bottom: 1px solid #e2e2d8;
+}
+
+header .h6 {
+  color: #5c4d00;
+}
+
+/* ================================
+   Content Area
+================================= */
+.content,
+.flex-grow-1 {
+  background: #fdfcf6;
+  padding: 1.5rem;
+  min-height: 100vh;
+}
+
+/* ================================
+   Cards
+================================= */
+.card {
+  border: none;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #7a6f3a;
+}
+
+.card h2 {
+  font-weight: 700;
+  color: #3b2f00;
+}
+
+/* ================================
+   Buttons
+================================= */
+.btn-primary {
+  background-color: #c9b458; /* warm gold */
+  border-color: #c9b458;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #a6933c;
+  border-color: #a6933c;
+}
+
+.btn-outline-secondary {
+  border-color: #7a6f3a;
+  color: #7a6f3a;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #7a6f3a;
+  color: #fff;
+}
+
+/* ================================
+   Responsive Sidebar
+================================= */
+@media (max-width: 768px) {
+  #sidebar {
+    position: absolute;
+    z-index: 1020;
+    transform: translateX(-100%);
+  }
+  #sidebar.collapsed {
+    transform: translateX(0);
+  }
+}
