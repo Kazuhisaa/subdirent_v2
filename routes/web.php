@@ -2,7 +2,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Auth;
-
 use App\Http\Controllers\AdminController;
 
 Route::get('/admin', [AdminController::class, 'index'])->name('admin.home');
@@ -22,52 +21,28 @@ Route::get('/logout', function () {
     return redirect('/admin')->with('status', 'Logged out (placeholder)');
 })->name('logout');
 
-// Show tenant login form
-Route::get('/tenant/login', function () {
-    return view('partials.tenantLogin');
-})->name('tenant.login');
+// Tenant dashboard (protected)
+Route::middleware('auth')->get('/tenant/dashboard', function () {
+    return view('tenant.dashboard');
+})->name('tenant.dashboard');
 
-// Handle tenant login submission
-Route::post('/tenant/login', [AuthController::class, 'login'])->name('tenant.login.submit');
-
-// Authenticated routes
-Route::middleware('auth')->group(function () {
-    // Tenant dashboard
-    Route::get('/tenant/dashboard', function () {
-        return view('tenant.dashboard');
-    })->name('tenant.dashboard');
-
-    // Admin dashboard
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
-
-    // Logout (better as POST)
-    Route::post('/logout', function () {
-        Auth::logout();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
-
-        return redirect()->route('home');
-    })->name('logout');
-});
-
-// Home / welcome
+// Welcome / homepage
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// (Optional) generic login view if needed
+// Generic login form
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
-Route::get('/logout', function () {
+// Generic login submit
+Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+
+// Unified logout (POST is more secure)
+Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
-
-    return redirect('/');
+    return redirect()->route('home');
 })->name('logout');
-
-

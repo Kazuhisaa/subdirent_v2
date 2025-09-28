@@ -10,28 +10,24 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     public function login(Request $request)
-    {
-        $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
-        ]);
+{
+    $credentials = $request->only('email', 'password');
 
-        $user = User::where('email', $request->email)->first();
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return back()->withErrors(['email' => 'Invalid credentials']);
-        }
-
-        // Use session guard
-        Auth::guard('web')->login($user);
-
-        // Redirect based on role
         if ($user->role === 'tenant') {
             return redirect()->route('tenant.dashboard');
+        } elseif ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
         }
 
-        return redirect()->route('home'); // fallback
+        Auth::logout();
+        return back()->withErrors(['email' => 'Unauthorized role.']);
     }
+
+    return back()->withErrors(['email' => 'Invalid credentials.']);
+}
 
 
    public function logout(Request $request)
