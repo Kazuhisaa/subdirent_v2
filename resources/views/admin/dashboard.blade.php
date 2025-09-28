@@ -6,10 +6,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>@yield('title', 'SubdiRent Admin')</title>
 
-  <!-- Local Bootstrap -->
-  <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
-  <!-- Custom admin CSS -->
-  <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+@vite([
+    'resources/bootstrap/css/bootstrap.css',
+    'resources/css/admin.css',
+    'resources/bootstrapjs/js/bootstrap.bundle.js',
+    'resources/js/app.js'
+])
+
 </head>
 <body>
   <div class="d-flex admin-root">
@@ -86,9 +89,6 @@
       </main>
     </div>
   </div>
-
-  <!-- Local Bootstrap JS -->
-  <script src="{{ asset('bootstrapjs/js/bootstrap.bundle.min.js') }}"></script>
 
   <script>
     // Sidebar toggle
