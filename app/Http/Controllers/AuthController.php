@@ -5,30 +5,34 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function login(Request $request){
-            $request -> validate([
-            'email' => 'required|email',
-            'password'=>'required',
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
         ]);
-        $user= User::where ('email',$request ->email)->first();
 
-        if(!$user || !Hash::check($request->password,$user->password)){
-            return response()-> json(['message'=> 'Invalid Credentials'], 401);
+        $user = User::where('email', $request->email)->first();
 
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['email' => 'Invalid credentials']);
         }
 
-        $abilities =[$user->role];
-        $token = $user->createToken('auth_token',$abilities)->plainTextToken;
+        // Use session guard
+        Auth::guard('web')->login($user);
 
-        return response()->json([
-            'token'=>$token,
-            'role' =>$user->role,
-            'user' =>$user,
-        ]);
+        // Redirect based on role
+        if ($user->role === 'tenant') {
+            return redirect()->route('tenant.dashboard');
+        }
+
+        return redirect()->route('home'); // fallback
     }
+
 
    public function logout(Request $request)
 {
@@ -44,5 +48,24 @@ class AuthController extends Controller
         'message' => 'Logged out successfully'
     ]);
 }
+
+    public function tenantLogin(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    if (Auth::attempt($request->only('email', 'password'))) {
+        $request->session()->regenerate();
+
+        return redirect()->intended('/tenant/dashboard');
+    }
+
+    return back()->withErrors([
+        'email' => 'Invalid credentials provided.',
+    ]);
+}
+
 
 }
