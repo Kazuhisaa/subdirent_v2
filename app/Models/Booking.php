@@ -17,4 +17,6 @@ class Booking extends Model
          'date',
          'time'
         ];
+
+      
 }

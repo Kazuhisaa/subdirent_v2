@@ -38,6 +38,7 @@ class BookingController extends Controller
 {
     // Validation rules
     $validated = $request->validate([
+        'unit_id' => 'required|exists:units,id',
         'first_name'   => 'required|string|max:50',
         'middle_name'  => 'nullable|string|max:50',
         'last_name'    => 'required|string|max:50',
@@ -47,6 +48,17 @@ class BookingController extends Controller
         'time'         => 'required|date_format:H:i', // format ng 24-hour time
     ]);
 
+  $application = [
+    'first_name'  => $validated['first_name'],
+    'middle_name' => $validated['middle_name'] ?? null,
+    'last_name'   => $validated['last_name'],
+     'email' => $validated['email'],
+     'contact_num' => $validated['contact_num'],
+     'unit_id'=> $validated['unit_id']
+];
+
+  
+     
     // Create record
     $booking = Booking::create($validated);
 

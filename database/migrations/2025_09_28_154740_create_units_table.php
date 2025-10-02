@@ -22,7 +22,8 @@ return new class extends Migration
             $table->integer('bedroom')->nullable();
             $table->decimal('monthly_rent',10,2)->nullable();
             $table->decimal('unit_price',10,2)->nullable();
-            $table->string('status')->default('Available');
+            $table->integer('contract_years'); 
+            $table->enum('status',['available','rented'])->default('available');
             $table->json('files')->nullable();
             $table->timestamps();
         });

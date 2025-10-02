@@ -20,7 +20,7 @@ return new class extends Migration
     $table->string('email', 100);
     $table->string('contact_num', 50);
     $table->date('date');
-    $table->time('booking_time'); // rename to avoid reserved keyword
+    $table->time('booking_time'); 
     $table->timestamps();
 });
 

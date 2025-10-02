@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ApplicationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -53,4 +54,9 @@ Route::prefix('bookings')->group(function () {
     Route::get('/getOccupiedTime/{unit_id}/{date}',[BookingController::class,'showAllOccupiedTime']);
 });
 
+
+Route::prefix('applications')->group(function () {
+    Route::get('/',[ApplicationController::class,'index']);
+     Route::get('/find/{id}',[ApplicationController::class,'show']);
+});
 

@@ -28,5 +28,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             BookingSeeder::class
         ]);
+
+        $this->call([
+            ApplicationSeeder::class
+        ]);
     }
 }
