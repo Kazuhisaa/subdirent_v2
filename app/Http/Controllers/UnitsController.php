@@ -27,8 +27,8 @@ class UnitsController extends Controller
                 if($request ->hasFile('files')){
                     foreach($request->file('files')as $file){
                         $filename = time().'_'. uniqid(). '.'. $file->getClientOriginalExtension();
-                        $file->move(public_path('/uploads/units'),$filename); 
-                        $uploadedFiles[] =('/uploads/units') . $filename;
+                        $file->move(public_path('uploads/units'),$filename); 
+                        $uploadedFiles[] =('uploads/units') . $filename;
                     }
                 }
                 
@@ -46,10 +46,9 @@ class UnitsController extends Controller
                     'files.*' => $uploadedFiles, ".*"
                 ]);
 
-                return response()->json([
-                    'message'=> 'Unit Created Successfully',
-                    'unit'=>$unit
-                ]);
+                    return redirect()
+            ->route('admin.addroom')
+            ->with('success', 'Unit Created Successfully!');
         }
 
         public function index(){

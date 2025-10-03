@@ -4,10 +4,13 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AdminController;
 
+use App\Http\Controllers\UnitsController;
+
 Route::get('/admin', [AdminController::class, 'index'])->name('admin.home');
 
 // Temporary placeholder routes (so route() calls work)
 Route::view('/admin/rooms', 'admin.rooms')->name('admin.rooms');
+Route::view('/admin/addroom', 'admin.addroom')->name('admin.addroom');
 Route::view('/admin/tenants', 'admin.tenants')->name('admin.tenants');
 Route::view('/admin/bookings', 'admin.bookings')->name('admin.bookings');
 Route::view('/admin/maintenance', 'admin.maintenance')->name('admin.maintenance');
@@ -25,4 +28,14 @@ Route::get('/logout', function () {
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/units', [UnitsController::class, 'index'])->name('units.index');
+    Route::get('/units/create', function () {
+        return view('admin.addroom'); // blade form
+    })->name('units.create');
+    Route::post('/units', [UnitsController::class, 'store'])->name('units.store');
+    Route::get('/units/{unit}', [UnitsController::class, 'show'])->name('units.show');
+    Route::put('/units/{unit}', [UnitsController::class, 'update'])->name('units.update');
 });

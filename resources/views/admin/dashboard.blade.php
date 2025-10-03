@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>@yield('title', 'SubdiRent Admin')</title>
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 @vite([
     'resources/bootstrap/css/bootstrap.css',
     'resources/css/admin.css',
@@ -30,32 +30,32 @@
             Dashboard
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('admin.bookings','index') }}">Bookings</a>
-        </li>
-        <li class="nav-item">
+         <li class="nav-divider mt-3 mb-1 text-uppercase small px-2">Management</li>
+          <li class="nav-item ">
           <a class="nav-link" href="{{ route('admin.rooms') }}">Room Management</a>
+        </li>
+        <li class="nav-item ">
+          <a class="nav-link" href="{{ route ('admin.addroom')}}">Add Room</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('admin.tenants') }}">Tenants</a>
         </li>
-
-        <li class="nav-divider mt-3 mb-1 text-uppercase small px-2">Core / Management</li>
-        <li class="nav-item px-2">
+        <li class="nav-item ">
           <a class="nav-link" href="#">Applications</a>
         </li>
-
-        <li class="nav-divider mt-3 mb-1 text-uppercase small px-2">Operations</li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ route('admin.maintenance') }}">Maintenance</a>
+          <a class="nav-link" href="{{ route('admin.bookings','index') }}">Bookings</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ route('admin.payments') }}">Payments</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="{{ route('admin.maintenance') }}">Maintenance</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="{{ route('admin.contracts') }}">Contracts</a>
         </li>
-
+         <li class="nav-divider mt-3 mb-1 text-uppercase small px-2">Reports</li>
         <li class="mt-4 px-2">
           <a class="nav-link" href="{{ route('admin.analytics') }}">Analytics</a>
           <a class="nav-link" href="{{ route('admin.reports') }}">Reports</a>
