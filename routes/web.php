@@ -31,11 +31,16 @@ Route::get('/', function () {
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/units', [UnitsController::class, 'index'])->name('units.index');
-    Route::get('/units/create', function () {
-        return view('admin.addroom'); // blade form
-    })->name('units.create');
+    Route::get('/rooms', [UnitsController::class, 'rooms'])->name('rooms'); // <-- change here
+    Route::get('/addroom', function () {
+        return view('admin.addroom');
+    })->name('addroom');
     Route::post('/units', [UnitsController::class, 'store'])->name('units.store');
     Route::get('/units/{unit}', [UnitsController::class, 'show'])->name('units.show');
     Route::put('/units/{unit}', [UnitsController::class, 'update'])->name('units.update');
 });
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/units/{id}/edit', [UnitsController::class, 'edit'])->name('units.edit');
+});
+Route::patch('/admin/units/{id}/archive', [UnitsController::class, 'archive'])->name('admin.units.archive');
