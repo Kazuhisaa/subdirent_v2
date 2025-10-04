@@ -53,11 +53,13 @@ Route::prefix('bookings')->group(function () {
     Route::get('/unit/{unit_id}', [BookingController::class, 'showByUnitId']); // GET /bookings/unit/{unit_id}
     Route::post('/', [BookingController::class, 'store']);              // POST /bookings
     Route::get('/getOccupiedTime/{unit_id}/{date}',[BookingController::class,'showAllOccupiedTime']);
+    Route::post('/confirm/{id}',[BookingController::class, 'confirm']);
 });
-
+    
 
 Route::prefix('applications')->group(function () {
     Route::get('/',[ApplicationController::class,'index']);
+    Route::post('/addApplicants',[ApplicationController::class,'store']);
      Route::get('/find/{id}',[ApplicationController::class,'show']);
 });
 
