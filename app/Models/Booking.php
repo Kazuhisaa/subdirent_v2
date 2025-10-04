@@ -9,14 +9,15 @@ class Booking extends Model
     //
 
       protected $fillable = [
-       'first_name',
-        'middle_name',
-        'last_name',
-        'email',
-        'contact_num',
-         'date',
-         'time'
-        ];
+    'first_name',
+    'middle_name',
+    'last_name',
+    'email',
+    'contact_num',
+    'date',
+    'unit_id',
+    'booking_time',
+];
 
       
 }
