@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\RevenuePredictionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -60,3 +61,9 @@ Route::prefix('applications')->group(function () {
      Route::get('/find/{id}',[ApplicationController::class,'show']);
 });
 
+
+
+Route::prefix('prediction')->group(function(){
+    Route::get('/revenue/permonth',[RevenuePredictionController::class,'showPrediction']);
+    Route::post('/revenue/train',[RevenuePredictionController::class,'trainModel']);
+});
