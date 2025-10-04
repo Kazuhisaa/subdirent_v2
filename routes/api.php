@@ -36,11 +36,11 @@ Route::middleware(['auth:sanctum'])->group(function() {
         return response()->json(['message'=>'Welcome Admin']);
     });
 
-
     Route::get('/allUnits',[UnitsController::class, 'index']);
     Route::post('/addUnits',[UnitsController::class, 'store']);
     Route::get('/findUnits/{id}',[UnitsController::class, 'show']);
-    Route::put('/editUnits/{unit}',[UnitsController::class, 'update']);    
+    Route::put('/editUnits/{unit}',[UnitsController::class, 'update']);  
+    Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);  
 
 });
 
