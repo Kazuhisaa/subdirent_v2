@@ -25,33 +25,45 @@ class ApplicationController extends Controller
         'first_name'   => 'required|string|max:50',
         'middle_name'  => 'nullable|string|max:50',
         'last_name'    => 'required|string|max:50',
-        'email'        => 'required|email|unique:bookings,email',
+        'email'        => 'required|email|unique:application,email',
         'contact_num'  => 'required|string|max:15',
         
         ]);
 
-        $credentials = Application::create($credentials);
+        $application = Application::create($credentials);
         return response()-> json([
             'message' => 'Application Successfuly Created',
-            'data' => $credentials,
+            'data' => $application
         ],200);
     }
 
-    public function update(Request $request, Application $id){
+    public function update(Request $request, $id){
 
          $credentials =$request -> validate([
         'unit_id' => 'required|exists:units,id',
         'first_name'   => 'required|string|max:50',
         'middle_name'  => 'nullable|string|max:50',
         'last_name'    => 'required|string|max:50',
-        'email'        => 'required|email|unique:bookings,email',
+        'email'        => 'required|email|unique:application,email' . $id,
         'contact_num'  => 'required|string|max:15',
         ]);
 
-    
-    
+            $application = Application::findOrFail($id);
+            $application ->update($credentials);
+            return response()->json([
+                'message' => 'Application Updated Successfully',
+                'application' => $$application
+            ],200);
+
     }
 
-
+    public function archive($id){
+            $application = Application::findOrFail($id);
+            $application()->delete();
+            
+            return response()-> json([
+                'Message' => 'Application Archived Successfully'
+            ]);
+    }
 
 }

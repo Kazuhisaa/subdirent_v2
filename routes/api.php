@@ -59,6 +59,7 @@ Route::prefix('bookings')->group(function () {
 Route::prefix('applications')->group(function () {
     Route::get('/',[ApplicationController::class,'index']);
     Route::post('/addApplicants',[ApplicationController::class,'store']);
-     Route::get('/find/{id}',[ApplicationController::class,'show']);
+    Route::get('/find/{id}',[ApplicationController::class,'show']);
+    
 });
 

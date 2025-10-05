@@ -20,6 +20,8 @@ return new class extends Migration
              $table->string('contact_num', 50);
              $table->foreignId('unit_id')->constrained()->onDelete('cascade');
              $table->timestamps();
+             $table->softDeletes();
+
         });
     }
 
