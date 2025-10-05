@@ -1,20 +1,21 @@
 @extends('admin.dashboard')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12">
-            <h3 class="fw-bold">RECORDS</h3>
+            <h3 class="fw-bold text-blue-900">RECORDS</h3>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0" style="background-color: #FFF3C2;">
-        <div class="card-header" style="background-color: #FFD95A;">
-            <span class="fw-bold">OVERALL RECORDS</span>
+    <div class="card shadow-sm border-0" style="background-color: var(--blue-100);">
+        <div class="card-header border-0" style="background-color: var(--blue-200);">
+            <span class="fw-bold text-blue-800">OVERALL RECORDS</span>
         </div>
+
         <div class="card-body">
-            <table class="table table-bordered table-striped text-center">
-                <thead class="table-dark">
+            <table class="table table-bordered text-center booking-table mb-0">
+                <thead>
                     <tr>
                         <th>FULL NAME</th>
                         <th>ROOM</th>
@@ -57,7 +58,7 @@
             </table>
             
             <div class="text-end mt-3">
-                <button class="btn btn-warning">Generate as PDF</button>
+                <button class="btn btn-action">Generate as PDF</button>
             </div>
         </div>
     </div>
