@@ -18,44 +18,75 @@
 
     <!-- SIDEBAR -->
     <nav id="sidebar" class="vh-100 bg-white border-end">
-      <div class="sidebar-brand p-3">
-        <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i><span>SubdiRent</span></h5>
-        <small><span>TENANT</span></small>
+      <div class="sidebar-brand p-3 border-bottom">
+        <h5 class="mb-0 d-flex align-items-center">
+          <i class="bi bi-house-heart me-2 text-teal"></i>
+          <span class="fw-bold text-teal">SubdiRent</span>
+        </h5>
+        <small class="text-muted">TENANT PORTAL</small>
       </div>
 
-      <ul class="nav flex-column px-2">
-        <li class="nav-item">
-          <a class="nav-link {{ request()->routeIs('tenant.home') ? 'active' : '' }}" href="{{ route('tenant.home') }}">
-            <i class="bi bi-house-door"></i> <span>Dashboard</span>
+      <ul class="nav flex-column px-2 py-3">
+        <!-- Dashboard -->
+        <li class="nav-item mb-2">
+          <a class="nav-link d-flex align-items-center {{ request()->routeIs('tenant.home') ? 'active' : '' }}" href="{{ route('tenant.home') }}">
+            <i class="bi bi-speedometer2 me-2"></i> <span>Dashboard</span>
           </a>
         </li>
 
-        <li class="nav-divider mt-3 mb-1 text-uppercase small px-2"><span>My Account</span></li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="bi bi-file-earmark-text"></i> <span>My Applications</span>
+        <!-- Divider -->
+        <li class="nav-divider mt-3 mb-1 text-uppercase small px-2 text-muted fw-bold">
+          <span>My Account</span>
+        </li>
+
+        <!-- My Property -->
+        <li class="nav-item mb-2">
+          <a class="nav-link d-flex align-items-center" href="#">
+            <i class="bi bi-building-check me-2"></i> <span>My Property</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="bi bi-calendar-check"></i> <span>My Bookings</span>
+
+        <!-- My Payments -->
+        <li class="nav-item mb-2">
+          <a class="nav-link d-flex align-items-center" href="#">
+            <i class="bi bi-wallet2 me-2"></i> <span>My Payments</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="bi bi-credit-card"></i> <span>My Payments</span>
+
+        <!-- Maintenance Requests -->
+        <li class="nav-item mb-2">
+          <a class="nav-link d-flex align-items-center" href="#">
+            <i class="bi bi-tools me-2"></i> <span>Maintenance Requests</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="bi bi-tools"></i> <span>Maintenance Requests</span>
+
+        <!-- My Account -->
+        <li class="nav-item mb-2">
+          <a class="nav-link d-flex align-items-center" href="#">
+            <i class="bi bi-person-circle me-2"></i> <span>My Account</span>
           </a>
         </li>
-        <li class="nav-item mt-auto p-3">
+
+        <!-- Property Search -->
+        <li class="nav-item mb-2">
+          <a class="nav-link d-flex align-items-center" href="#">
+            <i class="bi bi-search-heart me-2"></i> <span>Property Search</span>
+          </a>
+        </li>
+
+        <!-- Support -->
+        <li class="nav-item mb-2">
+          <a class="nav-link d-flex align-items-center" href="#">
+            <i class="bi bi-headset me-2"></i> <span>Support</span>
+          </a>
+        </li>
+
+        <!-- Logout -->
+        <li class="nav-item mt-auto p-3 border-top">
           <form action="{{ route('logout') }}" method="POST">
             @csrf
-            <button type="submit" class="btn btn-outline-danger w-100">
-              <i class="bi bi-box-arrow-right"></i> Logout
+            <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center">
+              <i class="bi bi-box-arrow-right me-2"></i> Logout
             </button>
           </form>
         </li>
