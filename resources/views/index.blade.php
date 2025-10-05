@@ -189,11 +189,32 @@
       </ul>
     </div>
 
+
+
     <div class="d-flex align-items-center gap-3">
-      <a href="#" class="text-dark fw-semibold text-uppercase small text-decoration-none">Sign In</a>
-      <a href="#" class="btn btn-primary fw-semibold px-3 rounded-pill">Get Started</a>
+
+        <!-- Login modal trigger -->
+        @guest
+            <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="btn btn-link text-decoration-none">
+                Login
+            </a>
+        @endguest
+
+       
+        @include('admin.login') 
+
+        <!-- Get Started button -->
+        <a href="#" class="btn btn-primary fw-semibold px-3 rounded-pill">Get Started</a>
+
+        <!-- Logout button -->
+        @auth
+            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-link text-decoration-none">Logout</button>
+            </form>
+        @endauth
     </div>
-  </div>
+
 </nav>
 
 <!-- 🚗 HERO SECTION -->
@@ -294,6 +315,7 @@
     showSlide(index);
   }, 5000);
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

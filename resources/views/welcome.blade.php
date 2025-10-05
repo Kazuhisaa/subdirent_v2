@@ -27,7 +27,7 @@
                 <a href="{{ url('/') }}">Home</a>
                 <a href="#about">About</a>
                 <a href="#rooms">Rooms</a>
-                <a href="{{ route('login') }}">Login</a>
+                <a href="#">Login</a>
             </div>
         </nav>
     </header>

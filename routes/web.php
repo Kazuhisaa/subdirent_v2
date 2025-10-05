@@ -6,8 +6,12 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UnitsController;
 
-Route::get('/admin', [AdminController::class, 'index'])->name('admin.home');
+Route::get('/admin', [AdminController::class, 'index'])
+    ->name('admin.home')
+    ->middleware('auth'); 
 
+
+    
 // Temporary placeholder routes (so route() calls work)
 Route::view('/admin/rooms', 'admin.rooms')->name('admin.rooms');
 Route::view('/admin/addroom', 'admin.addroom')->name('admin.addroom');
@@ -19,10 +23,6 @@ Route::view('/admin/contracts', 'admin.contracts')->name('admin.contracts');
 Route::view('/admin/analytics', 'admin.analytics')->name('admin.analytics');
 Route::view('/admin/reports', 'admin.reports')->name('admin.reports');
 Route::view('/admin/records', 'admin.records')->name('admin.records');
-Route::get('/logout', function () {
-    // Later this will destroy session/auth.
-    return redirect('/admin')->with('status', 'Logged out (placeholder)');
-})->name('logout');
 
 // Tenant dashboard
 Route::get('/tenant', [TenantController::class, 'index'])->name('tenant.home');
@@ -31,7 +31,22 @@ Route::get('/tenant', [TenantController::class, 'index'])->name('tenant.home');
 Route::get('/', function () {
     return view('index');
 })->name('home');
+Route::get('/welcome', function () {
+    return view('welcome');
+})->name('home');
 
 Route::get('/units', function () {
     return view('units');
 })->name('units');
+
+
+Route::get('/admin/login', [AuthController::class, 'showLoginForm'])
+    ->name('admin.login.form');
+
+Route::post('/admin/login', [AuthController::class, 'login'])
+    ->name('admin.login');
+
+// Logout route
+Route::post('/logout', [App\Http\Controllers\Admin\AuthController::class, 'logout'])
+    ->name('logout')
+    ->middleware('web');

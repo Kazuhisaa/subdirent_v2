@@ -88,9 +88,12 @@
         </a>
       </li>
       <li class="mt-auto p-3 nav-item">
-        <a class="nav-link" href="{{ route('logout') }}">
-          <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
-        </a>
+          <form action="{{ route('logout') }}" method="POST">
+              @csrf
+              <button type="submit" class="nav-link border-0 bg-transparent text-start w-100">
+                  <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+              </button>
+          </form>
       </li>
     </ul>
     </nav>
