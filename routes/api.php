@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UnitsController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ApplicationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -12,6 +14,8 @@ Route::get('/user', function (Request $request) {
 
 
 Route::post('/login',[AuthController::class,'login']);
+Route::post('/logout',[AuthController::class,'logout'])
+    ->middleware('auth:sanctum');
 
 Route::middleware(['auth:sanctum'])->group(function() {
     Route::get('/tenant/dashboard',function (Request $request) {
@@ -42,9 +46,17 @@ Route::middleware(['auth:sanctum'])->group(function() {
 
 
 
+Route::prefix('bookings')->group(function () {
+    Route::get('/', [BookingController::class, 'index']);               // GET /bookings
+    Route::get('/find/{id}', [BookingController::class, 'show']);       // GET /bookings/find/{id}
+    Route::get('/unit/{unit_id}', [BookingController::class, 'showByUnitId']); // GET /bookings/unit/{unit_id}
+    Route::post('/', [BookingController::class, 'store']);              // POST /bookings
+    Route::get('/getOccupiedTime/{unit_id}/{date}',[BookingController::class,'showAllOccupiedTime']);
+});
 
-Route::post('/logout',[AuthController::class,'logout'])
-    ->middleware('auth:sanctum');
 
-
+Route::prefix('applications')->group(function () {
+    Route::get('/',[ApplicationController::class,'index']);
+     Route::get('/find/{id}',[ApplicationController::class,'show']);
+});
 

@@ -29,51 +29,9 @@ Route::get('/tenant', [TenantController::class, 'index'])->name('tenant.home');
 
 // Welcome / homepage
 Route::get('/', function () {
-    return view('welcome');
+    return view('index');
 })->name('home');
 
-// Generic login form
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-// Generic login submit
-Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-
-// Unified logout (POST is more secure)
-Route::post('/logout', function () {
-    Auth::logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-    return redirect()->route('home');
-})->name('logout');
-
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/rooms', [UnitsController::class, 'rooms'])->name('rooms'); // <-- change here
-    Route::get('/addroom', function () {
-        return view('admin.addroom');
-    })->name('addroom');
-    Route::post('/units', [UnitsController::class, 'store'])->name('units.store');
-    Route::get('/units/{unit}', [UnitsController::class, 'show'])->name('units.show');
-    Route::put('/units/{unit}', [UnitsController::class, 'update'])->name('units.update');
-});
-
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/units/{id}/edit', [UnitsController::class, 'edit'])->name('units.edit');
-});
-Route::patch('/admin/units/{id}/archive', [UnitsController::class, 'archive'])->name('admin.units.archive');
-
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/rooms', [UnitsController::class, 'rooms'])->name('rooms'); // <-- change here
-    Route::get('/addroom', function () {
-        return view('admin.addroom');
-    })->name('addroom');
-    Route::post('/units', [UnitsController::class, 'store'])->name('units.store');
-    Route::get('/units/{unit}', [UnitsController::class, 'show'])->name('units.show');
-    Route::put('/units/{unit}', [UnitsController::class, 'update'])->name('units.update');
-});
-
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/units/{id}/edit', [UnitsController::class, 'edit'])->name('units.edit');
-});
-Route::patch('/admin/units/{id}/archive', [UnitsController::class, 'archive'])->name('admin.units.archive');
+Route::get('/units', function () {
+    return view('units');
+})->name('units');
