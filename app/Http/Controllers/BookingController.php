@@ -105,7 +105,7 @@ public function confirm($id)
             $booking->delete();
             
             return response()-> json([
-                'Message' => 'Application Archived Successfully',
+                'Message' => 'Booking Archived Successfully',
                 'data' => $booking
             ]);
     }

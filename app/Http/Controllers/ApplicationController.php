@@ -1,9 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Unit;
+use App\Models\User;
 use App\Models\Tenant;
+use App\Mail\TenantMail;
 use App\Models\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class ApplicationController extends Controller
 {
@@ -94,9 +99,22 @@ public function approve($id)
     $tenant->contract;
     $tenant->save();
 
+    $password = $application->unit->unit_code.$application->last_name;
+
+    $user = new User();
+    $user->email = $tenant->email;
+    $user->name = $tenant->first_name . ' ' . $application->last_name;
+    $user->password = Hash::make($password);
+    $user->role = "tenant";
+    $user->save();
+
+    Mail::to($user->email)->send(new TenantMail($user->email, $password));
+
+
     return response()->json([
         'message' => 'Application approved and tenant created!',
-        'tenant'  => $tenant
+        'tenant'  => $tenant,
+        'user' => $user 
     ]);
 }
 

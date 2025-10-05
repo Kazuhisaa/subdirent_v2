@@ -41,7 +41,23 @@ Route::middleware(['auth:sanctum'])->group(function() {
     Route::post('/addUnits',[UnitsController::class, 'store']);
     Route::get('/findUnits/{id}',[UnitsController::class, 'show']);
     Route::put('/editUnits/{unit}',[UnitsController::class, 'update']);  
-    Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);  
+    Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);
+    
+    
+Route::prefix('applications')->group(function () {
+    Route::get('/find/{id}',[ApplicationController::class,'show']);
+    Route::put('/editApplications/{id}',[ApplicationController::class,'update']);
+    Route::patch('/archive/{id}', [ApplicationController::class, 'archive']);
+    Route::post('/approve/{id}',[ApplicationController::class,'approve']);
+});
+
+
+Route::prefix('bookings')->group(function () {
+    Route::get('/find/{id}', [BookingController::class, 'show']);       // GET /bookings/find/{id}
+    Route::get('/unit/{unit_id}', [BookingController::class, 'showByUnitId']); // GET /bookings/unit/{unit_id}
+    Route::post('/confirm/{id}',[BookingController::class, 'confirm']);
+});
+    
 
 });
 
@@ -49,22 +65,13 @@ Route::middleware(['auth:sanctum'])->group(function() {
 
 
 Route::prefix('bookings')->group(function () {
-    Route::get('/', [BookingController::class, 'index']);               // GET /bookings
-    Route::get('/find/{id}', [BookingController::class, 'show']);       // GET /bookings/find/{id}
-    Route::get('/unit/{unit_id}', [BookingController::class, 'showByUnitId']); // GET /bookings/unit/{unit_id}
     Route::post('/', [BookingController::class, 'store']);              // POST /bookings
     Route::get('/getOccupiedTime/{unit_id}/{date}',[BookingController::class,'showAllOccupiedTime']);
-    Route::post('/confirm/{id}',[BookingController::class, 'confirm']);
 });
     
 
 Route::prefix('applications')->group(function () {
-    Route::get('/',[ApplicationController::class,'index']);
     Route::post('/addApplicants',[ApplicationController::class,'store']);
-    Route::get('/find/{id}',[ApplicationController::class,'show']);
-    Route::put('/editApplications/{id}',[ApplicationController::class,'update']);
-    Route::patch('/archive/{id}', [ApplicationController::class, 'archive']);
-    Route::post('/approve/{id}',[ApplicationController::class,'approve']);
 });
 
 
