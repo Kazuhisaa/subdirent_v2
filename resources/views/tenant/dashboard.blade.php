@@ -1,11 +1,11 @@
-{{-- resources/views/tenant/dashboard.blade.php --}}
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>@yield('title', 'SubdiRent Tenant')</title>
+  <title>@yield('title', 'Tenant Dashboard')</title>
 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   @vite([
       'resources/bootstrap/css/bootstrap.css',
       'resources/css/tenant.css',
@@ -17,94 +17,74 @@
   <div class="d-flex tenant-root">
 
     <!-- SIDEBAR -->
-    <nav id="tenant-sidebar" class="vh-100">
+    <nav id="sidebar" class="vh-100 bg-white border-end">
       <div class="sidebar-brand p-3">
-        <h5 class="mb-0">SubdiRent</h5>
-        <small>TENANT</small>
+        <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i><span>SubdiRent</span></h5>
+        <small><span>TENANT</span></small>
       </div>
 
       <ul class="nav flex-column px-2">
         <li class="nav-item">
-          <a class="nav-link {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}" href="{{ route('tenant.dashboard') }}">
-            Dashboard
+          <a class="nav-link {{ request()->routeIs('tenant.home') ? 'active' : '' }}" href="{{ route('tenant.home') }}">
+            <i class="bi bi-house-door"></i> <span>Dashboard</span>
+          </a>
+        </li>
+
+        <li class="nav-divider mt-3 mb-1 text-uppercase small px-2"><span>My Account</span></li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">
+            <i class="bi bi-file-earmark-text"></i> <span>My Applications</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">My Bookings</a>
+          <a class="nav-link" href="#">
+            <i class="bi bi-calendar-check"></i> <span>My Bookings</span>
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Payments</a>
+          <a class="nav-link" href="#">
+            <i class="bi bi-credit-card"></i> <span>My Payments</span>
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Contracts</a>
+          <a class="nav-link" href="#">
+            <i class="bi bi-tools"></i> <span>Maintenance Requests</span>
+          </a>
         </li>
-
-        <li class="nav-divider mt-3 mb-1 text-uppercase small px-2">Support</li>
-        <li class="nav-item px-2">
-          <a class="nav-link" href="#">Maintenance Requests</a>
-        </li>
-
-        <li class="mt-auto p-3">
-          <a class="nav-link" href="{{ route('logout') }}">Logout</a>
+        <li class="nav-item mt-auto p-3">
+          <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="btn btn-outline-danger w-100">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+          </form>
         </li>
       </ul>
     </nav>
 
     <!-- MAIN CONTENT -->
-    <div class="flex-grow-1 tenant-content">
-      <!-- Topbar -->
-      <header class="tenant-header d-flex justify-content-between align-items-center px-4 py-2">
+    <div class="flex-grow-1 min-vh-100 bg-light">
+      <header class="d-flex justify-content-between align-items-center px-4 py-2 border-bottom bg-white">
         <div>
-          <button id="toggleSidebar" class="btn btn-sm btn-outline-secondary me-2">☰</button>
-          <span class="h6 mb-0">@yield('page-title','Tenant Dashboard')</span>
+          <button id="toggleSidebar" class="btn btn-sm btn-outline-secondary me-2">
+            <i class="bi bi-list"></i>
+          </button>
+          <span class="h6 mb-0">@yield('page-title', 'Dashboard')</span>
         </div>
         <div class="d-flex align-items-center">
-          <div class="me-3">
-            <small class="text-muted">{{ Auth::user()->name ?? 'Tenant' }}</small>
-          </div>
+          <small class="text-muted">Welcome, {{ Auth::user()->name ?? 'Tenant' }}</small>
         </div>
       </header>
 
-      <!-- Page content -->
       <main class="p-4">
-        <div class="row g-3 mb-4">
-          <div class="col-md-3">
-            <div class="tenant-card">
-              <div class="tenant-card-title">Upcoming Payments</div>
-              <h2>₱2,500</h2>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="tenant-card">
-              <div class="tenant-card-title">Active Bookings</div>
-              <h2>1</h2>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="tenant-card">
-              <div class="tenant-card-title">Contracts</div>
-              <h2>2</h2>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="tenant-card">
-              <div class="tenant-card-title">Maintenance Requests</div>
-              <h2>0</h2>
-            </div>
-          </div>
-        </div>
-
-        <div class="tenant-card">
-          <h5>Recent Payments</h5>
-          <p>(Payment history table placeholder)</p>
-        </div>
+        @yield('content')
       </main>
     </div>
   </div>
 
   <script>
-    document.getElementById('toggleSidebar')?.addEventListener('click', function () {
-      document.getElementById('tenant-sidebar').classList.toggle('collapsed');
+    document.getElementById('toggleSidebar')?.addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('collapsed');
     });
   </script>
 </body>

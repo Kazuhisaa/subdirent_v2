@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AdminController;
-
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UnitsController;
 
 Route::get('/admin', [AdminController::class, 'index'])->name('admin.home');
@@ -24,10 +24,8 @@ Route::get('/logout', function () {
     return redirect('/admin')->with('status', 'Logged out (placeholder)');
 })->name('logout');
 
-// Tenant dashboard (protected)
-Route::middleware('auth')->get('/tenant/dashboard', function () {
-    return view('tenant.dashboard');
-})->name('tenant.dashboard');
+// Tenant dashboard
+Route::get('/tenant', [TenantController::class, 'index'])->name('tenant.home');
 
 // Welcome / homepage
 Route::get('/', function () {
