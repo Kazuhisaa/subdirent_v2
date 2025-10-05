@@ -7,6 +7,7 @@ use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\RevenuePredictionController;
+use App\Models\Application;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -61,7 +62,9 @@ Route::prefix('applications')->group(function () {
     Route::get('/',[ApplicationController::class,'index']);
     Route::post('/addApplicants',[ApplicationController::class,'store']);
     Route::get('/find/{id}',[ApplicationController::class,'show']);
-    
+    Route::put('/editApplications/{id}',[ApplicationController::class,'update']);
+    Route::patch('/archive/{id}', [ApplicationController::class, 'archive']);
+    Route::post('/approve/{id}',[ApplicationController::class,'approve']);
 });
 
 

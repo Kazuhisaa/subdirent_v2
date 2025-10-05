@@ -80,7 +80,7 @@ public function confirm($id)
     $booking = Booking::findOrFail($id);
 
     // Update booking status
-    $booking->status = 'confirmed';
+    $booking->status = 'Confirmed';
     $booking->save();
 
     // Create new Application record based on booking data
@@ -91,6 +91,7 @@ public function confirm($id)
     $application->email       = $booking->email;
     $application->contact_num = $booking->contact_num;
     $application->unit_id     = $booking->unit_id;
+    $application->status      = 'Pending';
     $application->save();
 
     return response()->json([
@@ -98,6 +99,24 @@ public function confirm($id)
         'application' => $application
     ]);
 }
+
+ public function archive($id){
+            $booking = Booking::findOrFail($id);
+            $booking->delete();
+            
+            return response()-> json([
+                'Message' => 'Application Archived Successfully',
+                'data' => $booking
+            ]);
+    }
+
+    public function viewArchive(){
+
+        $archived = Booking::onlyTrashed()->get();
+        return response()->json($archived);
+    }
+
+
 
 
 }

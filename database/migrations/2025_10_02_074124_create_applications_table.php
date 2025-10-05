@@ -19,6 +19,7 @@ return new class extends Migration
              $table->string('email', 100);
              $table->string('contact_num', 50);
              $table->foreignId('unit_id')->constrained()->onDelete('cascade');
+             $table->enum('status', ['Pending','Confirmed' , 'Approved', 'Rejected', 'Archived'])->default('Pending');
              $table->timestamps();
              $table->softDeletes();
 

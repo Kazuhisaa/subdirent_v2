@@ -2,31 +2,31 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\Unit;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Application extends Model
+class Tenant extends Model
 {
-    use SoftDeletes;
-  
-    protected $fillable =[
+    use HasFactory, SoftDeletes;
 
+    protected $fillable = [
         'first_name',
         'middle_name',
         'last_name',
         'email',
         'contact_num',
         'unit_id',
-        'status'
+        'downpayment',
+        'monthly_payment',
+        'contract'
     ];
-    
 
-    public function unit(): BelongsTo
+    // Relationship: Tenant belongs to Unit
+    public function unit()
     {
         return $this->belongsTo(Unit::class);
     }
-
-    
 }
+
+

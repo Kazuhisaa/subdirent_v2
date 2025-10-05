@@ -21,7 +21,10 @@ return new class extends Migration
     $table->string('contact_num', 50);
     $table->date('date');
     $table->time('booking_time'); 
+    $table->enum('status', ['Pending', 'Confirmed', 'Archived'])->default('Pending');
     $table->timestamps();
+    $table->softDeletes();
+
 });
 
     }
