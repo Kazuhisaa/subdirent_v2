@@ -1,7 +1,7 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AdminController;
 
 use App\Http\Controllers\UnitsController;
@@ -24,11 +24,46 @@ Route::get('/logout', function () {
     return redirect('/admin')->with('status', 'Logged out (placeholder)');
 })->name('logout');
 
+// Tenant dashboard (protected)
+Route::middleware('auth')->get('/tenant/dashboard', function () {
+    return view('tenant.dashboard');
+})->name('tenant.dashboard');
 
-
+// Welcome / homepage
 Route::get('/', function () {
     return view('welcome');
+})->name('home');
+
+// Generic login form
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+// Generic login submit
+Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+
+// Unified logout (POST is more secure)
+Route::post('/logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect()->route('home');
+})->name('logout');
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/rooms', [UnitsController::class, 'rooms'])->name('rooms'); // <-- change here
+    Route::get('/addroom', function () {
+        return view('admin.addroom');
+    })->name('addroom');
+    Route::post('/units', [UnitsController::class, 'store'])->name('units.store');
+    Route::get('/units/{unit}', [UnitsController::class, 'show'])->name('units.show');
+    Route::put('/units/{unit}', [UnitsController::class, 'update'])->name('units.update');
 });
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/units/{id}/edit', [UnitsController::class, 'edit'])->name('units.edit');
+});
+Route::patch('/admin/units/{id}/archive', [UnitsController::class, 'archive'])->name('admin.units.archive');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/rooms', [UnitsController::class, 'rooms'])->name('rooms'); // <-- change here
