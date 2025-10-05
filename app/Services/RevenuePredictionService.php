@@ -35,8 +35,10 @@ class RevenuePredictionService
             $retrievefeatureData[$length]['prev_month_revenue']
          ];
          
-
-       return   $model->predict($active_contracts);
+    $prediction =  $model->predict($active_contracts);
+    
+  
+       return  $prediction;
 
 
       
