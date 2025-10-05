@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\RevenuePredictionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -35,11 +36,11 @@ Route::middleware(['auth:sanctum'])->group(function() {
         return response()->json(['message'=>'Welcome Admin']);
     });
 
-
     Route::get('/allUnits',[UnitsController::class, 'index']);
     Route::post('/addUnits',[UnitsController::class, 'store']);
     Route::get('/findUnits/{id}',[UnitsController::class, 'show']);
-    Route::put('/editUnits/{unit}',[UnitsController::class, 'update']);    
+    Route::put('/editUnits/{unit}',[UnitsController::class, 'update']);  
+    Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);  
 
 });
 
@@ -63,3 +64,9 @@ Route::prefix('applications')->group(function () {
     
 });
 
+
+
+Route::prefix('prediction')->group(function(){
+    Route::get('/revenue/permonth',[RevenuePredictionController::class,'showPrediction']);
+    Route::post('/revenue/train',[RevenuePredictionController::class,'trainModel']);
+});
