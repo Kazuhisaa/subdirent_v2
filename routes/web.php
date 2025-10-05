@@ -4,10 +4,13 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AdminController;
 
+use App\Http\Controllers\UnitsController;
+
 Route::get('/admin', [AdminController::class, 'index'])->name('admin.home');
 
 // Temporary placeholder routes (so route() calls work)
 Route::view('/admin/rooms', 'admin.rooms')->name('admin.rooms');
+Route::view('/admin/addroom', 'admin.addroom')->name('admin.addroom');
 Route::view('/admin/tenants', 'admin.tenants')->name('admin.tenants');
 Route::view('/admin/bookings', 'admin.bookings')->name('admin.bookings');
 Route::view('/admin/maintenance', 'admin.maintenance')->name('admin.maintenance');
@@ -46,3 +49,33 @@ Route::post('/logout', function () {
     request()->session()->regenerateToken();
     return redirect()->route('home');
 })->name('logout');
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/rooms', [UnitsController::class, 'rooms'])->name('rooms'); // <-- change here
+    Route::get('/addroom', function () {
+        return view('admin.addroom');
+    })->name('addroom');
+    Route::post('/units', [UnitsController::class, 'store'])->name('units.store');
+    Route::get('/units/{unit}', [UnitsController::class, 'show'])->name('units.show');
+    Route::put('/units/{unit}', [UnitsController::class, 'update'])->name('units.update');
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/units/{id}/edit', [UnitsController::class, 'edit'])->name('units.edit');
+});
+Route::patch('/admin/units/{id}/archive', [UnitsController::class, 'archive'])->name('admin.units.archive');
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/rooms', [UnitsController::class, 'rooms'])->name('rooms'); // <-- change here
+    Route::get('/addroom', function () {
+        return view('admin.addroom');
+    })->name('addroom');
+    Route::post('/units', [UnitsController::class, 'store'])->name('units.store');
+    Route::get('/units/{unit}', [UnitsController::class, 'show'])->name('units.show');
+    Route::put('/units/{unit}', [UnitsController::class, 'update'])->name('units.update');
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/units/{id}/edit', [UnitsController::class, 'edit'])->name('units.edit');
+});
+Route::patch('/admin/units/{id}/archive', [UnitsController::class, 'archive'])->name('admin.units.archive');
