@@ -8,6 +8,9 @@ class RevenuePrediction extends Model
 {
     //
 
+    protected $table = 'historical_revenues';
+
+
     protected $fillable = [
      'year',
      'month',

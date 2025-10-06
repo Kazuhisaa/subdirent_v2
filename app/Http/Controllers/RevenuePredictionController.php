@@ -13,13 +13,24 @@ class RevenuePredictionController extends Controller
    public function __construct(RevenuePredictionService $revenuepredictionservice) {
     $this->revenuepredictionservice = $revenuepredictionservice;
   }
-    public function showPrediction(){
+    public function showPredictionMonth(){
       $predict = $this->revenuepredictionservice->predictmonthly();
 
       return response()->json($predict);
     }
 
+     public function showPredictionQuarter(){
+      $predict = $this->revenuepredictionservice->predictQuarterly();
 
+      return response()->json($predict);
+    }
+      
+    public function showPredictionAnnual()
+    {
+       $predict = $this->revenuepredictionservice->predictAnnualy();
+
+      return response()->json($predict);
+    }
 
     public function trainModel(){
       $this->revenuepredictionservice->train();

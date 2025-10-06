@@ -77,6 +77,8 @@ Route::prefix('applications')->group(function () {
 
 
 Route::prefix('prediction')->group(function(){
-    Route::get('/revenue/permonth',[RevenuePredictionController::class,'showPrediction']);
+    Route::get('/revenue/permonth',[RevenuePredictionController::class,'showPredictionMonth']);
+    Route::get('/revenue/perQuarter',[RevenuePredictionController::class,'showPredictionQuarter']);
+    Route::get('/revenue/perAnnual',[RevenuePredictionController::class,'showPredictionAnnual']);
     Route::post('/revenue/train',[RevenuePredictionController::class,'trainModel']);
 });

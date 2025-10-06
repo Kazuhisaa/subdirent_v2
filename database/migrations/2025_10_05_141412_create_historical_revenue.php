@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('revenue_predictions', function (Blueprint $table) {
+       Schema::create('historical_revenues', function (Blueprint $table) {
     $table->id();
     $table->year('year');                     
     $table->unsignedTinyInteger('month');     
@@ -21,6 +21,7 @@ return new class extends Migration
     $table->decimal('installment_amount', 12, 2); 
     $table->decimal('prev_month_revenue', 15, 2);
     $table->decimal('monthly_revenue', 15, 2);
+    $table->date('year_month');
     $table->timestamps();
 });
 
