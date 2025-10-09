@@ -194,7 +194,7 @@
       </div>
 
       <div class="d-flex align-items-center gap-3">
-        <a href="#" class="text-dark fw-semibold text-uppercase small text-decoration-none">Sign In</a>
+        <a href="#" class="text-dark fw-semibold text-uppercase small text-decoration-none">Log In</a>
         <a href="#" class="btn btn-primary fw-semibold px-3 rounded-pill">Get Started</a>
       </div>
     </div>
@@ -286,12 +286,37 @@
     </div>
   </section>
 
-  <!-- ⚪ FOOTER -->
-  <footer>
-    <div class="container text-center small text-muted">
-      © 2025 Subdirent. All rights reserved.
+<!-- 👇 FOOTER with ID for scroll target -->
+<footer id="contact" class="py-5 border-top">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-md-3">
+        <div class="d-flex align-items-center mb-2">
+          <div class="logo-circle me-2"></div>
+          <span class="fw-bold fs-5">Subdirent</span>
+        </div>
+        <p class="small text-muted">Subdirent is a property management platform designed to make renting easier for tenants and property owners.</p>
+      </div>
+      <div class="col-md-3">
+        <h6 class="fw-bold mb-2">Our Location</h6>
+        <p class="small text-muted mb-1">Pueblo de Oro Development Corporation<br>17th Floor Robinsons Summit Center,<br>6783 Ayala Avenue, Makati City 1226,<br>Philippines</p>
+      </div>
+      <div class="col-md-3">
+        <h6 class="fw-bold mb-2">About Us</h6>
+        <p class="small text-muted">We simplify tenant management, unit booking, and payments all in one place.</p>
+      </div>
+      <div class="col-md-3">
+        <h6 class="fw-bold mb-2">Contact Us</h6>
+        <p class="small mb-1"><strong>Head Office:</strong> +63 (2) 8790-2200</p>
+        <p class="small"><strong>Cebu:</strong> +63 (32) 888-6146</p>
+      </div>
     </div>
-  </footer>
+    <div class="d-flex justify-content-between pt-4 mt-4 border-top small text-muted">
+      <p class="mb-0">© 2025 Subdirent. All rights reserved.</p>
+      <p class="mb-0"><a href="#" class="text-muted text-decoration-none me-3">Terms</a> <a href="#" class="text-muted text-decoration-none">Privacy</a></p>
+    </div>
+  </div>
+</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
