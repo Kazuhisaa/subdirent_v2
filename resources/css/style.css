@@ -1,0 +1,84 @@
+/* ============================= */
+/* 🏡 UNITS PAGE STYLES          */
+/* ============================= */
+
+.section-header h2 {
+  font-weight: 800;
+  color: var(--blue-900);
+}
+
+.section-header p {
+  color: var(--blue-700);
+  font-size: 1rem;
+}
+
+/* 🧱 Unit Cards */
+.unit-card {
+  border: none;
+  border-radius: 18px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.unit-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+.unit-img {
+  height: 210px;
+  object-fit: cover;
+}
+
+.card-title {
+  color: var(--blue-800);
+  font-weight: 700;
+}
+
+.price {
+  color: var(--blue-600);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.badge-status {
+  background-color: var(--blue-200);
+  color: var(--blue-800);
+  font-weight: 600;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.9rem;
+}
+
+/* Buttons (reusable from homepage palette) */
+.btn-outline-primary {
+  border-color: var(--blue-600);
+  color: var(--blue-600);
+  font-weight: 600;
+  border-radius: 30px;
+  transition: 0.3s;
+}
+
+.btn-outline-primary:hover {
+  background: var(--gradient-diagonal);
+  color: #fff;
+  border: none;
+}
+
+.view-all {
+  border-radius: 30px;
+  padding: 0.55rem 1.3rem;
+  font-weight: 600;
+  border-color: var(--blue-600);
+  color: var(--blue-600);
+  background-color: #fff;
+  transition: 0.3s;
+}
+
+.view-all:hover {
+  background: var(--gradient-diagonal);
+  color: #fff;
+  border: none;
+}

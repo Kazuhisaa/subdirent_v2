@@ -7,6 +7,7 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   
 </head>
   <style>
@@ -88,6 +89,9 @@
   </style>
 
 <body>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  @include('partials.login-modal')
   @include('partials.navbar')
 
   <main>
@@ -123,5 +127,13 @@
       }, 5000); // <-- Ito ang nagpapa-auto-slide tuwing 5 segundo (5000 milliseconds)
     }
   </script>
+@if ($errors->any())
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+      loginModal.show();
+    });
+  </script>
+  @endif
 </body>
 </html>

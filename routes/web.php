@@ -35,13 +35,7 @@ Route::get('/welcome', function () {
     return view('welcome');
 })->name('home');
 
-Route::get('/units', function () {
-    return view('units');
-})->name('units');
-
-
-Route::get('/admin/login', [AuthController::class, 'showLoginForm'])
-    ->name('admin.login.form');
+Route::get('/units', [UnitsController::class, 'publicUnits'])->name('units');
 
 Route::post('/admin/login', [AuthController::class, 'login'])
     ->name('admin.login');
