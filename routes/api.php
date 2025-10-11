@@ -58,3 +58,4 @@ Route::prefix('applications')->group(function () {
      Route::get('/find/{id}',[ApplicationController::class,'show']);
 });
 
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

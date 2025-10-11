@@ -1,7 +1,8 @@
-<nav class="navbar navbar-expand-lg py-3 shadow-sm">
+<nav class="navbar navbar-expand-lg py-3 shadow-sm bg-white">
   <div class="container d-flex align-items-center justify-content-between">
-    <a class="navbar-brand d-flex align-items-center me-4" href="#">
-      <div class="temp-logo me-2"></div>
+    <a class="navbar-brand d-flex align-items-center me-4" href="{{ route('home') }}">
+      <div class="temp-logo me-2" style="width:34px;height:34px;border-radius:50%;background-color:#0A2540;"></div>
+      <span class="fw-bold">SubdiRent</span>
     </a>
 
     <div class="d-none d-lg-flex align-items-center flex-grow-1">
@@ -13,22 +14,8 @@
     </div>
 
     <div class="d-flex align-items-center gap-3">
-      @guest
-        <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="btn btn-link text-decoration-none">
-          Login
-        </a>
-      @endguest
-
-      @include('admin.login')
-
-      <a href="#" class="btn btn-primary fw-semibold px-3 rounded-pill">Get Started</a>
-
-      @auth
-        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-          @csrf
-          <button type="submit" class="btn btn-link text-decoration-none">Logout</button>
-        </form>
-      @endauth
+      <a href="{{ route('login') }}" class="text-dark fw-semibold text-uppercase small text-decoration-none">Sign In</a>
+      <a href="#" class="btn btn-primary fw-semibold px-3 rounded-pill">LOG IN</a>
     </div>
   </div>
 </nav>
