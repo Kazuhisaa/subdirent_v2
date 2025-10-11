@@ -11,22 +11,23 @@ class Application extends Model
 {
     use SoftDeletes;
   
-    protected $fillable =[
-
+    protected $fillable = [
         'first_name',
         'middle_name',
         'last_name',
         'email',
         'contact_num',
         'unit_id',
-        'status'
+        'status',
+        'downpayment',
+        'monthly_payment',
+        'unit_price',
+        'payment_due_date',
+        'remarks'
     ];
-    
 
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class);
     }
-
-    
 }
