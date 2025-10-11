@@ -155,5 +155,14 @@ class UnitsController extends Controller
         return redirect()->route('admin.rooms')->with('success', 'Unit archived successfully.');
     }
 
+        public function unarchive($id)
+    {
+        $unit = Unit::findOrFail($id);
+        $unit->status = 'available';
+        $unit->save();
+
+        return redirect()->route('admin.rooms')->with('success', 'Unit unarchived successfully!');
+    }
+
 }
 

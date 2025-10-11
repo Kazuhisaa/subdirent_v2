@@ -59,5 +59,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/{id}/edit', 'edit')->name('edit');
         Route::put('/{unit}', 'update')->name('update');
         Route::post('/{id}/archive', 'archive')->name('archive');
+        Route::post('/{id}/unarchive', 'unarchive')->name('unarchive');
     });
 });
