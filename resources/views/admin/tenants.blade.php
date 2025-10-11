@@ -6,52 +6,78 @@
 
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-blue-900">Tenant Management</h2>
-        <button class="btn btn-action fw-bold">+ Add Tenant</button>
+        <div>
+            <h2 class="fw-bold mb-1 text-blue-900">Tenant Management</h2>
+            <p class="text-muted small mb-0">View and manage all registered tenants in your system.</p>
+        </div>
+        <button class="btn btn-primary px-4 py-2 fw-semibold shadow-sm rounded-pill">
+            <i class="bi bi-plus-lg me-1"></i> Add Tenant
+        </button>
     </div>
 
     {{-- Tenant Table Card --}}
-    <div class="card shadow-sm border-0">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table align-middle tenant-table mb-0">
-                    <thead class="text-blue-900" style="background-color: var(--blue-200);">
+                <table class="table align-middle mb-0 tenant-table">
+                    <thead style="background: linear-gradient(90deg, #f8fafc, #eef2ff);" class="small text-uppercase text-secondary">
                         <tr>
-                            <th class="text-center">ID</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Username</th>
-                            <th>Contact</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th class="fw-semibold py-3 ps-4">Full Name</th>
+                            <th class="fw-semibold">Email</th>
+                            <th class="fw-semibold">Room</th>
+                            <th class="fw-semibold text-center">Status</th>
+                            <th class="text-end fw-semibold pe-4">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {{-- Example Row 1 --}}
                         <tr>
-                            <td class="text-center">1</td>
-                            <td class="fw-semibold">John Doe</td>
+                            <td class="fw-semibold ps-4">John Doe</td>
                             <td>johndoe@example.com</td>
-                            <td>john_doe</td>
-                            <td>09123456789</td>
-                            <td>
-                                <span class="badge bg-blue-500 text-blue-900">Active</span>
+                            <td>Room A1</td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">Active</span>
                             </td>
-                            <td class="d-flex gap-2">
-                                <button class="btn btn-sm btn-action">Edit</button>
-                                <button class="btn btn-sm btn-outline-blue fw-semibold">Archive</button>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-light border-0 text-primary me-2" title="Edit">
+                                    <i class="bi bi-pencil-square fs-5"></i>
+                                </button>
+                                <button class="btn btn-sm btn-light border-0 text-danger" title="Archive">
+                                    <i class="bi bi-archive fs-5"></i>
+                                </button>
                             </td>
                         </tr>
-                        <tr>
-                            <td class="text-center">2</td>
-                            <td class="fw-semibold">Jane Smith</td>
+
+                        {{-- Example Row 2 --}}
+                        <tr class="archived-row">
+                            <td class="fw-semibold ps-4">Jane Smith</td>
                             <td>janesmith@example.com</td>
-                            <td>jane_smith</td>
-                            <td>09987654321</td>
-                            <td>
-                                <span class="badge bg-blue-300 text-blue-900">Archived</span>
+                            <td>Room B2</td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2">Archived</span>
                             </td>
-                            <td class="d-flex gap-2">
-                                <button class="btn btn-sm btn-action">Edit</button>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-light border-0 text-primary" title="Edit">
+                                    <i class="bi bi-pencil-square fs-5"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        {{-- Example Row 3 --}}
+                        <tr>
+                            <td class="fw-semibold ps-4">Mark Anderson</td>
+                            <td>markanderson@example.com</td>
+                            <td>Room C1</td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">Active</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-light border-0 text-primary me-2" title="Edit">
+                                    <i class="bi bi-pencil-square fs-5"></i>
+                                </button>
+                                <button class="btn btn-sm btn-light border-0 text-danger" title="Archive">
+                                    <i class="bi bi-archive fs-5"></i>
+                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -59,29 +85,62 @@
             </div>
         </div>
     </div>
-
 </div>
 
-{{-- Optional CSS for hover and styling --}}
 <style>
+    .tenant-table th {
+        letter-spacing: 0.04rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .tenant-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease-in-out;
+    }
+
     .tenant-table tbody tr:hover {
-        background-color: var(--blue-100);
-        transition: background 0.2s ease;
+        background-color: #f9fafb;
+        transform: scale(1.002);
     }
 
-    .tenant-table th, .tenant-table td {
+    .tenant-table td {
         vertical-align: middle;
+        color: #1e293b;
     }
 
-    .btn-outline-blue {
-        border-color: var(--blue-400);
-        color: var(--blue-700);
-        transition: all 0.2s ease;
+    .archived-row td {
+        opacity: 0.6;
     }
-    .btn-outline-blue:hover {
-        background-color: var(--blue-500);
-        color: #fff;
-        border-color: var(--blue-500);
+
+    .btn-light {
+        border-radius: 10px;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .btn-light:hover {
+        background-color: #e8f0fe;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .card {
+        background: #ffffff;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #3b82f6, #2563eb);
+        border: none;
+        color: white;
+        transition: 0.2s ease-in-out;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(90deg, #2563eb, #1d4ed8);
+        transform: scale(1.03);
     }
 </style>
 @endsection

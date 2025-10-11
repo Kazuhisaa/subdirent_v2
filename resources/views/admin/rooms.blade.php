@@ -1,94 +1,137 @@
-{{-- resources/views/admin/rooms.blade.php --}}
 @extends('admin.dashboard')
 
 @section('content')
 <div class="container-fluid py-4">
 
-    {{-- Success Message --}}
+    {{-- ✅ Success Message --}}
     @if(session('success'))
-        <div class="alert alert-success theme-alert">
+        <div class="alert alert-success theme-alert shadow-sm">
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- Page Title --}}
+    {{-- ✅ Page Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-blue-900">Room Listings</h2>
-        <a href="{{ route('admin.addroom') }}" class="btn btn-action">+ Add Room</a>
+        <h2 class="fw-bold text-blue-900 mb-0">🏠 Room Listings</h2>
+        <a href="{{ route('admin.addroom') }}" class="btn btn-action fw-bold px-4 rounded-pill">
+            + Add Room
+        </a>
     </div>
 
-    <div class="row">
+    {{-- ✅ Rooms Grid --}}
+    <div class="row g-4">
         @forelse($units as $unit)
-            <div class="col-md-4 mb-4">
-                <div class="card room-card shadow-sm">
+            @php
+                $isArchived = strtolower($unit->status) === 'archived';
+
+                $badgeClass = match(strtolower($unit->status)) {
+                    'available' => 'bg-blue-500 text-white',
+                    'archived'  => 'bg-secondary text-white',
+                    'rented'    => 'bg-blue-200 text-blue-900',
+                    default     => 'bg-blue-200 text-blue-800',
+                };
+
+                // Decode JSON safely
+                $files = is_array($unit->files)
+                    ? $unit->files
+                    : (json_decode($unit->files, true) ?? []);
+
+                // Image path handling
+                $imagePath = (!empty($files) && isset($files[0]))
+                    ? asset('uploads/units/' . basename($files[0]))
+                    : asset('images/no-image.png');
+            @endphp
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 room-card {{ $isArchived ? 'archived-card' : '' }}">
+
+                    {{-- ✅ Image --}}
+                    <div class="position-relative" style="height: 200px; background: #f5f9ff; cursor: pointer;">
+                        <img src="{{ $imagePath }}"
+                             alt="{{ $unit->title }}"
+                             class="w-100 h-100 object-fit-cover {{ empty($files) ? 'opacity-75' : '' }}"
+                             data-bs-toggle="modal"
+                             data-bs-target="#imageModal{{ $unit->id }}">
+                        <span class="badge position-absolute top-2 end-2 px-3 py-2 {{ $badgeClass }}">
+                            {{ ucfirst($unit->status) }}
+                        </span>
+                    </div>
+
+                    {{-- ✅ Details --}}
                     <div class="card-body">
-                        <h6 class="fw-bold text-uppercase text-blue-700">
-                            {{ $unit->location ?? 'PHASE' }}
-                        </h6>
-                        <h5 class="mb-2 text-blue-900">{{ $unit->title }}</h5>
+                        <h5 class="fw-bold text-blue-900 mb-1">{{ $unit->title }}</h5>
+                        <p class="text-blue-700 small mb-2">
+                            <i class="bi bi-geo-alt-fill"></i> {{ $unit->location }}
+                        </p>
 
-                        {{-- Status Badge --}}
-                        @php
-                            $badgeClass = match($unit->status) {
-                                'Available' => 'bg-blue-500 text-white',
-                                'Archived'  => 'bg-blue-300 text-blue-900',
-                                default     => 'bg-blue-200 text-blue-800'
-                            };
-                        @endphp
-                        <span class="badge {{ $badgeClass }}">{{ $unit->status }}</span>
-
-                        {{-- Property Details --}}
-                        <div class="mt-3 text-blue-800 small">
-                            <p><strong>Property:</strong> {{ $unit->unit_code }}</p>
-                            <p><strong>Floor Area:</strong> {{ $unit->floor_area }} sqm</p>
-                            <p><strong>Bedroom:</strong> {{ $unit->bedroom }}</p>
-                            <p><strong>Bathroom:</strong> {{ $unit->bathroom }}</p>
-                            <p><strong>Rent:</strong> ₱{{ number_format((float) $unit->monthly_rent, 2) }}</p>
-                            <p><strong>Price:</strong> ₱{{ number_format((float) $unit->unit_price, 2) }}</p>
+                        <div class="small text-blue-800 lh-sm mb-3">
+                            <p class="mb-1"><strong>Code:</strong> {{ $unit->unit_code }}</p>
+                            <p class="mb-1"><strong>Floor Area:</strong> {{ $unit->floor_area ?? 'N/A' }} sqm</p>
+                            <p class="mb-1"><strong>Bedroom:</strong> {{ $unit->bedroom ?? 'N/A' }}</p>
+                            <p class="mb-1"><strong>Bathroom:</strong> {{ $unit->bathroom ?? 'N/A' }}</p>
                         </div>
 
-                        {{-- Unit Images --}}
-                        @if($unit->files && is_array($unit->files))
-                            <div class="mt-3 room-images">
-                                @foreach($unit->files as $file)
-                                    <img src="{{ asset($file) }}" alt="unit image" class="img-fluid rounded mb-2 border border-blue-200">
-                                @endforeach
-                            </div>
-                        @endif
-
-                        {{-- Actions --}}
-                        <div class="mt-3 d-flex gap-2">
-                            <a href="{{ route('admin.units.edit', $unit->id) }}" class="btn btn-sm btn-action">Edit</a>
-
-                            @if($unit->status !== 'Archived')
-                                <form method="POST" action="{{ route('admin.units.archive', $unit->id) }}" onsubmit="return confirm('Archive this unit?');">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit" class="btn btn-sm btn-outline-blue">Archive</button>
-                                </form>
-                            @endif
+                        <div class="border-top pt-2">
+                            <p class="fw-bold text-blue-900 mb-1">
+                                Rent: ₱{{ number_format((float) str_replace(',', '', $unit->monthly_rent), 2, '.', ',') }}
+                            </p>
+                            <p class="fw-semibold text-blue-800 mb-0">
+                                Price: ₱{{ number_format((float) str_replace(',', '', $unit->unit_price), 2, '.', ',') }}
+                            </p>
                         </div>
 
-                        {{-- Status Display --}}
-                        <div class="mt-3">
-                            @if($unit->status === 'Available')
-                                <span class="badge bg-blue-500 text-white">Available for Rent</span>
-                            @elseif($unit->status === 'Archived')
-                                <span class="badge bg-blue-300 text-blue-900">Archived</span>
-                            @else
-                                <span class="badge bg-blue-200 text-blue-800">{{ $unit->status }}</span>
-                            @endif
+                        {{-- ✅ Actions --}}
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <a href="{{ route('admin.units.edit', $unit->id) }}" 
+                               class="btn btn-sm btn-action rounded-pill px-3">
+                                Edit
+                            </a>
+
+                            {{-- Archive / Unarchive Button --}}
+                            <form method="POST" 
+                                  action="{{ $isArchived ? route('admin.units.unarchive', $unit->id) : route('admin.units.archive', $unit->id) }}" 
+                                  onsubmit="return confirm('{{ $isArchived ? 'Unarchive this unit?' : 'Archive this unit?' }}');">
+                                @csrf
+                                <button type="submit" 
+                                        class="btn btn-sm {{ $isArchived ? 'btn-outline-success' : 'btn-outline-blue' }} rounded-pill px-3">
+                                    {{ $isArchived ? 'Unarchive' : 'Archive' }}
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-        @empty
-            <div class="col-12">
-                <div class="alert alert-info theme-alert">
-                    No rooms found.
+
+            {{-- ✅ Image Modal --}}
+            @if(!empty($files) && isset($files[0]))
+                <div class="modal fade" id="imageModal{{ $unit->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content border-0 bg-transparent">
+                            <div class="modal-body p-0">
+                                <img src="{{ asset('uploads/units/' . basename($files[0])) }}" 
+                                     class="w-100 rounded" 
+                                     alt="{{ $unit->title }}">
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            @endif
+
+        @empty
+            {{-- ✅ Empty State --}}
+            <div class="col-12 text-center py-5">
+                <img src="{{ asset('images/empty-state.svg') }}" alt="No data" width="120" class="mb-3">
+                <h6 class="text-blue-800">No rooms found.</h6>
             </div>
         @endforelse
     </div>
 </div>
+
+
+<style>
+    .archived-card {
+        filter: grayscale(100%) brightness(0.8);
+        opacity: 0.8;
+    }
+</style>
 @endsection

@@ -163,5 +163,14 @@ class UnitsController extends Controller
     return view('units', compact('units'));
 }
 
+        public function unarchive($id)
+    {
+        $unit = Unit::findOrFail($id);
+        $unit->status = 'available';
+        $unit->save();
+
+        return redirect()->route('admin.rooms')->with('success', 'Unit unarchived successfully!');
+    }
+
 }
 
