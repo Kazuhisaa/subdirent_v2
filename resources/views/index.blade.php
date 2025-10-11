@@ -1,8 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'SubdiRent | Automated Parking')
+@section('title', 'SubdiRent')
 
 @section('content')
+
 <section class="hero d-flex justify-content-between align-items-center py-5" style="padding:100px 10%;min-height:80vh;">
   <div class="hero-text" style="max-width:520px;">
     <h1 class="fw-bold display-5 text-dark">SubdiRent</h1>

@@ -7,7 +7,8 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
+  
+</head>
   <style>
     :root {
       --blue-900: #0A2540;
@@ -46,8 +47,45 @@
       text-decoration: none;
     }
     footer a:hover { color: var(--blue-500); }
+        /* I-dagdag ang code na ito para sa Slider */
+    .slider img {
+        position: absolute; /* I-overlay ang lahat ng images */
+        top: 0;
+        left: 0;
+        opacity: 0; /* Itago ang lahat by default */
+        transition: opacity 1.5s ease-in-out; /* Maganda at malambot na transition */
+    }
+
+    .slider img.active {
+        opacity: 1; /* Ipakita lang ang image na may active class */
+        z-index: 10;
+    }
+
+    .slider-btn {
+        z-index: 20; /* Ilagay sa ibabaw ng images ang buttons */
+        opacity: 0.8;
+        transition: opacity 0.3s;
+    }
+    .slider-btn:hover {
+        opacity: 1;
+    }
+    @keyframes fadeInSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px); /* Magsisimula 20px sa ibaba */
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0); /* Aakyat sa orihinal na posisyon */
+        }
+    }
+
+    /* I-apply ang animation sa pangunahing content area */
+    main {
+        animation: fadeInSlideUp 1s ease-out forwards; /* 1 segundo ang tagal, smooth, at mananatili sa dulo (forwards) */
+        opacity: 0; /* Itago muna ang main content habang naglo-load ang page */
+    }
   </style>
-</head>
 
 <body>
   @include('partials.navbar')
@@ -80,10 +118,10 @@
         showSlide(index);
       });
       setInterval(() => {
-        index = (index + 1) % slides.length;
-        showSlide(index);
-      }, 5000);
-    }
+      index = (index + 1) % slides.length;
+      showSlide(index);
+      }, 5000); // <-- Ito ang nagpapa-auto-slide tuwing 5 segundo (5000 milliseconds)
+    }
   </script>
 </body>
 </html>
