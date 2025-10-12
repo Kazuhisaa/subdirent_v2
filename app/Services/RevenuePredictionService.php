@@ -36,8 +36,7 @@ class RevenuePredictionService
             $next_month,
             $retrievefeatureData[$length]['active_contracts'],
             $retrievefeatureData[$length]['new_contracts'],
-            $retrievefeatureData[$length]['default_rate'],
-            $retrievefeatureData[$length]['installment_amount'],
+            $retrievefeatureData[$length]['expired_contracts'],
             $retrievefeatureData[$length]['prev_month_revenue']
          ];
 
@@ -67,8 +66,7 @@ class RevenuePredictionService
             $next_month,
             $retrievefeatureData[$length]['active_contracts'],
             $retrievefeatureData[$length]['new_contracts'],
-            $retrievefeatureData[$length]['default_rate'],
-            $retrievefeatureData[$length]['installment_amount'],
+               $retrievefeatureData[$length]['expired_contracts'],
             $retrievefeatureData[$length]['prev_month_revenue']
          ];
 
@@ -97,8 +95,7 @@ class RevenuePredictionService
             $retrievefeatureData[$length]['month'],
             $retrievefeatureData[$length]['active_contracts'],
             $retrievefeatureData[$length]['new_contracts'],
-            $retrievefeatureData[$length]['default_rate'],
-            $retrievefeatureData[$length]['installment_amount'],
+            $dataset[$length]['expired_contracts'],
             $retrievefeatureData[$length]['prev_month_revenue']
          ];
 
@@ -127,8 +124,7 @@ class RevenuePredictionService
               $dataset[$i]['month'],
               $dataset[$i]['active_contracts'],
               $dataset[$i]['new_contracts'],
-              $dataset[$i]['default_rate'],
-              $dataset[$i]['installment_amount'],
+              $dataset[$i]['expired_contracts'],
               $dataset[$i]['prev_month_revenue']             
             ];
             

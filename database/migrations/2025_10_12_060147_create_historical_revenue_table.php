@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -17,8 +18,7 @@ return new class extends Migration
     $table->unsignedTinyInteger('month');     
     $table->unsignedSmallInteger('active_contracts');  
     $table->unsignedSmallInteger('new_contracts')->nullable(); 
-    $table->decimal('default_rate', 5, 2);     
-    $table->decimal('installment_amount', 12, 2); 
+        $table->unsignedSmallInteger('expired_contracts')->nullable(); 
     $table->decimal('prev_month_revenue', 15, 2);
     $table->decimal('monthly_revenue', 15, 2);
     $table->date('year_month');

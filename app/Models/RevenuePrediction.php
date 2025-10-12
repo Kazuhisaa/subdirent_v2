@@ -16,8 +16,7 @@ class RevenuePrediction extends Model
      'month',
      'active_contracts',
      'new_contracts',
-     'default_rate',
-     'installment_amount',
+     'expired_contracts',
      'prev_month_revenue',
      'monthly_revenue'
     ];
