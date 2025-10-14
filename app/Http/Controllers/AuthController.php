@@ -2,70 +2,68 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    /**
+     * Show the login form
+     */
     public function showLoginForm()
-{
-    return view('admin.login'); // tiyakin na may login.blade.php ka sa resources/views/admin/
-}
+    {
+        return view('admin.login'); // your shared login form
+    }
+
+    /**
+     * Handle login for both Admin and Tenant
+     */
     public function login(Request $request)
-{
-    $credentials = $request->only('email', 'password');
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-    if (Auth::attempt($credentials)) {
-        $user = Auth::user();
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
 
-        if ($user->role === 'tenant') {
-            return redirect()->route('tenant.dashboard');
-        } elseif ($user->role === 'admin') {
-            return redirect()->route('admin.home');
+            $user = Auth::user();
+
+            // ✅ Admin Login: Create Sanctum token for API
+            if ($user->role === 'admin') {
+                // Create token with 'admin' ability
+                $token = $user->createToken('admin-token', ['admin'])->plainTextToken;
+
+                // Store in session for JS access
+                session(['admin_api_token' => $token]);
+
+                return redirect()->route('admin.home')->with('status', 'Welcome, Admin!');
+            }
+
+            // ✅ Tenant Login: Redirect to tenant dashboard
+            if ($user->role === 'tenant') {
+                return redirect()->route('tenant.dashboard')->with('status', 'Welcome, Tenant!');
+            }
+
+            // 🚫 If neither role
+            Auth::logout();
+            return back()->withErrors(['email' => 'Unauthorized role.']);
         }
 
+        return back()->withErrors(['email' => 'Invalid credentials.']);
+    }
+
+    /**
+     * Logout for both web + API users
+     */
+    public function logout(Request $request)
+    {
+    
         Auth::logout();
-        return back()->withErrors(['email' => 'Unauthorized role.']);
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home')->with('status', 'Logged out successfully.');
     }
-
-    return back()->withErrors(['email' => 'Invalid credentials.']);
-}
-
-
-   public function logout(Request $request)
-{
-    $accessToken = $request->bearerToken();
-
-    if ($accessToken) {
-        $request->user()->tokens()
-            ->where('token', hash('sha256', $accessToken))
-            ->delete();
-    }
-
-    return response()->json([
-        'message' => 'Logged out successfully'
-    ]);
-}
-
-    public function tenantLogin(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
-
-    if (Auth::attempt($request->only('email', 'password'))) {
-        $request->session()->regenerate();
-
-        return redirect()->intended('/tenant/dashboard');
-    }
-
-    return back()->withErrors([
-        'email' => 'Invalid credentials provided.',
-    ]);
-}
-
-
 }

@@ -1,7 +1,7 @@
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <form action="{{ route('admin.login') }}" method="POST">
+        <form action="{{ route('login.submit') }}" method="POST">
         @csrf
         <div class="modal-header">
           <h5 class="modal-title" id="loginModalLabel">Login</h5>

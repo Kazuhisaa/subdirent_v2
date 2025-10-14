@@ -19,6 +19,7 @@ class Unit extends Model
         'floor_area',
         'monthly_rent',
         'unit_price',
+        'contract_years',
         'status',
         'files',
     ];

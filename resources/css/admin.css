@@ -90,6 +90,7 @@
   transition: background 0.2s ease;
 }
 
+
 /* Booking Cards */
 .booking-card {
   background-color: #fff;
@@ -266,3 +267,4 @@ header .h6 {
     transform: translateX(0);
   }
 }
+

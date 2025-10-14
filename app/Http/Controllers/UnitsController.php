@@ -7,56 +7,52 @@ use Illuminate\Http\Request;
 
 class UnitsController extends Controller
 {
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'location' => 'required|string',
-            'unit_code' => 'required|string',
-            'description' => 'required|string|max:10000',
-            'floor_area' => 'nullable|integer|min:0',
-            'bathroom' => 'nullable|integer|min:0',
-            'bedroom' => 'nullable|integer|min:0',
-            'monthly_rent' => 'required|numeric|min:0',
-            'unit_price' => 'required|numeric|min:0',
-            'status' => 'nullable|string',
-            'files.*' => 'nullable|file|mimes:jpeg,jpg,pdf|max:2048'
-        ]);
+            public function store(Request $request)
+            {
+                $request->validate([
+                    'title' => 'required|string|max:255',
+                    'location' => 'required|string',
+                    'unit_code' => 'required|string|unique:units,unit_code',
+                    'description' => 'required|string|max:10000',
+                    'floor_area' => 'nullable|integer|min:0',
+                    'bathroom' => 'nullable|integer|min:0',
+                    'bedroom' => 'nullable|integer|min:0',
+                    'monthly_rent' => 'required|numeric|min:0',
+                    'unit_price' => 'required|numeric|min:0',
+                    'status' => 'nullable|in:available,rented',
+                    'contract_years' => 'required|integer|min:1',
+                    'files.*' => 'nullable|file|mimes:jpeg,jpg,pdf|max:2048'
+                ]);
 
-        // Ensure upload directory exists
-        $uploadPath = public_path('uploads/units');
-        if (!file_exists($uploadPath)) {
-            mkdir($uploadPath, 0777, true);
-        }
+                $uploadPath = public_path('uploads/units');
+                if (!file_exists($uploadPath)) mkdir($uploadPath, 0777, true);
 
-        $uploadedFiles = [];
+                $uploadedFiles = [];
+                if ($request->hasFile('files')) {
+                    foreach ($request->file('files') as $file) {
+                        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $file->move($uploadPath, $filename);
+                        $uploadedFiles[] = 'uploads/units/' . $filename;
+                    }
+                }
 
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->move($uploadPath, $filename);
-                $uploadedFiles[] = 'uploads/units/' . $filename; // relative path
+                $unit = Unit::create([
+                    'title' => strip_tags($request->title),
+                    'location' => strip_tags($request->location),
+                    'unit_code' => strip_tags($request->unit_code),
+                    'description' => strip_tags($request->description),
+                    'floor_area' => $request->floor_area,
+                    'bathroom' => $request->bathroom,
+                    'bedroom' => $request->bedroom,
+                    'monthly_rent' => $request->monthly_rent,
+                    'unit_price' => $request->unit_price,
+                    'status' => strtolower($request->status ?? 'available'),
+                    'contract_years' => $request->contract_years,
+                    'files' => $uploadedFiles,
+                ]);
+
+                return redirect()->route('admin.addroom')->with('success', 'Unit Created Successfully!');
             }
-        }
-
-        $unit = Unit::create([
-            'title' => strip_tags($request->title),
-            'location' => strip_tags($request->location),
-            'unit_code' => strip_tags($request->unit_code),
-            'description' => strip_tags($request->description),
-            'floor_area' => $request->floor_area,
-            'bathroom' => $request->bathroom,
-            'bedroom' => $request->bedroom,
-            'monthly_rent' => $request->monthly_rent,
-            'unit_price' => $request->unit_price,
-            'status' => $request->status ?? 'Available',
-            'files' => $uploadedFiles, // ✅ stored as JSON in DB
-        ]);
-
-        return redirect()
-            ->route('admin.addroom')
-            ->with('success', 'Unit Created Successfully!');
-    }
 
     public function index()
     {

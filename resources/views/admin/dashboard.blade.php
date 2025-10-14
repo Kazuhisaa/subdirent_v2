@@ -4,6 +4,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="admin-api-token" content="{{ session('admin_api_token') }}">
+  @if(session('admin_api_token'))
+  <meta name="api-token" content="{{ session('admin_api_token') }}">
+  @endif
+
   <title>@yield('title', 'SubdiRent Admin')</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   @vite([

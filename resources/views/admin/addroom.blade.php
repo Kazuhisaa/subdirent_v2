@@ -57,37 +57,43 @@
                     <div class="col-md-3">
                         <label class="form-label fw-semibold text-dark">Monthly Rent (₱)</label>
                         <input type="number" step="0.01" name="monthly_rent" class="form-control border-primary shadow-sm" 
-                               placeholder="e.g. 8000.00" required>
+                               placeholder="e.g. 8000.00">
                     </div>
 
                     <div class="col-md-3">
                         <label class="form-label fw-semibold text-dark">Unit Price (₱)</label>
                         <input type="number" step="0.01" name="unit_price" class="form-control border-primary shadow-sm" 
-                               placeholder="e.g. 450000.00" required>
+                               placeholder="e.g. 450000.00">
                     </div>
 
                     <div class="col-md-3">
-                        <label class="form-label fw-semibold text-dark">Status</label>
-                        <select name="status" class="form-select border-primary shadow-sm">
-                            <option value="Vacant" selected>Vacant</option>
-                            <option value="Occupied">Occupied</option>
-                        </select>
+                        <label class="form-label fw-semibold text-dark">Contract Years</label>
+                        <input type="number" name="contract_years" class="form-control border-primary shadow-sm" min="1" value="12">
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-semibold text-dark">Description</label>
-                    <textarea name="description" class="form-control border-primary shadow-sm" rows="4" 
-                              placeholder="Enter detailed description of the unit..."></textarea>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Status</label>
+                        <select name="status" class="form-select border-primary shadow-sm">
+                            <option value="available" selected>Available</option>
+                            <option value="rented">Rented</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Description</label>
+                        <textarea name="description" class="form-control border-primary shadow-sm" rows="4" 
+                                  placeholder="Enter detailed description of the unit..."></textarea>
+                    </div>
                 </div>
 
-               
                 <div class="mb-4">
                     <label class="form-label fw-semibold text-dark">Upload Files (Images)</label>
                     <input type="file" name="files[]" class="form-control border-primary shadow-sm" multiple>
                     <small class="text-muted">Allowed: JPG, JPEG | Max: 2MB per file</small>
                 </div>
-           
+
                 <div class="text-center">
                     <button type="submit" class="btn text-white fw-semibold px-5 py-2 shadow-sm"
                             style="background: linear-gradient(90deg, #2A9DF4, #0A2540); border-radius: 6px;">

@@ -8,13 +8,19 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\RevenuePredictionController;
 use App\Models\Application;
+use App\Http\Controllers\TenantController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
 
+Route::post('/login', [AuthController::class, 'login']); // API login for admin
 
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/tenants', [TenantController::class, 'index'])->middleware('abilities:admin');
+});
 
 
 Route::middleware(['auth:sanctum'])->group(function() {
