@@ -15,9 +15,7 @@ Route::get('/user', function (Request $request) {
 
 
 
-Route::post('/login',[AuthController::class,'login']);
-Route::post('/logout',[AuthController::class,'logout'])
-    ->middleware('auth:sanctum');
+
 
 Route::middleware(['auth:sanctum'])->group(function() {
     Route::get('/tenant/dashboard',function (Request $request) {
@@ -76,9 +74,13 @@ Route::prefix('applications')->group(function () {
 
 
 
+
 Route::prefix('prediction')->group(function(){
     Route::get('/revenue/permonth',[RevenuePredictionController::class,'showPredictionMonth']);
     Route::get('/revenue/perQuarter',[RevenuePredictionController::class,'showPredictionQuarter']);
     Route::get('/revenue/perAnnual',[RevenuePredictionController::class,'showPredictionAnnual']);
     Route::post('/revenue/train',[RevenuePredictionController::class,'trainModel']);
 });
+
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+

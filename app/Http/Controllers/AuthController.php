@@ -5,30 +5,34 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function login(Request $request){
-            $request -> validate([
-            'email' => 'required|email',
-            'password'=>'required',
-        ]);
-        $user= User::where ('email',$request ->email)->first();
+    public function showLoginForm()
+{
+    return view('admin.login'); // tiyakin na may login.blade.php ka sa resources/views/admin/
+}
+    public function login(Request $request)
+{
+    $credentials = $request->only('email', 'password');
 
-        if(!$user || !Hash::check($request->password,$user->password)){
-            return response()-> json(['message'=> 'Invalid Credentials'], 401);
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
 
+        if ($user->role === 'tenant') {
+            return redirect()->route('tenant.dashboard');
+        } elseif ($user->role === 'admin') {
+            return redirect()->route('admin.home');
         }
 
-        $abilities =[$user->role];
-        $token = $user->createToken('auth_token',$abilities)->plainTextToken;
-
-        return response()->json([
-            'token'=>$token,
-            'role' =>$user->role,
-            'user' =>$user,
-        ]);
+        Auth::logout();
+        return back()->withErrors(['email' => 'Unauthorized role.']);
     }
+
+    return back()->withErrors(['email' => 'Invalid credentials.']);
+}
+
 
    public function logout(Request $request)
 {
@@ -44,5 +48,24 @@ class AuthController extends Controller
         'message' => 'Logged out successfully'
     ]);
 }
+
+    public function tenantLogin(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    if (Auth::attempt($request->only('email', 'password'))) {
+        $request->session()->regenerate();
+
+        return redirect()->intended('/tenant/dashboard');
+    }
+
+    return back()->withErrors([
+        'email' => 'Invalid credentials provided.',
+    ]);
+}
+
 
 }

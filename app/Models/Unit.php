@@ -24,7 +24,12 @@ class Unit extends Model
     ];
 
     protected $casts = [
-        'files' => 'array',
+        'floor_area'   => 'integer',
+        'bathroom'     => 'integer',
+        'bedroom'      => 'integer',
+        'monthly_rent' => 'float',
+        'unit_price'   => 'float',
+        'files'        => 'array', 
     ];
 
     public function getMonthlyRentAttribute($value)
