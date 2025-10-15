@@ -78,7 +78,6 @@ Route::prefix('applications')->group(function () {
     Route::post('/addApplicants',[ApplicationController::class,'store']);
 });
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 
 
 Route::prefix('prediction')->group(function(){
@@ -87,3 +86,6 @@ Route::prefix('prediction')->group(function(){
     Route::get('/revenue/perAnnual',[RevenuePredictionController::class,'showPredictionAnnual']);
     Route::post('/revenue/train',[RevenuePredictionController::class,'trainModel']);
 });
+
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+

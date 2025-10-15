@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class TenantController extends Controller
 {
+
     public function index(){
         $application = Tenant::with('unit')->get();
         return response()->json($application);
@@ -59,6 +60,13 @@ class TenantController extends Controller
         return response()->json($archived);
     }
     
-    }
+    
+
+
+    // public function index()
+    // {
+    //     return view('tenant.home');
+    // }
+}
 
 
