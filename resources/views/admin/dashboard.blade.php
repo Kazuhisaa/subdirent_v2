@@ -53,7 +53,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="{{ route('admin.applications') }}">
           <i class="bi bi-file-earmark-text"></i> <span>Applications</span>
         </a>
       </li>

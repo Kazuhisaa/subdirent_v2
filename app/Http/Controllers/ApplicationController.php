@@ -156,6 +156,22 @@ public function approve($id)
     ]);
 }
 
+public function indexView()
+{
+    $applications = Application::with('unit')->get();
+    return view('admin.applications', compact('applications'));
+}
+
+public function reject($id)
+{
+    $application = Application::findOrFail($id);
+    $application->status = 'Rejected';
+    $application->save();
+
+    return redirect()->back()->with('message', 'Application has been rejected.');
+}
+
+
 
 
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\RevenuePredictionController;
+use App\Http\Controllers\ApplicationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,7 +19,7 @@ Route::view('/welcome', 'welcome')->name('welcome');
 Route::view('/units', 'units')->name('units');
 
 // Tenant dashboard
-Route::get('/tenant', [TenantController::class, 'index'])->name('tenant.home');
+Route::get('/tenant', [TenantController::class, 'home'])->name('tenant.home');
 
 // Authentication
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -67,4 +68,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/{id}/archive', 'archive')->name('archive');
         Route::post('/{id}/unarchive', 'unarchive')->name('unarchive');
     });
+    
+    // Application Controller
+    Route::get('/applications', [ApplicationController::class, 'indexView'])->name('applications');
+        Route::post('/applications/{id}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
+        Route::post('/applications/{id}/reject', [ApplicationController::class, 'reject'])->name('applications.reject');
+        Route::post('/applications/{id}/archive', [ApplicationController::class, 'archive'])->name('applications.archive');
+
 });

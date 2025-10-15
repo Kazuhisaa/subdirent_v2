@@ -43,7 +43,7 @@ class AuthController extends Controller
 
             // ✅ Tenant Login: Redirect to tenant dashboard
             if ($user->role === 'tenant') {
-                return redirect()->route('tenant.dashboard')->with('status', 'Welcome, Tenant!');
+                return redirect()->route('tenant.home')->with('status', 'Welcome, Tenant!');
             }
 
             // 🚫 If neither role

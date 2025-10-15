@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 class TenantController extends Controller
 {
+    public function home(){
+        return view('tenant.home');
+    }
+        
 
     public function index(){
         $application = Tenant::with('unit')->get();
