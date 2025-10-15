@@ -94,5 +94,7 @@ Route::prefix('revenue')->group(function(){
      Route::get('/totalrevenue',[RevenueController::class,'showTotalRevenue']);
 });
 
+Route::get('/analytics/data', [RevenuePredictionController::class, 'getAnalyticsData']);
+
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 
