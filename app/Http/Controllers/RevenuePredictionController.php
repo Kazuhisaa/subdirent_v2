@@ -54,6 +54,28 @@ public function showAnalyticsPage()
     // Pass only counts to Blade. The chart will fetch data via API.
     return view('admin.analytics', compact('totalTenants', 'totalUnits'));
 }
+public function getAnalyticsData()
+{
+    try {
+        $totalTenants = Tenant::count();
+        $totalUnits = Unit::count();
+
+        // You can call your prediction service here too:
+        $peakMonth = $this->revenuepredictionservice->predictMonthly()['peak_month'] ?? 'N/A';
+
+        return response()->json([
+            'success' => true,
+            'totalTenants' => $totalTenants,
+            'totalUnits' => $totalUnits,
+            'peakMonth' => $peakMonth,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
 
 
 
