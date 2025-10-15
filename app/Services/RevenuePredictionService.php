@@ -280,6 +280,6 @@ class RevenuePredictionService
         $regression = new LeastSquares();
         $regression->train($features, $targets);
         $modelManager = new ModelManager();
-        $modelManager->saveToFile($regression, storage_path('App/Models/revenue_prediction.model'));
+        $modelManager->saveToFile($regression, storage_path('app/Models/revenue_prediction.model'));
     }
 }
