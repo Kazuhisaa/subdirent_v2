@@ -7,6 +7,7 @@ use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\RevenuePredictionController;
+use App\Http\Controllers\RevenueController;
 use App\Models\Application;
 use App\Http\Controllers\TenantController;
 
@@ -85,6 +86,12 @@ Route::prefix('prediction')->group(function(){
     Route::get('/revenue/perQuarter',[RevenuePredictionController::class,'showPredictionQuarter']);
     Route::get('/revenue/perAnnual',[RevenuePredictionController::class,'showPredictionAnnual']);
     Route::post('/revenue/train',[RevenuePredictionController::class,'trainModel']);
+});
+
+Route::prefix('revenue')->group(function(){
+    Route::get('/average',[RevenueController::class,'showAverage']);
+     Route::get('/peakmonth',[RevenueController::class,'showPeakMonth']);
+     Route::get('/totalrevenue',[RevenueController::class,'showTotalRevenue']);
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
