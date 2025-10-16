@@ -3,13 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tenant;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class TenantController extends Controller
 {
-    public function home(){
-        return view('tenant.home');
-    }
+    public function home()
+{
+    $tenant = Auth::user();
+    return view('tenant.home', compact('tenant'));
+}
+
+public function property()
+{
+    $tenant = Auth::user();
+    return view('tenant.property', compact('tenant'));
+}
         
 
     public function index(){
@@ -63,14 +72,35 @@ class TenantController extends Controller
         $archived = Tenant::onlyTrashed()->get();
         return response()->json($archived);
     }
-    
+
+    public function payments()
+{
+    // Example dummy data for now
+    $balance = 200.00;
+    $dueDate = 'December 11, 2025';
+    $payments = [
+        ['date' => '10/10/2025', 'confirmation' => 'A1B2-C3D4', 'amount' => 2000.00],
+        ['date' => '09/09/2025', 'confirmation' => 'F5G6-H7I8', 'amount' => 2000.00],
+        ['date' => '08/08/2025', 'confirmation' => 'J9K1-L2M3', 'amount' => 2000.00],
+    ];
+
+    return view('tenant.payments', compact('balance', 'dueDate', 'payments'));
+}
+
+public function makePayment(Request $request)
+{
+    // Example: payment logic here (Stripe, PayPal, etc.)
+    // For now, just simulate success
+    return back()->with('status', 'Payment processed successfully!');
+}
+
+public function ledger()
+{
+    return view('tenant.ledger'); // optional
+}
+
     
 
-
-    // public function index()
-    // {
-    //     return view('tenant.home');
-    // }
 }
 
 
