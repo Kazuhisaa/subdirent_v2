@@ -1,15 +1,16 @@
 <?php
 
+use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UnitsController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\RevenueController;
+use App\Http\Controllers\OccupancyController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\RevenuePredictionController;
-use App\Http\Controllers\RevenueController;
-use App\Models\Application;
-use App\Http\Controllers\TenantController;
 
 
 Route::get('/user', function (Request $request) {
@@ -96,5 +97,12 @@ Route::prefix('revenue')->group(function(){
 
 Route::get('/analytics/data', [RevenuePredictionController::class, 'getAnalyticsData']);
 
+Route::prefix('occupancy')->group(function(){
+    Route::get('/all',[OccupancyController::class,'showAll']);  //total ng units
+    Route::get('/perlocation',[OccupancyController::class,'showByLocation']);  //total ng units per location
+    Route::get('/rate',[OccupancyController::class,'showOccupancyRateByLocation']); // occupany rate per location
+    Route::get('/allrate',[OccupancyController::class,'showAllOccupancyRate']); //overall occupancy rate ng laaht ng units
+  
+});
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 
