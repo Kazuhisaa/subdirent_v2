@@ -44,8 +44,11 @@ Route::middleware(['web'])->group(function () {
 */
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
 
+
     // Dashboard
     Route::get('/', [AdminController::class, 'index'])->name('home');
+
+    Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
 
     // Revenue Analytics
     Route::get('/admin/analytics', [RevenuePredictionController::class, 'showAnalyticsPage'])
@@ -78,6 +81,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::put('/{unit}', 'update')->name('update');
         Route::post('/{id}/archive', 'archive')->name('archive');
         Route::post('/{id}/unarchive', 'unarchive')->name('unarchive');
+       
     });
     
     // Application Controller

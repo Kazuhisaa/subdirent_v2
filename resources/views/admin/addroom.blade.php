@@ -12,6 +12,16 @@
             {{ session('success') }}
         </div>
     @endif
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
 
     {{-- ✅ Form Card --}}
     <div class="card border-0 shadow-sm">
@@ -27,19 +37,20 @@
                 {{-- 📍 LOCATION INFORMATION --}}
                 <h6 class="fw-bold text-primary mb-3">📍 LOCATION INFORMATION</h6>
                 <div class="row g-3 mb-4">
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold text-dark">Province</label>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold text-dark">Title</label>
+                            <input type="text" name="title" class="form-control border-primary shadow-sm"
+                                placeholder="Enter Room Title (e.g. Unit A - Phase 1)" required>
+                        </div>
+                 
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Phase</label>
                         <input type="text" name="location" class="form-control border-primary shadow-sm" 
-                               placeholder="Enter Province" required>
+                               placeholder="Enter Phase (e.g. Phase 1)" required>
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold text-dark">City / Municipality</label>
-                        <input type="text" name="title" class="form-control border-primary shadow-sm" 
-                               placeholder="Enter City / Municipality" required>
-                    </div>
-
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label fw-semibold text-dark">Unit Code</label>
                         <input type="text" name="unit_code" class="form-control border-primary shadow-sm" 
                                placeholder="Unique Unit Code" required>

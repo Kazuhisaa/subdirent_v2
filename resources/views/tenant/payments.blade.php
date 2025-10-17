@@ -18,7 +18,7 @@
                          style="background-color: #f4f9f6; border-left: 5px solid #4caf50;">
                         <div>
                             <h5 class="text-muted mb-1">Your Current Balance</h5>
-                            <h2 class="text-success fw-bold mb-0">₱200.00</h2>
+                            <h2 class="text-success fw-bold mb-0">₱2000.00</h2>
                             <p class="text-secondary small mt-1">Next bill due on <strong>December 11, 2025</strong></p>
                         </div>
                         <div>

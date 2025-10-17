@@ -11,40 +11,42 @@
     @endif
 
     {{-- ✅ Page Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-blue-900 mb-0">🏠 Room Listings</h2>
-        <a href="{{ route('admin.addroom') }}" class="btn btn-action fw-bold px-4 rounded-pill">
-            + Add Room
-        </a>
+
+        {{-- ✅ Search + Add Button --}}
+        <div class="d-flex align-items-center gap-2">
+            <input type="text" id="unitSearch" class="form-control me-2" placeholder="Search Units..." style="width: 250px;">
+            <a href="{{ route('admin.addroom') }}" 
+               class="btn btn-action fw-bold px-4 rounded-pill">
+                + Add Room
+            </a>
+        </div>
     </div>
 
+    <div id="searchResults" class="row g-3 mb-4"></div>
+
     {{-- ✅ Rooms Grid --}}
-    <div class="row g-4">
+    <div id="unitGrid" class="row g-4">
         @forelse($units as $unit)
             @php
                 $isArchived = strtolower($unit->status) === 'archived';
-
                 $badgeClass = match(strtolower($unit->status)) {
                     'available' => 'bg-blue-500 text-white',
                     'archived'  => 'bg-secondary text-white',
                     'rented'    => 'bg-blue-200 text-blue-900',
                     default     => 'bg-blue-200 text-blue-800',
                 };
-
-                // Decode JSON safely
                 $files = is_array($unit->files)
                     ? $unit->files
                     : (json_decode($unit->files, true) ?? []);
-
-                // Image path handling
                 $imagePath = (!empty($files) && isset($files[0]))
                     ? asset('uploads/units/' . basename($files[0]))
                     : asset('images/no-image.png');
             @endphp
 
-            <div class="col-lg-4 col-md-6">
+            <div class="col-12 col-sm-6 col-lg-3 room-card-wrapper">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 room-card {{ $isArchived ? 'archived-card' : '' }}">
-
                     {{-- ✅ Image --}}
                     <div class="position-relative" style="height: 200px; background: #f5f9ff; cursor: pointer;">
                         <img src="{{ $imagePath }}"
@@ -87,7 +89,6 @@
                                 Edit
                             </a>
 
-                            {{-- Archive / Unarchive Button --}}
                             <form method="POST" 
                                   action="{{ $isArchived ? route('admin.units.unarchive', $unit->id) : route('admin.units.archive', $unit->id) }}" 
                                   onsubmit="return confirm('{{ $isArchived ? 'Unarchive this unit?' : 'Archive this unit?' }}');">
@@ -102,23 +103,7 @@
                 </div>
             </div>
 
-            {{-- ✅ Image Modal --}}
-            @if(!empty($files) && isset($files[0]))
-                <div class="modal fade" id="imageModal{{ $unit->id }}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                        <div class="modal-content border-0 bg-transparent">
-                            <div class="modal-body p-0">
-                                <img src="{{ asset('uploads/units/' . basename($files[0])) }}" 
-                                     class="w-100 rounded" 
-                                     alt="{{ $unit->title }}">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
         @empty
-            {{-- ✅ Empty State --}}
             <div class="col-12 text-center py-5">
                 <img src="{{ asset('images/empty-state.svg') }}" alt="No data" width="120" class="mb-3">
                 <h6 class="text-blue-800">No rooms found.</h6>
@@ -127,11 +112,82 @@
     </div>
 </div>
 
-
+{{-- ✅ Styles --}}
 <style>
-    .archived-card {
-        filter: grayscale(100%) brightness(0.8);
-        opacity: 0.8;
-    }
+.archived-card {
+    filter: grayscale(100%) brightness(0.8);
+    opacity: 0.8;
+}
+
+#searchResults {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
 </style>
+
+{{-- ✅ AJAX Search Script --}}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#unitSearch').on('keyup', function() {
+        let query = $(this).val().trim();
+
+        if (query.length === 0) {
+            $('#searchResults').html('');
+            $('#unitGrid').show();
+            return;
+        }
+
+        $.ajax({
+            url: "{{ route('admin.units.search') }}",
+            type: 'GET',
+            data: { query: query },
+            success: function(units) {
+                $('#searchResults').html('');
+                $('#unitGrid').hide();
+
+                if (units.length === 0) {
+                    $('#searchResults').html('<p class="text-muted text-center mt-3">No units found.</p>');
+                    return;
+                }
+
+                let html = '';
+                units.forEach(unit => {
+                    let image = unit.image_path ? `/storage/${unit.image_path}` : '/images/no-image.png';
+
+                    html += `
+                        <div class="col-md-3">
+                            <div class="card shadow-sm border-0">
+                                <img src="${image}" class="card-img-top" alt="${unit.title}" style="height: 180px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">${unit.title}</h5>
+                                    <p class="text-muted mb-1"><i class="bi bi-geo-alt-fill"></i> ${unit.location}</p>
+                                    <p class="mb-0"><strong>Phase:</strong> ${unit.phase || 'N/A'}</p>
+                                    <p class="mb-0"><strong>Floor Area:</strong> ${unit.floor_area || 'N/A'} sqm</p>
+                                    <p class="mb-0"><strong>Rent:</strong> ₱${Number(unit.rent).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                $('#searchResults').html(html);
+            },
+            error: function(xhr) {
+                console.error('Error:', xhr.responseText);
+            }
+        });
+    });
+});
+</script>
 @endsection
