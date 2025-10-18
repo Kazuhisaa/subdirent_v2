@@ -21,7 +21,13 @@ public function property()
 }
         
 
-    public function index(){
+    public function index(Request $request){    
+
+        if (!$request->user() || !$request->user()->tokenCan('admin')) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+
         $application = Tenant::with('unit')->get();
         return response()->json($application);
     }
