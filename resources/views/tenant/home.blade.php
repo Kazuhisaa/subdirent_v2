@@ -12,7 +12,7 @@
       <div class="card tenant-card shadow-sm border-0 p-4 d-flex flex-row align-items-center">
         <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle me-3" width="60" height="60" alt="Profile">
         <div>
-          <h5 class="mb-1">Hi, Tenant 2</h5>
+          <h5 class="mb-1">Hi, {{ $tenant->name ?? 'Tenant' }}</h5>
           <p class="text-muted mb-2">Welcome to your Tenant Portal. Here’s a quick overview of your account, payments, and tasks.</p>
         </div>
       </div>

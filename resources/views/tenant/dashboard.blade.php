@@ -41,14 +41,14 @@
 
         <!-- My Property -->
         <li class="nav-item mb-2">
-          <a class="nav-link d-flex align-items-center" href="#">
+          <a class="nav-link d-flex align-items-center {{ request()->routeIs('tenant.property') ? 'active' : '' }}" href="{{ route('tenant.property') }}">
             <i class="bi bi-building-check me-2"></i> <span>My Property</span>
           </a>
         </li>
 
         <!-- My Payments -->
         <li class="nav-item mb-2">
-          <a class="nav-link d-flex align-items-center" href="#">
+          <a class="nav-link d-flex align-items-center {{ request()->routeIs('tenant.payments') ? 'active' : '' }}" href="{{ route('tenant.payments') }}">
             <i class="bi bi-wallet2 me-2"></i> <span>My Payments</span>
           </a>
         </li>

@@ -18,14 +18,25 @@ Route::view('/', 'index')->name('home');
 Route::view('/welcome', 'welcome')->name('welcome');
 Route::view('/units', 'units')->name('units');
 
-// Tenant dashboard
-Route::get('/tenant', [TenantController::class, 'home'])->name('tenant.home');
+Route::middleware(['auth:sanctum'])->prefix('tenant')->name('tenant.')->group(function () {  
+    // Dashboard
+    Route::get('/', [TenantController::class, 'home'])->name('home');
+
+    // My Property
+    Route::get('/property', [TenantController::class, 'property'])->name('property');
+
+    // My Payments
+    Route::get('/payments', [TenantController::class, 'payments'])->name('payments');
+    Route::post('/payments/pay', [TenantController::class, 'makePayment'])->name('payments.pay');
+});
 
 
 // Authentication
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::middleware(['web'])->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -34,8 +45,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 */
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
 
+
     // Dashboard
     Route::get('/', [AdminController::class, 'index'])->name('home');
+
+    Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
 
     // Revenue Analytics
     Route::get('/admin/analytics', [RevenuePredictionController::class, 'showAnalyticsPage'])
@@ -68,6 +82,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::put('/{unit}', 'update')->name('update');
         Route::post('/{id}/archive', 'archive')->name('archive');
         Route::post('/{id}/unarchive', 'unarchive')->name('unarchive');
+       
     });
     
     // Application Controller

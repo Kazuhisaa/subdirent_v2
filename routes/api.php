@@ -20,10 +20,9 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [AuthController::class, 'login']); // API login for admin
 
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/tenants', [TenantController::class, 'index'])->middleware('abilities:admin');
+Route::middleware(['auth:sanctum'])->prefix('admin/api')->group(function () {
+    Route::get('/tenants', [TenantController::class, 'index']);
 });
-
 
 Route::middleware(['auth:sanctum'])->group(function() {
     Route::get('/tenant/dashboard',function (Request $request) {
