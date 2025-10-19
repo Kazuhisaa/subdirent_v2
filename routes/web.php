@@ -3,10 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UnitsController;
-use App\Http\Controllers\RevenuePredictionController;
+use App\Http\Controllers\TenantController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\RevenuePredictionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,10 +22,8 @@ Route::view('/units', 'units')->name('units');
 Route::middleware(['auth:sanctum'])->prefix('tenant')->name('tenant.')->group(function () {  
     // Dashboard
     Route::get('/', [TenantController::class, 'home'])->name('home');
-
     // My Property
     Route::get('/property', [TenantController::class, 'property'])->name('property');
-
     // My Payments
     Route::get('/payments', [TenantController::class, 'payments'])->name('payments');
     Route::post('/payments/pay', [TenantController::class, 'makePayment'])->name('payments.pay');
@@ -92,3 +91,24 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/applications/{id}/archive', [ApplicationController::class, 'archive'])->name('applications.archive');
 
 });
+
+Route::get('/payments/success', function () {
+    return "Payment successful!";
+})->name('payments.success');
+
+Route::get('/payments/failed', function () {
+    return "Payment failed!";
+})->name('payments.failed');
+
+
+
+Route::middleware(['auth'])->group(function () {
+        Route::get('/tenant/payments', [TenantController::class, 'payments'])->name('tenant.payments');
+    Route::get('tenant/{tenant}/dashboard', [PaymentController::class, 'dashboard'])->name('tenant.dashboard');
+    Route::get('tenant/{tenant}/payments', [PaymentController::class, 'payments'])->name('tenant.payments');
+    Route::post('tenant/{tenant}/payments/create', [PaymentController::class, 'createPayment'])->name('payments.create');
+    Route::get('tenant/{tenant}/payments/success', [PaymentController::class, 'success'])->name('payments.success');
+    Route::get('tenant/{tenant}/payments/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
+});
+
+Route::post('payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');

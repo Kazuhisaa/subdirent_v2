@@ -24,7 +24,7 @@
     </div>
 </div>
 
-{{-- ✅ Pass token from Laravel session --}}
+{{-- ✅ Pass API token safely --}}
 <script>
     window.apiToken = "{{ session('admin_api_token') }}";
 </script>

@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RevenueController;
 use App\Http\Controllers\OccupancyController;
 use App\Http\Controllers\ApplicationController;
@@ -69,8 +70,6 @@ Route::prefix('bookings')->group(function () {
 });
 
 
-
-
 Route::prefix('bookings')->group(function () {
     Route::post('/', [BookingController::class, 'store']);              // POST /bookings
     Route::get('/getOccupiedTime/{unit_id}/{date}',[BookingController::class,'showAllOccupiedTime']);
@@ -126,3 +125,15 @@ Route::prefix('occupancy')->group(function(){
 });
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/payments/{id}', [PaymentController::class, 'show']);
+// Create a source (POST)
+Route::post('/payments/source', [PaymentController::class, 'createSource']);
+// Create a payment (POST)
+Route::post('/payments/pay', [PaymentController::class, 'createPayment']);
+
+});
+
+
+Route::post('/login', [AuthController::class, 'apiLogin']);
