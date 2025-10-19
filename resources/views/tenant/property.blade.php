@@ -1,4 +1,4 @@
-@extends('tenant.dashboard')
+@extends('tenant.dashboard') {{-- O kung ano man ang main layout mo --}}
 
 @section('title', 'Tenant Property')
 @section('page-title', 'My Property')
@@ -6,8 +6,7 @@
 @section('content')
 <div class="container-fluid tenant-dashboard">
 
-  @if($tenant && $tenant->unit)
-    <!-- Property Header -->
+  @if($tenant->tenant && $tenant->tenant->unit)
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body d-flex align-items-center justify-content-between flex-wrap">
         <div class="d-flex align-items-center mb-2 mb-md-0">
@@ -15,66 +14,65 @@
             <img src="{{ asset('images/property-default.jpg') }}" alt="Property" class="rounded" width="80" height="80">
           </div>
           <div>
-            <h5 class="fw-bold mb-1 text-primary">{{ $tenant->unit->title }}</h5>
-            <p class="text-muted mb-0">{{ $tenant->unit->location }}</p>
-            <small class="text-muted">Unit Code: {{ $tenant->unit->unit_code }}</small>
+            {{-- BINAGO DITO --}}
+            <h5 class="fw-bold mb-1 text-primary">{{ $tenant->tenant->unit->title }}</h5>
+            <p class="text-muted mb-0">{{ $tenant->tenant->unit->location }}</p>
+            <small class="text-muted">Unit Code: {{ $tenant->tenant->unit->unit_code }}</small>
           </div>
         </div>
       </div>
     </div>
 
     <div class="row">
-      <!-- LEFT COLUMN: Property Overview -->
       <div class="col-lg-8">
-        <!-- Property Overview -->
         <div class="card border-0 shadow-sm mb-4">
           <div class="card-body">
             <h6 class="fw-bold mb-3 text-secondary">Property Overview</h6>
             <div class="row mb-3 text-center">
+              {{-- BINAGO LAHAT DITO --}}
               <div class="col-md-3">
-                <h4 class="text-primary">{{ $tenant->unit->floor_area ?? 'N/A' }} m²</h4>
+                <h4 class="text-primary">{{ $tenant->tenant->unit->floor_area ?? 'N/A' }} m²</h4>
                 <small class="text-muted">Floor Area</small>
               </div>
               <div class="col-md-3">
-                <h4 class="text-primary">{{ $tenant->unit->bedroom ?? 'N/A' }}</h4>
+                <h4 class="text-primary">{{ $tenant->tenant->unit->bedroom ?? 'N/A' }}</h4>
                 <small class="text-muted">Bedrooms</small>
               </div>
               <div class="col-md-3">
-                <h4 class="text-primary">{{ $tenant->unit->bathroom ?? 'N/A' }}</h4>
+                <h4 class="text-primary">{{ $tenant->tenant->unit->bathroom ?? 'N/A' }}</h4>
                 <small class="text-muted">Bathrooms</small>
               </div>
               <div class="col-md-3">
-                <h4 class="text-primary">₱{{ $tenant->unit->monthly_rent }}</h4>
-                <small class="text-muted">Monthly Rent</small>
+                <h4 class="text-primary">₱{{ $tenant->tenant->unit->unit_price }}</h4>
+                <small class="text-muted">Unit Price</small>
               </div>
             </div>
 
             <h6 class="fw-bold text-secondary mb-2">Description</h6>
-            <p class="text-muted">{{ $tenant->unit->description }}</p>
+            <p class="text-muted">{{ $tenant->tenant->unit->description }}</p>
 
             <h6 class="fw-bold text-secondary mt-4 mb-2">Contract Details</h6>
             <ul class="list-unstyled text-muted mb-0">
-              <li><i class="bi bi-calendar-check me-2 text-primary"></i> Contract Duration: {{ $tenant->unit->contract_years }} year(s)</li>
-              <li><i class="bi bi-geo-alt-fill me-2 text-primary"></i> Location: {{ $tenant->unit->location }}</li>
+              {{-- BINAGO DITO --}}
+              <li><i class="bi bi-calendar-check me-2 text-primary"></i> Contract Duration: {{ $tenant->tenant->unit->contract_years }} year(s)</li>
+              <li><i class="bi bi-geo-alt-fill me-2 text-primary"></i> Location: {{ $tenant->tenant->unit->location }}</li>
             </ul>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: Tenant Info + Documents -->
       <div class="col-lg-4 d-flex flex-column">
-        <!-- Tenant Info -->
         <div class="card border-0 shadow-sm mb-4 flex-grow-0">
           <div class="card-body text-center">
             <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle mb-3" width="90" height="90" alt="Tenant">
-            <h6 class="fw-bold text-primary mb-1">{{ $tenant->first_name }} {{ $tenant->last_name }}</h6>
-            <small class="text-muted d-block mb-2">{{ $tenant->email }}</small>
-            <p class="text-muted mb-1"><i class="bi bi-telephone text-danger me-1"></i>{{ $tenant->contact_num }}</p>
+            {{-- BINAGO LAHAT DITO: Kinukuha natin ang data mula sa $tenant->tenant --}}
+            <h6 class="fw-bold text-primary mb-1">{{ $tenant->tenant->first_name }} {{ $tenant->tenant->last_name }}</h6>
+            <small class="text-muted d-block mb-2">{{ $tenant->tenant->email }}</small>
+            <p class="text-muted mb-1"><i class="bi bi-telephone text-danger me-1"></i>{{ $tenant->tenant->contact_num }}</p>
             <span class="badge bg-success">Active Tenant</span>
           </div>
         </div>
 
-        <!-- Documents (Now Below Tenant Info) -->
         <div class="card border-0 shadow-sm">
           <div class="card-body">
             <h6 class="fw-bold text-secondary mb-3">Documents</h6>

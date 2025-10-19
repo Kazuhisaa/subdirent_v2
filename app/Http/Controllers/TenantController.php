@@ -5,42 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Tenant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon; // <-- IDAGDAG ITO
+use Illuminate\Support\Carbon; 
+// Wala na 'yung PayMongo at Payment model dito
 
 class TenantController extends Controller
 {
-    /**
-     * Display the tenant's main dashboard (home).
-     */
+    //===========================================================
+    // TENANT WEB ROUTES (Para sa naka-login na tenant)
+    //===========================================================
+
     public function home()
     {
-        // 1. Kunin ang logged-in user at i-load lahat ng related data
-        $user = Auth::user()->load(
-            'tenant.unit', 
-            'tenant.contracts', 
-            'tenant.payments'
-        );
+        $user = Auth::user()->load('tenant.unit', 'tenant.contracts', 'tenant.payments');
+        if (!$user->tenant) { abort(404, 'Tenant record not found.'); }
 
-        if (!$user->tenant) {
-            abort(404, 'Tenant record not found for this user.');
-        }
-
-        // 2. Hanapin ang active contract
-        $activeContract = $user->tenant->contracts
-                            ->whereIn('status', ['active', 'ongoing'])
-                            ->first();
-
-        // 3. Kunin ang 3 pinakabagong payments
-        $payments = $user->tenant->payments
-                        ->sortByDesc('payment_date')
-                        ->take(3);
-
-        // 4. Kalkulahin ang next due date
+        $activeContract = $user->tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+        $payments = $user->tenant->payments->sortByDesc('payment_date')->take(3);
         $nextDueDate = null;
+
         if ($activeContract) {
             $today = Carbon::now();
             $dueDate = $activeContract->payment_due_date;
-            
             if ($today->day > $dueDate) {
                 $nextDueDate = $today->addMonth()->day($dueDate)->format('M d, Y');
             } else {
@@ -48,9 +33,8 @@ class TenantController extends Controller
             }
         }
 
-        // 5. Ipasa lahat ng data sa view
-        return view('tenant.home', [ // 'tenant.home' ang ginamit mo sa function mo
-            'tenant' => $user, // Ang blade file ay gumagamit ng $tenant->name
+        return view('tenant.home', [
+            'tenant' => $user, 
             'activeContract' => $activeContract,
             'payments' => $payments,
             'nextDueDate' => $nextDueDate
@@ -59,17 +43,9 @@ class TenantController extends Controller
 
     public function property()
     {
-        // Kailangan din nitong i-load ang data
         $user = Auth::user()->load('tenant.unit', 'tenant.contracts');
-        
-        if (!$user->tenant) {
-            abort(404, 'Tenant record not found.');
-        }
-
-        $activeContract = $user->tenant->contracts
-                            ->whereIn('status', ['active', 'ongoing'])
-                            ->first();
-
+        if (!$user->tenant) { abort(404, 'Tenant record not found.'); }
+        $activeContract = $user->tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
         return view('tenant.property', [
             'tenant' => $user,
             'contract' => $activeContract,
@@ -77,50 +53,34 @@ class TenantController extends Controller
         ]);
     }
 
-    /**
-     * Display the tenant's payment history page.
-     */
     public function payments()
     {
         $user = Auth::user()->load('tenant.contracts', 'tenant.payments');
-
-        if (!$user->tenant) {
-            abort(404, 'Tenant record not found.');
-        }
-
-        // Kunin lahat ng payments, pinakabago muna
-        $payments = $user->tenant->payments->sortByDesc('payment_date');
-
-        // Kunin ang active contract para sa due date at amount
-        $activeContract = $user->tenant->contracts
-                            ->whereIn('status', ['active', 'ongoing'])
-                            ->first();
-
-        $balance = 0;
-        $dueDate = 'N/A';
+        if (!$user->tenant) { abort(404, 'Tenant record not found.'); }
+        $tenant = $user->tenant;
+        $payments = $tenant->payments->sortByDesc('payment_date');
+        $activeContract = $tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+        $outstanding = 0;
+        $nextMonth = ['date' => 'N/A', 'for_month' => null];
 
         if ($activeContract) {
-            // Ang "balance" dito ay ang susunod na bayarin
-            $balance = $activeContract->monthly_payment;
-            
-            // Kalkulahin ang next due date
-            $today = Carbon::now();
+            $outstanding = $activeContract->monthly_payment; 
             $dueDay = $activeContract->payment_due_date;
-            if ($today->day > $dueDay) {
-                $dueDate = $today->addMonth()->day($dueDay)->format('M d, Y');
-            } else {
-                $dueDate = $today->day($dueDay)->format('M d, Y');
-            }
+            $nextDueDateCarbon = Carbon::now()->day($dueDay);
+            if (Carbon::now()->day > $dueDay) {
+                $nextDueDateCarbon->addMonth();
+            } 
+            $nextMonth['date'] = $nextDueDateCarbon->format('M d, Y');
+            $nextMonth['for_month'] = $nextDueDateCarbon->format('Y-m-d');
         }
 
-        return view('tenant.payments', compact('balance', 'dueDate', 'payments'));
-    }
-
-    public function makePayment(Request $request)
-    {
-        // Example: payment logic here (Stripe, PayPal, etc.)
-        // For now, just simulate success
-        return back()->with('status', 'Payment processed successfully!');
+        return view('tenant.payments', [
+            'tenant' => $tenant,
+            'outstanding' => $outstanding,
+            'nextMonth' => $nextMonth,
+            'payments' => $payments,
+            'activeContract' => $activeContract
+        ]);
     }
 
     public function ledger()
@@ -128,44 +88,34 @@ class TenantController extends Controller
         return view('tenant.ledger'); // optional
     }
 
-    // --- MGA ADMIN API FUNCTIONS MO (HINDI KO GINALAW) ---
+    //===========================================================
+    // ADMIN API ROUTES (Sanctum Protected)
+    //===========================================================
 
-    public function index(Request $request){
-
+    public function index(Request $request){ 
         if (!$request->user() || !$request->user()->tokenCan('admin')) {
         return response()->json(['message' => 'Unauthorized'], 403);
         }
-
-
         $application = Tenant::with('unit')->get();
         return response()->json($application);
     }
-
 
     public function show($id){
       $application = Tenant::with('unit')->where('id',$id)->get();
           return response()->json($application);
     }
 
-
     public function update(Request $request, $id){
-
         $tenant = Tenant::findOrFail($id);
-
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'middle_name'=> 'nullable|string|max:100',
-            'last_name'=> 'required|string|max:100',
-            'email'=> 'required|email|unique:tenants,email,' . $tenant->id,
+            'last_name'  => 'required|string|max:100',
+            'email'      => 'required|email|unique:tenants,email,' . $tenant->id,
             'contact_num'=> 'required|string|max:50',
-            'unit_id'=> 'required|exists:units,id',
-            'downpayment'=> 'required|numeric',
-            'monthly_payment' => 'required|numeric',
-            'contract' => 'required|numeric'
+            'unit_id'    => 'required|exists:units,id',
         ]);
-
         $tenant->update($validated);
-
         return response()->json([
             'message' => 'Tenant updated successfully',
             'tenant' => $tenant
@@ -173,49 +123,16 @@ class TenantController extends Controller
     }
 
     public function archive($id){
-            $application = Tenant::findOrFail($id);
-            $application->delete();
-            
-            return response()-> json([
-                'Message' => 'Tenant Archived Successfully',
-                'data' => $application
-            ]);
+        $application = Tenant::findOrFail($id);
+        $application->delete();
+        return response()-> json([
+            'Message' => 'Tenant Archived Successfully',
+            'data' => $application
+        ]);
     }
 
     public function viewArchive(){
-
         $archived = Tenant::onlyTrashed()->get();
         return response()->json($archived);
     }
-
-    public function payments()
-{
-    // Example dummy data for now
-    $balance = 200.00;
-    $dueDate = 'December 11, 2025';
-    $payments = [
-        ['date' => '10/10/2025', 'confirmation' => 'A1B2-C3D4', 'amount' => 2000.00],
-        ['date' => '09/09/2025', 'confirmation' => 'F5G6-H7I8', 'amount' => 2000.00],
-        ['date' => '08/08/2025', 'confirmation' => 'J9K1-L2M3', 'amount' => 2000.00],
-    ];
-
-    return view('tenant.payments', compact('balance', 'dueDate', 'payments'));
 }
-
-public function makePayment(Request $request)
-{
-    // Example: payment logic here (Stripe, PayPal, etc.)
-    // For now, just simulate success
-    return back()->with('status', 'Payment processed successfully!');
-}
-
-public function ledger()
-{
-    return view('tenant.ledger'); // optional
-}
-
-    
-
-}
-
-

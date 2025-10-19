@@ -27,10 +27,10 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div>
             <small class="text-muted d-block">PROPERTY DETAILS</small>
-            @if($tenant && $tenant->unit)
-              <strong>{{ $tenant->unit->title }}</strong>
+               @if($tenant->tenant && $tenant->tenant->unit)
+              <strong>{{ $tenant->tenant->unit->title }}</strong>
               <p class="small text-muted mb-0">
-                {{ $tenant->unit->location }}
+                {{ $tenant->tenant->unit->location }}
               </p>
             @else
               <p class="small text-muted mb-0">No assigned property yet.</p>

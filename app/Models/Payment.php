@@ -9,26 +9,30 @@ class Payment extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'tenant_id',
         'contract_id',
         'amount',
-        'payment_method', 
-        'payment_status', 
+        'payment_method',
+        'payment_status',
         'payment_date',
-        'reference_no',   
-        'invoice_no',    
-        'invoice_pdf',    
-        'remarks',        
-        'unit_id',        
+        'reference_no',
+        'invoice_no',
+        'invoice_pdf',
+        'remarks',
+        'unit_id',
     ];
 
-    // Relationships
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'payment_date' => 'datetime', // <-- IDAGDAG MO ITONG LINE NA ITO
+    ];
+
+    // ... (iyong relationships)
     public function tenant() {
         return $this->belongsTo(Tenant::class);
     }
@@ -40,6 +44,4 @@ class Payment extends Model
     public function contract() {
         return $this->belongsTo(Contract::class);
     }
-
-
 }
