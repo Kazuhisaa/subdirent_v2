@@ -30,6 +30,7 @@ Route::middleware(['auth:sanctum'])->prefix('tenant')->name('tenant.')->group(fu
     Route::post('/payments/pay', [TenantController::class, 'makePayment'])->name('payments.pay');
 });
 
+
 // Authentication
 Route::middleware(['web'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
