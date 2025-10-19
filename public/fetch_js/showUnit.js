@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ? `/uploads/units/${unit.files[0].split('/').pop()}`
                 : `/images/no-image.png`;
 
+            // ✅ Clean price (remove symbols, prevent NaN)
+            const cleanPrice = Number((unit.unit_price || '0').toString().replace(/[^0-9.]/g, ''));
+
             const card = `
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 room-card">
@@ -66,11 +69,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </div>
 
                             <div class="border-top pt-2">
-                                <p class="fw-bold text-blue-900 mb-1">
-                                    Rent: ₱${Number(unit.monthly_rent || 0).toLocaleString()}
-                                </p>
                                 <p class="fw-semibold text-blue-800 mb-0">
-                                    Price: ₱${Number(unit.unit_price || 0).toLocaleString()}
+                                    <strong>Unit Price:</strong> ₱${cleanPrice.toLocaleString()}
                                 </p>
                             </div>
                         </div>

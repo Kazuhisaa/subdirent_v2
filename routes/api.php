@@ -67,8 +67,6 @@ Route::prefix('bookings')->group(function () {
 });
 
 
-
-
 Route::prefix('bookings')->group(function () {
     Route::post('/', [BookingController::class, 'store']);              // POST /bookings
     Route::get('/getOccupiedTime/{unit_id}/{date}',[BookingController::class,'showAllOccupiedTime']);
