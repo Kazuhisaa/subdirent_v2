@@ -21,6 +21,7 @@ Route::view('/units', 'units')->name('units');
 // Tenant dashboard
 Route::get('/tenant', [TenantController::class, 'home'])->name('tenant.home');
 
+
 // Authentication
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
