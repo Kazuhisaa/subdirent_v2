@@ -187,4 +187,35 @@ class TenantController extends Controller
         $archived = Tenant::onlyTrashed()->get();
         return response()->json($archived);
     }
+
+    public function payments()
+{
+    // Example dummy data for now
+    $balance = 200.00;
+    $dueDate = 'December 11, 2025';
+    $payments = [
+        ['date' => '10/10/2025', 'confirmation' => 'A1B2-C3D4', 'amount' => 2000.00],
+        ['date' => '09/09/2025', 'confirmation' => 'F5G6-H7I8', 'amount' => 2000.00],
+        ['date' => '08/08/2025', 'confirmation' => 'J9K1-L2M3', 'amount' => 2000.00],
+    ];
+
+    return view('tenant.payments', compact('balance', 'dueDate', 'payments'));
 }
+
+public function makePayment(Request $request)
+{
+    // Example: payment logic here (Stripe, PayPal, etc.)
+    // For now, just simulate success
+    return back()->with('status', 'Payment processed successfully!');
+}
+
+public function ledger()
+{
+    return view('tenant.ledger'); // optional
+}
+
+    
+
+}
+
+

@@ -51,4 +51,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(Tenant::class, 'email', 'email');
     }
+
+        public function tenant()
+    {
+        return $this->hasOne(Tenant::class);
+    }
+
 }
