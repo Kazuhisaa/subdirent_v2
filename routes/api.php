@@ -90,6 +90,25 @@ Route::prefix('revenue')->group(function(){
     Route::get('/average',[RevenueController::class,'showAverage']);
      Route::get('/peakmonth',[RevenueController::class,'showPeakMonth']);
      Route::get('/totalrevenue',[RevenueController::class,'showTotalRevenue']);
+     Route::post('/addNewMonthRevenue',[RevenueController::class,'store']);
+     
+     Route::put('/addRevenue',[RevenueController::class,'addrevenue']);
+     /* 
+     example put json
+       {
+         "increment": 1000 <- yung binayad ni tenant
+        }
+     
+     */
+     Route::put('/add-new-contract', [RevenueController::class, 'addNewContract']);
+       /*
+       
+          example put json
+           {
+      "contract" : 1 <- kada new contract mag aadd ng one,fixed na yan automatic na mag aadd sa new_contract at active contract
+           }
+       
+       */
 });
 
 Route::get('/analytics/data', [RevenuePredictionController::class, 'getAnalyticsData']);
