@@ -10,13 +10,13 @@ class TenantController extends Controller
 {
     public function home()
 {
-    $tenant = Auth::user();
+    $tenant = auth()->user()->tenant()->with('unit')->first();
     return view('tenant.home', compact('tenant'));
 }
 
 public function property()
 {
-    $tenant = Auth::user();
+    $tenant = auth()->user()->tenant()->with('unit')->first();
     return view('tenant.property', compact('tenant'));
 }
         
@@ -104,6 +104,7 @@ public function ledger()
 {
     return view('tenant.ledger'); // optional
 }
+
 
     
 

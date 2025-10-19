@@ -1,142 +1,72 @@
-/* ================================
-   Tenant Dashboard Theme (Teal)
-================================= */
-
 :root {
-  /* Teal Palette */
-  --teal-900: #083836;
-  --teal-800: #0C5450;
-  --teal-700: #117A75;
-  --teal-600: #159D96;
-  --teal-500: #19BEB5;
-  --teal-400: #5ED3CA;
-  --teal-300: #9BE6E0;
-  --teal-200: #CFF5F3;
-  --teal-100: #EBFAF9;
+  /* Deep Blue Palette */
+  --blue-950: #071C2C;
+  --blue-900: #0A2845;
+  --blue-800: #10365A;
+  --blue-700: #144977;
+  --blue-600: #1B5F99;
+  --blue-500: #2478C2;
+  --blue-400: #4DA3E4;
+  --blue-300: #7FC4F2;
+  --blue-200: #B9E0FA;
+  --blue-100: #E8F4FF;
 
-  /* Gradient for Action Buttons */
-  --tenant-gradient: linear-gradient(135deg, var(--teal-700), var(--teal-600), var(--teal-500));
+  /* Gradient for Buttons & Highlights */
+  --tenant-gradient: linear-gradient(135deg, var(--blue-700), var(--blue-600), var(--blue-500));
 }
 
 /* Alerts */
 .theme-alert {
-  background-color: var(--teal-100);
-  border: 1px solid var(--teal-200);
-  color: var(--teal-900);
+  background-color: var(--blue-100);
+  border: 1px solid var(--blue-200);
+  color: var(--blue-900);
 }
 
-/* Text Colors */
-.text-teal-900 { color: var(--teal-900) !important; }
-.text-teal-800 { color: var(--teal-800) !important; }
-.text-teal-700 { color: var(--teal-700) !important; }
+/* Text Utilities */
+.text-blue-900 { color: var(--blue-900) !important; }
+.text-blue-800 { color: var(--blue-800) !important; }
+.text-blue-700 { color: var(--blue-700) !important; }
 
-/* Room / Info Cards */
-.tenant-card {
-  background-color: #fff;
-  border: 1px solid var(--teal-200);
-  border-radius: 12px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(8, 56, 54, 0.1);
-}
-.tenant-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(8, 56, 54, 0.15);
-}
-.tenant-card img {
-  max-height: 150px;
-  border: 1px solid var(--teal-300);
-}
-.tenant-card-title {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  color: var(--teal-700);
-  font-weight: 600;
-}
-
-/* Buttons */
-.btn-tenant {
-  background: var(--tenant-gradient);
-  color: #fff !important;
-  border: none;
-  font-weight: 600;
-  box-shadow: 0 3px 6px rgba(8, 56, 54, 0.15);
-  transition: all 0.3s ease;
-}
-.btn-tenant:hover {
-  background: linear-gradient(135deg, var(--teal-600), var(--teal-500), var(--teal-400));
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(8, 56, 54, 0.25);
-}
-
-/* Outline Button */
-.btn-outline-tenant {
-  background-color: var(--teal-100);
-  border: 1px solid var(--teal-300);
-  color: var(--teal-800);
-  transition: all 0.3s ease;
-}
-.btn-outline-tenant:hover {
-  background-color: var(--teal-200);
-  color: var(--teal-900);
-  border-color: var(--teal-400);
-}
-
-/* Tables */
-.tenant-table thead th {
-  background-color: var(--teal-100);
-  color: var(--teal-800);
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  border-bottom: 2px solid var(--teal-200);
-}
-.tenant-table tbody td {
-  color: var(--teal-900);
-  vertical-align: middle;
-}
-.tenant-table tbody tr:hover {
-  background-color: var(--teal-100);
-  transition: background 0.2s ease;
-}
-
-/* Badges */
-.badge.bg-success {
-  background-color: var(--teal-600) !important;
-}
-.badge.bg-secondary {
-  background-color: var(--teal-300) !important;
-  color: var(--teal-900);
-}
-
-/* Sidebar */
+/* Root Layout */
 .tenant-root {
   min-height: 100vh;
   display: flex;
-  background-color: var(--teal-100);
-  color: var(--teal-900);
+  background-color: var(--blue-100);
+  color: var(--blue-900);
 }
+
+/* Sidebar */
 #sidebar {
   width: 240px;
   background-color: #fff;
-  border-right: 1px solid var(--teal-200);
-  color: var(--teal-900);
+  border-right: 1px solid var(--blue-200);
+  color: var(--blue-900);
   transition: width 0.3s ease, transform 0.3s ease;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  z-index: 1020;
 }
+
+/* Sidebar Branding */
 #sidebar .sidebar-brand h5 {
-  color: var(--teal-800);
+  color: var(--blue-800);
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 #sidebar .sidebar-brand small {
-  color: var(--teal-400);
+  color: var(--blue-400);
 }
+
+/* Sidebar Links */
 #sidebar .nav-link {
-  color: var(--teal-800);
+  color: var(--blue-800);
   padding: 0.65rem 1rem;
   border-radius: 6px;
   font-size: 0.95rem;
@@ -147,28 +77,72 @@
 }
 #sidebar .nav-link.active,
 #sidebar .nav-link:hover {
-  background-color: var(--teal-200);
-  color: var(--teal-700);
+  background-color: var(--blue-200);
+  color: var(--blue-700);
 }
 #sidebar .nav-link i {
-  color: var(--teal-400);
+  color: var(--blue-400);
+}
+
+/* Collapsed (Desktop) */
+#sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+/* Main Content */
+.flex-grow-1 {
+  margin-left: 240px;
+  transition: margin-left 0.3s ease;
+}
+
+/* When Sidebar Collapsed */
+#sidebar.collapsed ~ .flex-grow-1 {
+  margin-left: 0;
 }
 
 /* Topbar */
 header {
   background: #fff;
-  border-bottom: 1px solid var(--teal-200);
+  border-bottom: 1px solid var(--blue-200);
 }
 header .h6 {
-  color: var(--teal-900);
+  color: var(--blue-900);
 }
 .btn-outline-secondary {
-  border-color: var(--teal-500);
-  color: var(--teal-500);
+  border-color: var(--blue-500);
+  color: var(--blue-500);
 }
 .btn-outline-secondary:hover {
-  background-color: var(--teal-500);
+  background-color: var(--blue-500);
   color: #fff;
+}
+
+/* Buttons */
+.btn-tenant {
+  background: var(--tenant-gradient);
+  color: #fff !important;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 3px 6px rgba(10, 37, 64, 0.15);
+  transition: all 0.3s ease;
+}
+.btn-tenant:hover {
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-500), var(--blue-400));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.25);
+}
+
+/* Outline Blue Button */
+.btn-outline-tenant {
+  background-color: var(--blue-100);
+  border: 1px solid var(--blue-300);
+  color: var(--blue-800);
+  transition: all 0.3s ease;
+}
+.btn-outline-tenant:hover {
+  background-color: var(--blue-200);
+  color: var(--blue-900);
+  border-color: var(--blue-400);
 }
 
 /* Cards */
@@ -176,129 +150,82 @@ header .h6 {
   border: none;
   border-radius: 12px;
   background: #fff;
-  box-shadow: 0 2px 6px rgba(8, 56, 54, 0.1);
+  box-shadow: 0 2px 6px rgba(10, 37, 64, 0.1);
   transition: all 0.2s ease-in-out;
 }
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(8, 56, 54, 0.15);
+  box-shadow: 0 4px 10px rgba(10, 37, 64, 0.15);
 }
 .card-title {
   font-size: 0.85rem;
   text-transform: uppercase;
   font-weight: 600;
-  color: var(--teal-600);
+  color: var(--blue-600);
 }
 .card h2 {
   font-weight: 700;
-  color: var(--teal-900);
+  color: var(--blue-900);
 }
 
-.card-shadow {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+/* Badges */
+.badge.bg-success {
+  background-color: var(--blue-600) !important;
+}
+.badge.bg-secondary {
+  background-color: var(--blue-300) !important;
+  color: var(--blue-900);
 }
 
-.tenant-dashboard-container {
-  padding: 20px;
+/* Tables */
+.tenant-table thead th {
+  background-color: var(--blue-100);
+  color: var(--blue-800);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  border-bottom: 2px solid var(--blue-200);
+}
+.tenant-table tbody td {
+  color: var(--blue-900);
+  vertical-align: middle;
+}
+.tenant-table tbody tr:hover {
+  background-color: var(--blue-100);
+  transition: background 0.2s ease;
 }
 
-.tenant-profile-img {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 2px solid var(--tenant-accent);
-  object-fit: cover;
+/* Stretch calendar card */
+.calendar-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-/* FullCalendar Teal Theme */
-.tenant-calendar {
-  font-family: 'Inter', sans-serif;
-  background-color: #ffffff;
-  border-radius: 12px;
-  overflow: hidden;
+/* Sticky header in calendar card */
+.calendar-card .card-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.fc-toolbar-title {
-  color: var(--tenant-accent-dark);
-  font-size: 1.1rem;
-  font-weight: 700;
+/* Full width calendar card */
+#tenant-calendar {
+  width: 100%;
+  min-height: 450px;
+  transition: width 0.3s ease, opacity 0.3s ease;
 }
 
-.fc-button {
-  background-color: var(--tenant-accent) !important;
-  border: none !important;
-  color: white !important;
-  border-radius: 6px !important;
-  text-transform: capitalize;
-  padding: 4px 8px !important;
-  font-size: 0.8rem !important;
+.card {
+  transition: all 0.3s ease-in-out;
 }
 
-.fc-daygrid-day-number {
-  color: #333;
-  font-weight: 500;
-}
-
-.fc-event {
-  border: none !important;
-  border-radius: 6px;
-  padding: 3px 5px !important;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #fff !important;
-}
-
-.fc-day-today {
-  background-color: var(--tenant-light) !important;
-  border: 1px solid var(--tenant-accent);
-}
-
-.fc {
-  border: none !important;
+/* Add spacing below calendar */
+.mb-5 {
+  margin-bottom: 3rem !important;
 }
 
 
-.fc-button:hover {
-  background-color: var(--tenant-accent-dark) !important;
-}
-
-.fc-daygrid-day.fc-day-today {
-  background-color: var(--tenant-light) !important;
-  border: 1px solid var(--tenant-accent);
-}
-
-.fc-event {
-  border: none !important;
-  background-color: var(--tenant-accent) !important;
-  color: #fff !important;
-  font-size: 0.8rem;
-  padding: 3px 5px !important;
-  border-radius: 6px;
-}
-
-.fc-daygrid-day-frame {
-  padding: 5px;
-}
-
-.fc-scrollgrid {
-  border: none !important;
-}
-
-.fc-theme-standard td, 
-.fc-theme-standard th {
-  border: 1px solid #e0e0e0 !important;
-}
-
-.fc-daygrid-day:hover {
-  background-color: #f9f9f9;
-  transition: background-color 0.2s ease;
-}
-
-.fc-day-sun a, .fc-day-sat a {
-  color: #888;
-}
 
 
 /* Responsive Sidebar */
@@ -310,5 +237,12 @@ header .h6 {
   }
   #sidebar.collapsed {
     transform: translateX(0);
+  }
+  .flex-grow-1 {
+    margin-left: 0 !important;
+  }
+  #toggleSidebar {
+    position: relative;
+    z-index: 1030;
   }
 }
