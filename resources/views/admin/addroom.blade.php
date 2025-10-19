@@ -77,10 +77,6 @@
                                placeholder="e.g. 450000.00">
                     </div>
 
-                    <div class="col-md-3">
-                        <label class="form-label fw-semibold text-dark">Contract Years</label>
-                        <input type="number" name="contract_years" class="form-control border-primary shadow-sm" min="1" value="12">
-                    </div>
                 </div>
 
                 <div class="row g-3 mb-4">
