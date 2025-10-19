@@ -6,7 +6,7 @@ use App\Services\RevenuePredictionService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\Queueable;
+use Illuminate\Bus\Queueable;
 
 class TrainModel implements ShouldQueue
 {

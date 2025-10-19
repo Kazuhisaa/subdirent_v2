@@ -46,7 +46,7 @@
                         <thead>
                             <tr class="text-muted">
                                 <th>Description</th>
-                                <th class="text-end">Amount</th>
+                                <th class="text-end">Amount</th>    
                             </tr>
                         </thead>
                         <tbody>

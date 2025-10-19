@@ -19,6 +19,7 @@ class Contract extends Model
         'total_price',
         'downpayment',
         'monthly_payment',
+        'unit_price',
         'payment_due_date',
         'status',
         'remarks',

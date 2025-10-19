@@ -9,14 +9,23 @@ class Payment extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'tenant_id',
-        'unit_id',
         'contract_id',
         'amount',
+        'payment_method', 
+        'payment_status', 
         'payment_date',
-        'invoice',
-        'status',
+        'reference_no',   
+        'invoice_no',    
+        'invoice_pdf',    
+        'remarks',        
+        'unit_id',        
     ];
 
     // Relationships
@@ -31,9 +40,6 @@ class Payment extends Model
     public function contract() {
         return $this->belongsTo(Contract::class);
     }
-    public function payments()
-{
-    return $this->hasMany(Payment::class);
-}
+
 
 }

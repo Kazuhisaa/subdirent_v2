@@ -33,7 +33,7 @@
 
 {{-- ✅ Pass API token safely --}}
 <script>
-    window.apiToken = "{{ session('admin_api_token') }}";
+    sessionStorage.setItem('admin_api_token', '{{ session('admin_api_token') }}');
 </script>
 
 {{-- ✅ Existing Fetch Script --}}

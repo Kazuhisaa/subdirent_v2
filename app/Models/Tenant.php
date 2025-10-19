@@ -28,6 +28,12 @@ class Tenant extends Model
     {
         return $this->hasMany(Payment::class);
     }
-}
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class);
+    }
+    
+    }
+
 
 
