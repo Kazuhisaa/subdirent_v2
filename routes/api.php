@@ -47,6 +47,8 @@ Route::middleware(['auth:sanctum'])->group(function() {
     Route::get('/findUnits/{id}',[UnitsController::class, 'show']);
     Route::put('/editUnits/{unit}',[UnitsController::class, 'update']);  
     Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);
+    Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
+
     
     
 Route::prefix('applications')->group(function () {
