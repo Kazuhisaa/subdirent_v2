@@ -65,6 +65,30 @@
         </div>
     </div>
 </div>
+{{-- OCCUPANCY CHART --}}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+                <h5 class="mb-0">Occupancy Overview</h5>
+                <div>
+                    <button class="btn btn-light btn-sm me-1 fw-semibold occ-btn" data-type="all">All Status</button>
+                    <button class="btn btn-light btn-sm me-1 fw-semibold occ-btn" data-type="location">Per Location</button>
+                    <button class="btn btn-light btn-sm me-1 fw-semibold occ-btn" data-type="rate">Rate per Location</button>
+                    <button class="btn btn-light btn-sm me-1 fw-semibold occ-btn" data-type="allrate">Overall Rate</button>
+                    <select id="chartTypeSelect" class="form-select form-select-sm d-inline-block w-auto ms-2">
+                        <option value="bar">Bar</option>
+                        <option value="pie">Pie</option>
+                    </select>
+                </div>
+            </div>
+                <div class="card-body" style="height:450px;" id="occupancyChartContainer">
+                    <canvas id="occupancyChart"></canvas>
+                </div>
+        </div>
+    </div>
+</div>
+
 
 {{-- CHART SCRIPT --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -210,4 +234,152 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchAndRender(activeButton);
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<script>
+<!-- Pie/Bar Chart Container -->
+<div class="card-body" style="height:450px;" id="occupancyChartContainer">
+    <canvas id="occupancyChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<script>
+const occCtx = document.getElementById('occupancyChart').getContext('2d');
+let occChart;
+let activeOccBtn = 'all';
+let chartType = 'bar';
+
+const cssColors = [
+    getComputedStyle(document.documentElement).getPropertyValue('--blue-900').trim(),
+    getComputedStyle(document.documentElement).getPropertyValue('--blue-800').trim(),
+    getComputedStyle(document.documentElement).getPropertyValue('--blue-700').trim(),
+    getComputedStyle(document.documentElement).getPropertyValue('--blue-600').trim(),
+    getComputedStyle(document.documentElement).getPropertyValue('--blue-500').trim(),
+    getComputedStyle(document.documentElement).getPropertyValue('--blue-400').trim()
+];
+
+document.getElementById('chartTypeSelect').addEventListener('change', e => {
+    chartType = e.target.value;
+    fetchOccupancyData(activeOccBtn);
+});
+
+async function fetchOccupancyData(type){
+    const endpoints = {
+        all:'/api/occupancy/all',
+        location:'/api/occupancy/perlocation',
+        rate:'/api/occupancy/rate',
+        allrate:'/api/occupancy/all'
+    };
+
+    try {
+        const res = await fetch(endpoints[type]);
+        if(!res.ok) throw new Error(`Failed to fetch ${type}`);
+        const data = await res.json();
+
+        let labels = [], values = [], labelText='', isPercentage=false;
+
+        if(type==='all' || type==='allrate'){
+            labels = data.map(d => d.status || 'N/A');
+            values = data.map(d => Number(d.total) || 0);
+            labelText = type==='all' ? 'Units by Status' : 'Overall Status';
+        } else if(type==='location'){
+            labels = data.map(d => d.location || 'N/A');
+            values = data.map(d => Number(d.total) || 0);
+            labelText = 'Units per Location';
+        } else if(type==='rate'){
+            labels = data.map(d => d.location || 'N/A');
+            values = data.map(d => parseFloat(d.occupancy_rate) || 0);
+            labelText = 'Occupancy Rate (%)';
+            isPercentage = true;
+        }
+
+        // Colors
+        const bgColors = labels.map((_,i)=>cssColors[i % cssColors.length]);
+
+        const chartData = {
+            labels,
+            datasets: [{
+                label: labelText,
+                data: values,
+                backgroundColor: bgColors,
+                borderColor: '#0d6efd',
+                borderWidth: 2,
+                borderRadius: chartType==='bar'?6:0,
+                barThickness: chartType==='bar'?50:undefined
+            }]
+        };
+
+        const options = {
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+                legend:{position:'top', labels:{color:'#0d6efd', font:{weight:'bold'}}},
+                tooltip: chartType==='pie' ? {
+                    backgroundColor:'#0d6efd',
+                    titleFont:{weight:'bold'},
+                    callbacks:{
+                        label: ctx => isPercentage ? ` ${ctx.parsed}%` : ` ${ctx.parsed} units`
+                    }
+                } : false,
+                datalabels: {
+                    color:'#fff',
+                    font:{weight:'bold', size:14},
+                    formatter: (value, ctx) => chartType==='pie'
+                        ? `${value}${isPercentage ? '%' : ''}`  // Pie: inside numbers
+                        : isPercentage ? `${value}%` : `${value}` // Bar: numbers above bars
+                }
+            },
+            scales: chartType==='bar' ? {
+                y:{beginAtZero:true, ticks:{callback:v=>isPercentage?v+'%':v}}
+            } : {}
+        };
+
+        if(!occChart){
+            occChart = new Chart(occCtx, {
+                type: chartType,
+                data: chartData,
+                options,
+                plugins: [ChartDataLabels] // Enable data labels
+            });
+        } else {
+            occChart.config.type = chartType;
+            occChart.data = chartData;
+            occChart.options = options;
+            occChart.update();
+        }
+
+    } catch(err){
+        console.error('Occupancy fetch error:', err);
+    }
+}
+
+// Buttons
+function setActiveOccButton(type){
+    activeOccBtn = type;
+    document.querySelectorAll('.occ-btn').forEach(btn=>{
+        btn.classList.remove('btn-primary','text-white');
+        btn.classList.add('btn-light','text-dark');
+    });
+    const activeBtn = document.querySelector(`.occ-btn[data-type="${type}"]`);
+    if(activeBtn){
+        activeBtn.classList.remove('btn-light','text-dark');
+        activeBtn.classList.add('btn-primary','text-white');
+    }
+}
+
+document.querySelectorAll('.occ-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+        const type = e.currentTarget.dataset.type;
+        setActiveOccButton(type);
+        fetchOccupancyData(type);
+    });
+});
+
+// Initial load
+setActiveOccButton(activeOccBtn);
+fetchOccupancyData(activeOccBtn);
+</script>
+
 @endsection
