@@ -27,7 +27,10 @@ class RevenueService {
          return RevenuePrediction::where('year_month', '>=', $date)
             ->increment('monthly_revenue', $amount);
     }
+
+    
      
+
 public function addnewContract($date, $contract)
 {
     return RevenuePrediction::where('year_month', '>=', $date)
@@ -36,6 +39,16 @@ public function addnewContract($date, $contract)
             'new_contracts' => \DB::raw("new_contracts + $contract")
         ]);
 }
+
+public function subtractContract($date,$contract)
+{
+
+    return RevenuePrediction::where('year_month','>=',$date)->update([
+        'active_contracts' => \DB::raw("active_contracts - $contract"),
+        'expired_contracts' =>  \DB::raw("expired_contracts + $contract")
+    ]);
+}
+
 
     public function getAverage(){
         return $this->historical_data->avg('monthly_revenue');

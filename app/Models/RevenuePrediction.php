@@ -18,6 +18,7 @@ class RevenuePrediction extends Model
      'new_contracts',
      'expired_contracts',
      'prev_month_revenue',
-     'monthly_revenue'
+     'monthly_revenue',
+     'year_month'
     ];
 }
