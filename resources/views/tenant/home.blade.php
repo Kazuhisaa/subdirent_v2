@@ -48,7 +48,7 @@
     </div>
   </div>
 
-  <!-- 🔹 Full Width Calendar -->
+  <!-- Full Width Calendar -->
   <div class="row mb-5">
     <div class="col-12">
       <div class="card border-0 shadow-sm p-4 w-100">

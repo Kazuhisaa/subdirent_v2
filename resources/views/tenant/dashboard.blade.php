@@ -60,13 +60,13 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#">
+          <a class="nav-link {{ request()->routeIs('tenant.account') ? 'active' : '' }}" href="{{ route('tenant.account') }}">
             <i class="bi bi-person-circle me-2"></i> <span>My Account</span>
           </a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#">
+          <a class="nav-link {{ request()->routeIs('tenant.propertysearch') ? 'active' : '' }}" href="{{ route('tenant.propertysearch') }}">
             <i class="bi bi-search-heart me-2"></i> <span>Property Search</span>
           </a>
         </li>
@@ -135,5 +135,8 @@
   });
   </script>
 
+<script>
+  window.apiToken = "{{ auth()->user()->createToken('tenant-token')->plainTextToken ?? '' }}";
+</script>
 </body>
 </html>

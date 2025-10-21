@@ -181,5 +181,13 @@ class UnitsController extends Controller
             return response()->json($units);
         }
 
+        public function available()
+    {
+        // Only return available units
+        $units = Unit::where('status', 'available')->get();
+        return response()->json($units);
+    }
+
+
 }
 
