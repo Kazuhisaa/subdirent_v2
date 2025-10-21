@@ -102,13 +102,20 @@ Route::get('/payments/failed', function () {
 
 
 
+// Tenant Payment Routes
 Route::middleware(['auth'])->group(function () {
-        Route::get('/tenant/payments', [TenantController::class, 'payments'])->name('tenant.payments');
-    Route::get('tenant/{tenant}/dashboard', [PaymentController::class, 'dashboard'])->name('tenant.dashboard');
-    Route::get('tenant/{tenant}/payments', [PaymentController::class, 'payments'])->name('tenant.payments');
-    Route::post('tenant/{tenant}/payments/create', [PaymentController::class, 'createPayment'])->name('payments.create');
-    Route::get('tenant/{tenant}/payments/success', [PaymentController::class, 'success'])->name('payments.success');
-    Route::get('tenant/{tenant}/payments/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
+    Route::get('/tenant/{tenant}/dashboard', [PaymentController::class, 'dashboard'])->name('tenant.home');
+    
+    // Payment Creation (GCash/Card)
+    Route::post('/tenant/{tenant}/pay', [PaymentController::class, 'createPayment'])->name('tenant.payment.create');
+
+Route::get('/tenant/{tenant}/payment-success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/tenant/{tenant}/payment-cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+
 });
 
-Route::post('payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');
+// Webhook (API route)
+Route::post('/webhook/paymongo', [PaymentController::class, 'webhook'])->name('payment.webhook');
+
+Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook']);
+
