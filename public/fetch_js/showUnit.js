@@ -1,32 +1,20 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const grid = document.getElementById('unitsGrid');
-    const token = sessionStorage.getItem('admin_api_token');
+    const searchInput = document.getElementById('unitSearch');
+    const token = window.apiToken;
 
     if (!token) {
         grid.innerHTML = `<div class="col-12 text-danger text-center">⚠ Unauthorized — please login first.</div>`;
         return;
     }
 
-    try {
-        const res = await fetch('/api/allUnits', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
+    let allUnits = [];
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-
-        // Filter only available units
-        const availableUnits = data.filter(unit =>
-            unit.status && unit.status.toLowerCase() === 'available'
-        );
-
+    // 🟢 Function to render unit cards
+    const renderUnits = (units) => {
         grid.innerHTML = '';
 
-        if (availableUnits.length === 0) {
+        if (!units.length) {
             grid.innerHTML = `
                 <div class="col-12 text-center py-5">
                     <img src="/images/empty-state.svg" alt="No data" width="120" class="mb-3">
@@ -35,10 +23,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        availableUnits.forEach(unit => {
+        units.forEach(unit => {
             const imagePath = (unit.files && unit.files.length > 0)
                 ? `/uploads/units/${unit.files[0].split('/').pop()}`
                 : `/images/no-image.png`;
+
+            // ✅ Clean price (remove symbols, prevent NaN)
+            const cleanPrice = Number((unit.unit_price || '0').toString().replace(/[^0-9.]/g, ''));
 
             const card = `
                 <div class="col-lg-4 col-md-6">
@@ -66,20 +57,67 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </div>
 
                             <div class="border-top pt-2">
-                                <p class="fw-bold text-blue-900 mb-1">
-                                    Rent: ₱${Number(unit.monthly_rent || 0).toLocaleString()}
-                                </p>
                                 <p class="fw-semibold text-blue-800 mb-0">
-                                    Price: ₱${Number(unit.unit_price || 0).toLocaleString()}
+                                    <strong>Unit Price:</strong> ₱${cleanPrice.toLocaleString()}
                                 </p>
+                            </div>
+
+                            <div class="text-end">
+                                <button class="btn btn-outline-primary btn-sm edit-unit-btn" data-id="${unit.id}">
+                                    <i class="bi bi-pencil-square me-1"></i> Edit
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>`;
             grid.insertAdjacentHTML('beforeend', card);
         });
+    };
+
+    // 🟢 Fetch all available units from API
+    try {
+        const res = await fetch('/api/allUnits', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        // only available units
+        allUnits = data.filter(unit =>
+            unit.status && unit.status.toLowerCase() === 'available'
+        );
+
+        renderUnits(allUnits);
     } catch (err) {
         console.error('Error loading units:', err);
         grid.innerHTML = `<div class="col-12 text-danger text-center">⚠ Error loading units.</div>`;
     }
+
+    // 🟢 Search filter (instant)
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase().trim();
+
+        const filtered = allUnits.filter(unit => {
+            return (
+                (unit.title && unit.title.toLowerCase().includes(searchTerm)) ||
+                (unit.unit_code && unit.unit_code.toLowerCase().includes(searchTerm)) ||
+                (unit.location && unit.location.toLowerCase().includes(searchTerm))
+            );
+        });
+
+        renderUnits(filtered);
+    });
+
+    // 🟢 Edit button event
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.edit-unit-btn')) {
+            const id = e.target.closest('.edit-unit-btn').dataset.id;
+            window.location.href = `/admin/units/${id}/edit`;
+        }
+    });
 });

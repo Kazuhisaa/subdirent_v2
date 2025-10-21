@@ -19,6 +19,7 @@ class Contract extends Model
         'total_price',
         'downpayment',
         'monthly_payment',
+        'unit_price',
         'payment_due_date',
         'status',
         'remarks',
@@ -34,6 +35,10 @@ class Contract extends Model
     public function unit()
     {
         return $this->belongsTo(Unit::class);
+    } 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 
     

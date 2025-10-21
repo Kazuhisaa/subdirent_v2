@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+
 class Tenant extends Model
 {
     use HasFactory, SoftDeletes;
@@ -24,6 +25,22 @@ class Tenant extends Model
     {
         return $this->belongsTo(Unit::class);
     }
+     public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class);
+    }
+        public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }
+    
+    
+
 
 

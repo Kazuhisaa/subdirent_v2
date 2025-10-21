@@ -7,46 +7,53 @@
 <div class="container-fluid tenant-dashboard">
 
   <!-- Welcome + Property Card -->
-  <div class="row align-items-center mb-4">
-    <div class="col-md-8">
-      <div class="card tenant-card shadow-sm border-0 p-4 d-flex flex-row align-items-center">
+  <div class="row align-items-stretch mb-4">
+    <!-- Welcome Message -->
+    <div class="col-md-8 d-flex">
+      <div class="card tenant-card shadow-sm border-0 p-4 flex-fill d-flex flex-row align-items-center">
         <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle me-3" width="60" height="60" alt="Profile">
         <div>
-          <h5 class="mb-1">Hi, Tenant 2</h5>
-          <p class="text-muted mb-2">Welcome to your Tenant Portal. Here’s a quick overview of your account, payments, and tasks.</p>
+          <h5 class="mb-1">Hi, {{ $tenant->first_name ?? $tenant->name ?? 'Tenant' }}</h5>
+          <p class="text-muted mb-2">
+            Welcome to your Tenant Portal. Here’s a quick overview of your property, payments, and maintenance updates.
+          </p>
         </div>
       </div>
     </div>
 
-    <div class="col-md-4">
-      <div class="card p-3 border-0 shadow-sm">
-        <div class="d-flex justify-content-between align-items-center">
+    <!-- Dynamic Property Card -->
+    <div class="col-md-4 d-flex">
+      <div class="card p-3 border-0 shadow-sm flex-fill">
+        <div class="d-flex justify-content-between align-items-center mb-2">
           <div>
             <small class="text-muted d-block">PROPERTY DETAILS</small>
-            <strong>123 Gawagawa Ave.</strong>
-            <p class="small text-muted mb-0">
-              Next payment of ₱19,220 is due on <strong>Oct 17, 2025</strong>.
-            </p>
+               @if($tenant->tenant && $tenant->tenant->unit)
+              <strong>{{ $tenant->tenant->unit->title }}</strong>
+              <p class="small text-muted mb-0">
+                {{ $tenant->tenant->unit->location }}
+              </p>
+            @else
+              <p class="small text-muted mb-0">No assigned property yet.</p>
+            @endif
           </div>
-          <i class="bi bi-house-door-fill text-tenant-accent fs-4"></i>
+          <i class="bi bi-house-door-fill text-primary fs-4"></i>
         </div>
+
+        @if($tenant && $tenant->unit)
+          <a href="{{ route('tenant.property') }}" class="btn btn-outline-tenant w-100 mt-2">
+            <i class="bi bi-building me-1"></i> View My Property
+          </a>
+        @endif
       </div>
     </div>
   </div>
 
-  <!-- Accounting Chart + Calendar -->
-  <div class="row mb-4">
-    <div class="col-lg-8">
-      <div class="card border-0 shadow-sm p-4">
-        <h6 class="fw-bold mb-3">Accounting Overview</h6>
-        <canvas id="paymentChart" height="400"></canvas>
-      </div>
-    </div>
-
-    <div class="col-lg-4">
-      <div class="card border-0 shadow-sm p-4">
+  <!-- 🔹 Full Width Calendar -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm p-4 w-100">
         <h6 class="fw-bold mb-3">Payment Schedule</h6>
-        <div id="tenant-calendar" class="tenant-calendar"></div>
+        <div id="tenant-calendar" class="tenant-calendar w-100"></div>
       </div>
     </div>
   </div>
@@ -115,46 +122,51 @@
   </div>
 </div>
 
-<!-- Chart + Calendar -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Calendar Script -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script>
-  // Bar Chart
-  const ctx = document.getElementById('paymentChart');
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
-      datasets: [{
-        label: 'Total Rent',
-        data: [15000, 15500, 16000, 16500, 17000, 17500, 18000, 18500, 19220, 19220],
-        backgroundColor: '#009688'
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false }},
-      scales: { y: { beginAtZero: true }}
-    }
-  });
-
-  // Calendar
   document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('tenant-calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        height: 400,
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: ''
-        },
+    const calendarEl = document.getElementById('tenant-calendar');
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleSidebar');
+
+    // Create the calendar
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      height: 'auto',
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: ''
+      },
       events: [
-        { title: 'Rent Due ₱19,220', start: '2025-10-17', color: '#009688' },
+        { title: 'Rent Due ₱19,220', start: '2025-10-17', color: '#2478C2' },
         { title: 'Maintenance - Water Leak', start: '2025-10-10', color: '#ff7043' },
         { title: 'Electric Bill ₱2,800', start: '2025-10-20', color: '#26a69a' }
       ]
     });
     calendar.render();
+
+    // Animate calendar resize when sidebar toggles
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', () => {
+        // Add a short opacity transition for smoothness
+        calendarEl.style.transition = 'opacity 0.3s ease';
+        calendarEl.style.opacity = '0.4';
+
+        // Wait for sidebar animation to finish
+        setTimeout(() => {
+          calendar.updateSize();
+          calendarEl.style.opacity = '1';
+        }, 350);
+      });
+    }
+
+    // Re-render on window resize
+    window.addEventListener('resize', () => {
+      calendar.updateSize();
+    });
   });
 </script>
+
 @endsection

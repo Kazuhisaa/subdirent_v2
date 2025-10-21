@@ -1,7 +1,7 @@
 async function ensureSanctumSession() {
     await fetch("/sanctum/csrf-cookie", {
         method: "GET",
-        credentials: "include"
+        credentials: "include",
     });
 }
 
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const token = document.querySelector('meta[name="admin-api-token"]')?.getAttribute("content");
 
-        const response = await fetch("/admin/api/tenants?limit=10", {
+        const response = await fetch("/api/admin/api/tenants", {
             method: "GET",
             headers: {
                 "Accept": "application/json",
@@ -24,28 +24,31 @@ document.addEventListener("DOMContentLoaded", async () => {
             },
         });
 
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) {
+            // Backend error response
+            const errorData = await response.json().catch(() => null);
+            console.error("Backend error response: ", errorData);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-        const result = await response.json();
+        const applications = await response.json();
         loader.style.display = "none";
 
-        const tenants = Array.isArray(result) ? result : result.data;
-
-        if (!tenants || tenants.length === 0) {
+        if (!applications || applications.length === 0) {
             tableBody.innerHTML = `
                 <tr><td colspan="9" class="text-center py-4 text-muted">No tenants found.</td></tr>`;
             return;
         }
 
-        tenants.forEach((t, i) => {
-            const fullName = [t.first_name, t.middle_name, t.last_name].filter(Boolean).join(" ");
+        applications.forEach((app, i) => {
+            const fullName = [app.first_name, app.middle_name, app.last_name].filter(Boolean).join(" ");
             const row = `
                 <tr>
                     <td>${i + 1}</td>
                     <td>${fullName}</td>
-                    <td>${t.email}</td>
-                    <td>${t.contact_num}</td>
-                    <td>${t.unit_id || "N/A"}</td>
+                    <td>${app.email}</td>
+                    <td>${app.contact_num}</td>
+                    <td>${app.unit_id || "N/A"}</td>
                     <td>
                         <button class="btn btn-sm btn-light border-0 text-primary me-2" title="Edit">
                             <i class="bi bi-pencil-square fs-5"></i>

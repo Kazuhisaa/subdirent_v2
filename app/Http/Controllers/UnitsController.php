@@ -167,6 +167,19 @@ class UnitsController extends Controller
 
         return redirect()->route('admin.rooms')->with('success', 'Unit unarchived successfully!');
     }
+        public function search(Request $request)
+        {
+            $query = $request->input('query', '');
+
+            $units = Unit::query()
+                ->where('title', 'LIKE', "%{$query}%")
+                ->orWhere('location', 'LIKE', "%{$query}%")
+                ->orWhere('unit_code', 'LIKE', "%{$query}%")
+                ->orWhere('description', 'LIKE', "%{$query}%")
+                ->get();
+
+            return response()->json($units);
+        }
 
 }
 

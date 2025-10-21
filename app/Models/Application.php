@@ -23,6 +23,7 @@ class Application extends Model
         'monthly_payment',
         'unit_price',
         'payment_due_date',
+        'contract_years',
         'remarks'
     ];
 

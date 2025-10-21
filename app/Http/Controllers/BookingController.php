@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Unit;
 use App\Models\Booking;
 use App\Models\Application;
 use Illuminate\Http\Request;
@@ -75,6 +76,7 @@ public function showByUnitId($unit_id){
   return response()->json($booking);
         
 }
+
 public function confirm($id)
 {
     $booking = Booking::findOrFail($id);
@@ -83,16 +85,31 @@ public function confirm($id)
     $booking->status = 'Confirmed';
     $booking->save();
 
-    // Create new Application record based on booking data
-    $application = new Application();
-    $application->first_name  = $booking->first_name;
-    $application->middle_name = $booking->middle_name;
-    $application->last_name   = $booking->last_name;
-    $application->email       = $booking->email;
-    $application->contact_num = $booking->contact_num;
-    $application->unit_id     = $booking->unit_id;
-    $application->status      = 'Pending';
-    $application->save();
+    // --- SIMULA NG PAGBABAGO ---
+
+    // 1. Ihanda ang data para sa bagong Application
+    $applicationData = [
+        'first_name'  => $booking->first_name,
+        'middle_name' => $booking->middle_name,
+        'last_name'   => $booking->last_name,
+        'email'       => $booking->email,
+        'contact_num' => $booking->contact_num,
+        'unit_id'     => $booking->unit_id,
+        'status'      => 'Pending',
+    ];
+
+    // 2. Hanapin ang Unit para makuha ang presyo
+    $unit = Unit::find($booking->unit_id);
+
+    if ($unit) {
+        // 3. Idagdag ang mga presyo sa data array
+        $applicationData['unit_price'] = (float) str_replace(',', '', $unit->unit_price);
+    }
+
+    // 4. I-create ang Application gamit ang KUMPLETONG data
+    $application = Application::create($applicationData);
+
+    // --- WAKAS NG PAGBABAGO ---
 
     return response()->json([
         'message' => 'Booking confirmed and moved to Applications!',

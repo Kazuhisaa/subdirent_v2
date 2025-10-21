@@ -4,12 +4,18 @@
 
 @section('content')
 <div class="container-fluid py-4">
+
     {{-- ✅ Page Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-blue-900 mb-0">🏠 Room Listings</h2>
-        <a href="{{ route('admin.addroom') }}" class="btn btn-action fw-bold px-4 rounded-pill">
-            + Add Room
-        </a>
+
+        {{-- ✅ Search + Add --}}
+        <div class="d-flex align-items-center gap-2">
+            <input type="text" id="unitSearch" class="form-control me-2" placeholder="Search Units..." style="width: 250px;">
+            <a href="{{ route('admin.addroom') }}" class="btn btn-action fw-bold px-4 rounded-pill">
+                + Add Room
+            </a>
+        </div>
     </div>
 
     {{-- ✅ Units Grid --}}
@@ -18,15 +24,14 @@
     </div>
 </div>
 
-{{-- Pass token safely from session --}}
+{{-- ✅ Pass API token safely --}}
 <script>
-    window.apiToken = "{{ session('admin_api_token') }}";
+    sessionStorage.setItem('admin_api_token', '{{ session('admin_api_token') }}');
 </script>
 
-{{-- JS Script --}}
+{{-- ✅ Script --}}
 <script src="{{ asset('fetch_js/showUnit.js') }}"></script>
 
-{{-- Optional Style --}}
 <style>
 .archived-card {
     filter: grayscale(100%) brightness(0.85);

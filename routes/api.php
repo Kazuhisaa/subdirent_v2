@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RevenueController;
 use App\Http\Controllers\OccupancyController;
 use App\Http\Controllers\ApplicationController;
@@ -20,10 +21,9 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [AuthController::class, 'login']); // API login for admin
 
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/tenants', [TenantController::class, 'index'])->middleware('abilities:admin');
+Route::middleware(['auth:sanctum'])->prefix('admin/api')->group(function () {
+    Route::get('/tenants', [TenantController::class, 'index']);
 });
-
 
 Route::middleware(['auth:sanctum'])->group(function() {
     Route::get('/tenant/dashboard',function (Request $request) {
@@ -48,6 +48,8 @@ Route::middleware(['auth:sanctum'])->group(function() {
     Route::get('/findUnits/{id}',[UnitsController::class, 'show']);
     Route::put('/editUnits/{unit}',[UnitsController::class, 'update']);  
     Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);
+    Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
+
     
     
 Route::prefix('applications')->group(function () {
@@ -66,8 +68,6 @@ Route::prefix('bookings')->group(function () {
     
 
 });
-
-
 
 
 Route::prefix('bookings')->group(function () {
@@ -135,3 +135,15 @@ Route::prefix('occupancy')->group(function(){
 });
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/payments/{id}', [PaymentController::class, 'show']);
+// Create a source (POST)
+Route::post('/payments/source', [PaymentController::class, 'createSource']);
+// Create a payment (POST)
+Route::post('/payments/pay', [PaymentController::class, 'createPayment']);
+
+});
+
+
+Route::post('/login', [AuthController::class, 'apiLogin']);
