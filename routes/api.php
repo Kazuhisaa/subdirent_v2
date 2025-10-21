@@ -103,6 +103,16 @@ Route::prefix('revenue')->group(function(){
         }
      
      */
+      Route::put('/subtract-old-contract',[RevenueController::class,'completedContract']);
+
+        /* 
+     example put json
+       {
+         "contract": 1 <- mababawas na contact
+        }
+     
+     */
+
      Route::put('/add-new-contract', [RevenueController::class, 'addNewContract']);
        /*
        

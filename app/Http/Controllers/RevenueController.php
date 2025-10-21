@@ -71,7 +71,21 @@ class RevenueController extends Controller
             'updated_records' => $updatedCount
         ]);
     }
+ 
+    public function completedContract(Request $request){
+       $data = $request->validate([
+        'contract' => 'required|numeric'
+    ]);
+           $fromDate = Carbon::now()->startOfMonth()->toDateString(); 
+            $decrementValue = $data['contract'];
 
+         $updatedCount = $this->revenueservice->subtractContract($fromDate,$decrementValue);
+          return response()->json([
+          'message' => 'contract succesfully finished',
+          'updated_records' => $updatedCount
+    ]);
+       
+    }
     
 public function addNewContract(Request $request)
 {
