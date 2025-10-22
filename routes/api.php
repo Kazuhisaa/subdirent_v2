@@ -94,8 +94,8 @@ Route::prefix('revenue')->group(function(){
      Route::get('/peakmonth',[RevenueController::class,'showPeakMonth']);
      Route::get('/totalrevenue',[RevenueController::class,'showTotalRevenue']);
      Route::post('/addNewMonthRevenue',[RevenueController::class,'store']);
-     
      Route::put('/addRevenue',[RevenueController::class,'addrevenue']);
+     Route::get('/latestrevenue',[RevenueController::class,'showLatestRevenue']);
      /* 
      example put json
        {

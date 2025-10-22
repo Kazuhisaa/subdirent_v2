@@ -360,15 +360,15 @@ async function fetchOccupancyData(type) {
             document.getElementById('chartTypeSelect').value = 'pie';
         } 
         else if (type === 'allrate') {
-            labels = ['Rented Units', 'Total Units', 'Occupancy Rate (%)'];
-            values = [
-                parseFloat(data[0]?.rented_count || 0),
-                parseFloat(data[0]?.total_units || 0),
-                parseFloat(data[0]?.occupancy_rate || 0)
-            ];
-            labelText = 'Overall Rate Details';
-            isPercentage = true; // ✅ Marks for % formatting
-        }
+    labels = ['Occupancy Rate (%)', 'Unoccupied Rate (%)'];
+    values = [
+        parseFloat(data.occupancy_rate || 0),
+        parseFloat(data.unoccupied_rate || 0)
+    ];
+    labelText = 'Overall Occupancy Distribution';
+    isPercentage = true;
+}
+
         else if (type === 'location') {
             labels = data.map(d => d.location || 'N/A');
             values = data.map(d => Number(d.total) || 0);

@@ -86,6 +86,11 @@ class RevenueController extends Controller
     ]);
        
     }
+public function showLatestRevenue(){
+    $data = $this->revenueservice->getlatestrevenue();
+    return response()->json($data);
+}
+
     
 public function addNewContract(Request $request)
 {
@@ -110,5 +115,5 @@ public function addNewContract(Request $request)
     ]);
 }
    
-
+    
 }

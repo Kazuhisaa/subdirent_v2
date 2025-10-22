@@ -53,22 +53,26 @@ public function getOccupancyRateByLocation()
     return $rates;
 }
 
-
-public function getAllOccupancyRate(){
-     $rates = Unit::select(
-                DB::raw('
-                    SUM(CASE WHEN status = "Rented" THEN 1 ELSE 0 END) AS rented_count,
-                    SUM(CASE WHEN status NOT IN ("Owned", "Completed") THEN 1 ELSE 0 END) AS total_units,
-                    ROUND(
-                        (SUM(CASE WHEN status = "Rented" THEN 1 ELSE 0 END) /
-                         NULLIF(SUM(CASE WHEN status NOT IN ("Owned", "Completed") THEN 1 ELSE 0 END), 0)) * 100,
-                        2
-                    ) AS occupancy_rate
-                ')
-            )
-   ->get();
+public function getAllOccupancyRate() {
+    $rates = Unit::select(
+        DB::raw('
+            ROUND(
+                (SUM(CASE WHEN status = "Rented" THEN 1 ELSE 0 END) /
+                 NULLIF(SUM(CASE WHEN status NOT IN ("Owned", "Completed") THEN 1 ELSE 0 END), 0)) * 100,
+                2
+            ) AS occupancy_rate,
+            ROUND(
+                100 - (
+                    (SUM(CASE WHEN status = "Rented" THEN 1 ELSE 0 END) /
+                     NULLIF(SUM(CASE WHEN status NOT IN ("Owned", "Completed") THEN 1 ELSE 0 END), 0)) * 100
+                ),
+                2
+            ) AS unoccupied_rate
+        ')
+    )->first();
 
     return $rates;
 }
+
 
 }
