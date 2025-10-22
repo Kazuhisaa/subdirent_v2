@@ -55,11 +55,24 @@ class UnitsController extends Controller
             }
 
     public function index()
-    {
-        $unit = Unit::all();
-        
-        return response()->json($unit);
-    }
+{
+    $units = Unit::where('status', 'available')->get();
+
+    // Convert file paths to full URLs
+    $units->transform(function ($unit) {
+        // Ensure $unit->files is array
+        $files = is_array($unit->files) ? $unit->files : json_decode($unit->files, true);
+        if (!$files) $files = [];
+
+        // convert each to full URL (ex: http://127.0.0.1:8000/uploads/units/...)
+        $unit->files = array_map(fn($file) => asset($file), $files);
+
+        return $unit;
+    });
+
+    return response()->json($units);
+}
+
 
     public function show($id)
     {

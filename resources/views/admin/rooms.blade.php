@@ -26,7 +26,7 @@
 
 {{-- ✅ Pass API token safely --}}
 <script>
-    sessionStorage.setItem('admin_api_token', '{{ session('admin_api_token') }}');
+sessionStorage.setItem('admin_api_token', "{{ session('admin_api_token') }}");
 </script>
 
 {{-- ✅ Script --}}
@@ -37,5 +37,5 @@
     opacity: 0.8;
 }
 </style>
-@endsection
 @vite(['resources/css/admin.css','resources/css/admin_tenant.css', 'resources/js/showUnit.js'])
+@endsection
