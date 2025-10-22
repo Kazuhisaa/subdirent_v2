@@ -172,7 +172,7 @@
   display: none;
   position: fixed;
   inset: 0;
-  background-color: rgba(255, 255, 255, 0.89);
+  background-color: rgba(255, 255, 255, 0.9);
   justify-content: center;
   align-items: flex-start;
   padding-top: 5vh;

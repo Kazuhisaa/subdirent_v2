@@ -75,7 +75,7 @@
 {{-- ✅ JS Fetch Logic --}}
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    fetch('/api/bookings')
+    fetch('bookings')
         .then(response => response.json())
         .then(bookings => {
             // Update summary counts

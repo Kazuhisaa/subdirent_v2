@@ -63,18 +63,12 @@ Route::prefix('applications')->group(function () {
 
 
 Route::prefix('bookings')->group(function () {
-    Route::get('/find/{id}', [BookingController::class, 'show']);       // GET /bookings/find/{id}
-    Route::get('/unit/{unit_id}', [BookingController::class, 'showByUnitId']); // GET /bookings/unit/{unit_id}
-    Route::post('/confirm/{id}',[BookingController::class, 'confirm']);
-    Route::get('/bookings', [BookingController::class, 'index']); // 👈 ito yung kulang
-Route::post('/bookings', [BookingController::class, 'store']);
-
+    Route::get('/', [BookingController::class, 'index']);
+    Route::get('/find/{id}', [BookingController::class, 'show']);
+    Route::get('/unit/{unit_id}', [BookingController::class, 'showByUnitId']);
+    Route::post('/confirm/{id}', [BookingController::class, 'confirm']);
 });
-    
-
 });
-
-
 Route::prefix('bookings')->group(function () {
     Route::post('/', [BookingController::class, 'store']);              // POST /bookings
     Route::get('/getOccupiedTime/{unit_id}/{date}',[BookingController::class,'showAllOccupiedTime']);
