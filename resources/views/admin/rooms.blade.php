@@ -30,7 +30,6 @@
 </script>
 
 {{-- ✅ Script --}}
-<script src="{{ asset('fetch_js/showUnit.js') }}"></script>
 
 <style>
 .archived-card {
@@ -39,3 +38,4 @@
 }
 </style>
 @endsection
+@vite(['resources/css/admin.css','resources/css/admin_tenant.css', 'resources/js/showUnit.js'])
