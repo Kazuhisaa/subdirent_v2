@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const grid = document.getElementById('unitsGrid');
     const searchInput = document.getElementById('unitSearch');
-    const token = window.apiToken;
-
+    const token = sessionStorage.getItem('admin_api_token');
     if (!token) {
         grid.innerHTML = `<div class="col-12 text-danger text-center">⚠ Unauthorized — please login first.</div>`;
         return;

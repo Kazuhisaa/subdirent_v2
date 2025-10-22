@@ -57,12 +57,17 @@ class UnitsController extends Controller
     public function index()
     {
         $unit = Unit::all();
+        
         return response()->json($unit);
     }
 
     public function show($id)
     {
+        
         $unit = Unit::findOrFail($id);
+        if (!is_array($unit->files)) {
+        $unit->files = [];
+}
         return response()->json($unit);
     }
 

@@ -27,19 +27,20 @@
                             {{-- Che-check kung may next month na naka-calculate --}}
                             @if(isset($nextMonth['for_month']))
                                 {{-- Ang $tenant dito ay ang Tenant model na (ID 98) --}}
-                                <form method="POST" action="{{ route('tenant.payment.make') }}">
-    @csrf
-    <input type="hidden" name="for_month" value="{{ $nextMonth['for_month'] }}">
-    <input type="hidden" name="amount" value="{{ $activeContract->monthly_payment ?? 0 }}">
+                <form method="POST" action="{{ route('tenant.payment.create', $tenant->id) }}">
+              @csrf
+            <input type="hidden" name="for_month" value="{{ $nextMonth['for_month'] }}">
+             <input type="hidden" name="amount" value="{{ $activeContract->monthly_payment ?? 0 }}">
     
-    <select name="payment_method" class="form-select mb-2" required>
+            <select name="payment_method" class="form-select mb-2" required>
         <option value="" disabled selected>-- Choose Payment Method --</option>
         <option value="gcash">GCash</option>
         <option value="card">Credit/Debit Card</option>
-    </select>
+             </select>
 
-    <button type="submit" class="btn btn-success w-100">Pay Now</button>
-</form>
+              <button type="submit" class="btn btn-success w-100">Pay Now</button>
+            </form>
+
 
                                 <a href="#" class="btn btn-outline-secondary w-100 mt-2">
                                     Set Up Autopay
