@@ -6,7 +6,7 @@
 @section('content')
 <div class="tenant-account-page container-fluid">
   <div class="account-card shadow-sm bg-white rounded-4 p-4">
-    <div class="row g-4 align-items-center">
+    <div class="row g-4 align-items-start">
       <!-- Profile Section -->
       <div class="col-md-3 text-center">
         <img 
@@ -15,7 +15,31 @@
           class="account-avatar mb-3"
         >
         <h5 class="fw-semibold mb-1">{{ $tenant->tenant->first_name ?? $tenant->name }}</h5>
-        <p class="text-muted small mb-2">Tenant</p>
+        <p class="text-muted small mb-3">Tenant</p>
+
+        <!-- EMAIL & PASSWORD UPDATE -->
+        <form method="POST" action="{{ route('tenant.credentials.update') }}" class="text-start">
+          @csrf
+          @method('PUT')
+          
+          <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-control rounded-pill" 
+                   name="email" value="{{ old('email', $tenant->email) }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">New Password</label>
+            <input type="password" class="form-control rounded-pill" name="password" placeholder="Enter new password">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-control rounded-pill" name="password_confirmation" placeholder="Confirm new password">
+          </div>
+
+          <button type="submit" class="btn btn-outline-primary w-100 rounded-pill">Update Login Info</button>
+        </form>
       </div>
 
       <!-- Info Section -->
@@ -34,17 +58,6 @@
               <label class="form-label">Last Name</label>
               <input type="text" class="form-control rounded-pill" name="last_name" 
                      value="{{ old('last_name', $tenant->tenant->last_name ?? '') }}" required>
-            </div>
-          </div>
-
-          <div class="row mb-3">
-            <div class="col-md-8">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control rounded-pill" 
-                     value="{{ $tenant->email }}" disabled>
-            </div>
-            <div class="col-md-4 text-end d-flex align-items-center justify-content-end">
-              <span class="verified-badge">✔ Verified</span>
             </div>
           </div>
 

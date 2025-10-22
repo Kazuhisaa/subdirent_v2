@@ -83,6 +83,11 @@ class TenantController extends Controller
         ]);
     }
 
+        public function maintenance()
+    {
+        return view('tenant.maintenance');
+    }
+
         public function propertysearch()
     {
         $user = Auth::user()->load('tenant.unit', 'tenant.contracts');
@@ -116,6 +121,26 @@ class TenantController extends Controller
         return view('tenant.account', [
             'tenant' => $user, // includes ->tenant->unit
         ]);
+    }
+
+        public function updatecredentials(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|confirmed|min:8',
+        ]);
+
+        $user->email = $validated['email'];
+
+        if (!empty($validated['password'])) {
+            $user->password = bcrypt($validated['password']);
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', 'Login credentials updated successfully.');
     }
 
         public function accountupdate(Request $request)

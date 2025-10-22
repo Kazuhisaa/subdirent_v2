@@ -54,7 +54,7 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#">
+          <a class="nav-link {{ request()->routeIs('tenant.maintenance') ? 'active' : '' }}" href="{{ route('tenant.maintenance') }}">
             <i class="bi bi-tools me-2"></i> <span>Maintenance Requests</span>
           </a>
         </li>
@@ -68,12 +68,6 @@
         <li class="nav-item">
           <a class="nav-link {{ request()->routeIs('tenant.propertysearch') ? 'active' : '' }}" href="{{ route('tenant.propertysearch') }}">
             <i class="bi bi-search-heart me-2"></i> <span>Property Search</span>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="#">
-            <i class="bi bi-headset me-2"></i> <span>Support</span>
           </a>
         </li>
 

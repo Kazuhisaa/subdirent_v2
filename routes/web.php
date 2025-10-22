@@ -32,6 +32,9 @@ Route::middleware(['auth:sanctum'])->prefix('tenant')->name('tenant.')->group(fu
     // Account 
     Route::get('/account', [TenantController::class, 'account'])->name('account');
     Route::put('/account', [TenantController::class, 'accountupdate'])->name('update');
+    Route::put('account/credentials', [TenantController::class, 'updatecredentials'])->name('credentials.update');
+    // Maintenance Requests
+    Route::get('/maintenance', [TenantController::class, 'maintenance'])->name('maintenance');
 
 });
 
