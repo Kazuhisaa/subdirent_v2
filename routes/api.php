@@ -66,6 +66,9 @@ Route::prefix('bookings')->group(function () {
     Route::get('/find/{id}', [BookingController::class, 'show']);       // GET /bookings/find/{id}
     Route::get('/unit/{unit_id}', [BookingController::class, 'showByUnitId']); // GET /bookings/unit/{unit_id}
     Route::post('/confirm/{id}',[BookingController::class, 'confirm']);
+    Route::get('/bookings', [BookingController::class, 'index']); // 👈 ito yung kulang
+Route::post('/bookings', [BookingController::class, 'store']);
+
 });
     
 
@@ -162,4 +165,6 @@ Route::post('/applications/{id}/approve', [ApplicationController::class, 'approv
 Route::post('/applications/{id}/reject', [ApplicationController::class, 'reject']);
 Route::post('/applications/{id}/archive', [ApplicationController::class, 'archive']);
 Route::get('/applications/archived', [ApplicationController::class, 'viewArchive']);
-Route::post('/applications', [ApplicationController::class, 'store'])->name('applications.store');
+
+
+

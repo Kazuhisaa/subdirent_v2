@@ -8,6 +8,7 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\RevenuePredictionController;
+use App\Http\Controllers\BookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,7 +41,7 @@ Route::middleware(['auth:sanctum'])->prefix('tenant')->name('tenant.')->group(fu
     Route::put('/account', [TenantController::class, 'accountupdate'])->name('update');
 
 });
-
+    
 
 // Authentication
 Route::middleware(['web'])->group(function () {
@@ -103,7 +104,8 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
         Route::post('/{id}/unarchive', 'unarchive')->name('unarchive');
        
     });
-    
+    Route::get('/admin/bookings', [BookingController::class, 'indexPage'])
+    ->name('admin.bookings');
     // Application Controller
     Route::get('/applications', [ApplicationController::class, 'indexView'])->name('applications');
         Route::post('/applications/{id}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');

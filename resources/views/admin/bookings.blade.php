@@ -17,7 +17,7 @@
             <div class="card border-0 shadow-sm booking-card">
                 <div class="card-body">
                     <h6 class="card-title">Total Bookings</h6>
-                    <h3 class="fw-bold">3</h3>
+                    <h3 id="totalBookings" class="fw-bold">0</h3>
                 </div>
             </div>
         </div>
@@ -25,7 +25,7 @@
             <div class="card border-0 shadow-sm booking-card approved">
                 <div class="card-body">
                     <h6 class="card-title">Approved Bookings</h6>
-                    <h3 class="fw-bold">1</h3>
+                    <h3 id="approvedBookings" class="fw-bold">0</h3>
                 </div>
             </div>
         </div>
@@ -33,7 +33,7 @@
             <div class="card border-0 shadow-sm booking-card rejected">
                 <div class="card-body">
                     <h6 class="card-title">Rejected Bookings</h6>
-                    <h3 class="fw-bold">1</h3>
+                    <h3 id="rejectedBookings" class="fw-bold">0</h3>
                 </div>
             </div>
         </div>
@@ -54,51 +54,77 @@
                             <th>ID</th>
                             <th>Full Name</th>
                             <th>Email</th>
-                            <th>Contacts</th>
+                            <th>Contact</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {{-- Dummy Data --}}
+                    <tbody id="bookingsTableBody">
                         <tr>
-                            <td>1</td>
-                            <td>Juan Dela Cruz</td>
-                            <td>juan@example.com</td>
-                            <td>09123456789</td>
-                            <td><span class="badge bg-success">Approved</span></td>
-                            <td class="d-flex justify-content-center gap-2">
-                                <a href="#" class="btn btn-sm btn-action">Edit</a>
-                                <a href="#" class="btn btn-sm btn-outline-warning text-dark fw-semibold">Delete</a>
+                            <td colspan="6" class="text-center text-muted">
+                                Loading...
                             </td>
                         </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Maria Santos</td>
-                            <td>maria@example.com</td>
-                            <td>09987654321</td>
-                            <td><span class="badge bg-warning text-dark">Pending</span></td>
-                            <td class="d-flex justify-content-center gap-2">
-                                <a href="#" class="btn btn-sm btn-action">Edit</a>
-                                <a href="#" class="btn btn-sm btn-outline-warning text-dark fw-semibold">Delete</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Carlos Reyes</td>
-                            <td>carlos@example.com</td>
-                            <td>09223334444</td>
-                            <td><span class="badge bg-danger">Rejected</span></td>
-                            <td class="d-flex justify-content-center gap-2">
-                                <a href="#" class="btn btn-sm btn-action">Edit</a>
-                                <a href="#" class="btn btn-sm btn-outline-warning text-dark fw-semibold">Delete</a>
-                            </td>
-                        </tr>
-                        {{-- End Dummy Data --}}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
+
+{{-- ✅ JS Fetch Logic --}}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    fetch('/api/bookings')
+        .then(response => response.json())
+        .then(bookings => {
+            // Update summary counts
+            document.getElementById('totalBookings').textContent = bookings.length;
+
+            const approved = bookings.filter(b => b.status === 'Confirmed').length;
+            const rejected = bookings.filter(b => b.status === 'Rejected').length;
+
+            document.getElementById('approvedBookings').textContent = approved;
+            document.getElementById('rejectedBookings').textContent = rejected;
+
+            // Render table
+            const tableBody = document.getElementById('bookingsTableBody');
+            tableBody.innerHTML = '';
+
+            if (bookings.length === 0) {
+                tableBody.innerHTML = `<tr>
+                    <td colspan="6" class="text-center text-muted">No bookings found.</td>
+                </tr>`;
+                return;
+            }
+
+            bookings.forEach(b => {
+                const fullName = `${b.first_name} ${b.middle_name ? b.middle_name + ' ' : ''}${b.last_name}`;
+                const row = `
+                    <tr>
+                        <td>${b.id}</td>
+                        <td>${fullName}</td>
+                        <td>${b.email}</td>
+                        <td>${b.contact_num}</td>
+                        <td>
+                            <span class="badge bg-${b.status === 'Confirmed' ? 'success' : (b.status === 'Rejected' ? 'danger' : 'secondary')}">
+                                ${b.status ?? 'Pending'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary">View</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching bookings:', error);
+            document.getElementById('bookingsTableBody').innerHTML = `
+                <tr><td colspan="6" class="text-danger">Failed to load bookings.</td></tr>
+            `;
+        });
+});
+</script>
 @endsection

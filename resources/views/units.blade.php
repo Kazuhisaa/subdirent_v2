@@ -9,7 +9,6 @@
   <div class="container">
     <h2 class="fw-bold mb-4 text-primary">🏠 Available Units</h2>
 
-    <!-- 🔍 Search & Filter Section -->
     <div class="mb-4">
       <div class="search-filter-container">
         <input type="text" id="searchInput" class="form-control search-box" placeholder="Search Unit Name">
@@ -25,7 +24,6 @@
       </div>
     </div>
 
-    <!-- 🔹 Units Container -->
     <div id="units-container" class="row g-4">
       <p class="text-muted">Loading available units...</p>
     </div>
@@ -33,7 +31,6 @@
 </section>
 
 
-<!-- ✅ Reserve Unit Modal -->
 <div id="reserveModal" class="modal-overlay">
   <div class="modal-content">
     <h4 class="text-center mb-4" id="reserveModalLabel">Reserve Unit</h4>
@@ -80,7 +77,6 @@
   </div>
 </div>
 
-<!-- ✅ Apply Now Modal -->
 <div id="applyModal" class="modal-overlay">
   <div class="modal-content">
     <h4 class="text-center mb-4" id="applyModalLabel">Apply for Unit</h4>
@@ -128,9 +124,9 @@
 }
 
 .search-box {
-  border-radius: 8px;
+  border-radius: 100px;
   padding: 10px 15px;
-  border: 1px solid #ccc;
+  border: 1px solid #3a0b8dff;
   font-size: 16px;
 }
 
@@ -186,7 +182,7 @@
 
 .modal-content {
   background: white;
-  border-radius: 15px;
+  border-radius: 1px;
   padding: 30px;
   width: 600px;
   max-width: 90%;
@@ -393,3 +389,5 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
+
+@endsection

@@ -14,7 +14,7 @@
     </div>
 
     <div class="d-flex align-items-center gap-3">
-      <a href="#" class="text-dark fw-semibold text-uppercase small text-decoration-none">Sign In</a>
+      
       <button 
   type="button" 
   class="btn btn-primary fw-semibold px-3 rounded-pill"

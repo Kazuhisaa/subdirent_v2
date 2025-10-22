@@ -9,17 +9,20 @@ class Booking extends Model
 {
     use SoftDeletes;
 
-      protected $fillable = [
-    'first_name',
-    'middle_name',
-    'last_name',
-    'email',
-    'contact_num',
-    'date',
-    'unit_id',
-    'booking_time',
-    'status,'
-];
+    protected $fillable = [
+        'first_name',
+        'middle_name',
+        'last_name',
+        'email',
+        'contact_num',
+        'date',
+        'unit_id',
+        'booking_time',
+        'status',
+    ];
 
-      
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
 }
