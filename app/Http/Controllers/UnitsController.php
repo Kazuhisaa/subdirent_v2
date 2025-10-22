@@ -8,7 +8,14 @@ use Illuminate\Http\Request;
 class UnitsController extends Controller
 {
             public function store(Request $request)
-            {
+            {   
+                                $user = $request->user();
+
+                if (!$user || !$user->tokenCan('admin')) {
+                    return response()->json(['message' => 'Unauthorized'], 403);
+                }
+ 
+
                 $request->validate([
                     'title' => 'required|string|max:255',
                     'location' => 'required|string',
@@ -51,8 +58,11 @@ class UnitsController extends Controller
                     'files' => $uploadedFiles,
                 ]);
 
-                return redirect()->route('admin.addroom')->with('success', 'Unit Created Successfully!');
-            }
+                return response()->json([
+                        'message' => 'Unit Created Successfully!',
+                        'unit' => $unit
+                    ], 201);       
+         }  
 
     public function index()
     {

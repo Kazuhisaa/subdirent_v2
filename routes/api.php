@@ -44,9 +44,13 @@ Route::middleware(['auth:sanctum'])->group(function() {
     });
 
     Route::get('/allUnits',[UnitsController::class, 'index']);
-    Route::post('/addUnits',[UnitsController::class, 'store']);
+
+
+
+    Route::post('/addUnits', [UnitsController::class, 'store']);
+
     Route::get('/findUnits/{id}',[UnitsController::class, 'show']);
-    Route::put('/editUnits/{unit}',[UnitsController::class, 'update']);  
+    Route::post('/editUnits/{unit}',[UnitsController::class, 'update']);  
     Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);
     Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
 

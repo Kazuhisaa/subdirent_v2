@@ -22,6 +22,8 @@ class Unit extends Model
         'contract_years',
         'status',
         'files',
+        'bathroom',   // ✅ add this
+        'bedroom',  
     ];
 
     protected $casts = [
