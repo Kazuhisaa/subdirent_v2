@@ -149,3 +149,7 @@ Route::post('/payments/pay', [PaymentController::class, 'createPayment']);
 
 
 Route::post('/login', [AuthController::class, 'apiLogin']);
+
+
+
+Route::post('/bookings', [BookingController::class, 'store']);
