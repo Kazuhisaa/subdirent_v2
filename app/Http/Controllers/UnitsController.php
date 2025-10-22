@@ -150,13 +150,9 @@ class UnitsController extends Controller
 
         return redirect()->route('admin.rooms')->with('success', 'Unit archived successfully.');
     }
-    public function publicUnits()
-{
-    // Kunin lahat ng units (or kung gusto mo, i-filter by status)
-    $units = Unit::where('status', '!=', 'archived')->get();
-
-    // Ibalik yung view na ginamit mo sa frontend (resources/views/units.blade.php)
-    return view('units', compact('units'));
+    public function publicUnits() {
+    $units = Unit::all();
+    return view('units', compact('units')); // ✅ ipapasa ang $units sa view
 }
 
         public function unarchive($id)

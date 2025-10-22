@@ -17,7 +17,7 @@ use App\Http\Controllers\RevenuePredictionController; // Assuming this is for ad
 
 Route::view('/', 'index')->name('home');
 Route::view('/welcome', 'welcome')->name('welcome'); // Or redirect authenticated users?
-Route::view('/units', 'units')->name('units');
+Route::get('/units', [UnitsController::class, 'publicUnits'])->name('units');
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +68,8 @@ Route::middleware(['auth', 'admin']) // Magdagdag ka ng 'admin' middleware kung 
         Route::put('/{unit}', 'update')->name('update'); // Use route model binding
         Route::post('/{id}/archive', 'archive')->name('archive');
         Route::post('/{id}/unarchive', 'unarchive')->name('unarchive');
+        Route::get('/units', [UnitsController::class, 'publicUnits'])->name('units');
+        
         // Removed show route '{id}', maybe use an API route for that?
     });
 

@@ -43,6 +43,9 @@ Route::middleware(['auth:sanctum'])->group(function() {
         return response()->json(['message'=>'Welcome Admin']);
     });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/units', [UnitsController::class, 'index'])->name('units.index');
+});
     Route::get('/allUnits',[UnitsController::class, 'index']);
     Route::post('/addUnits',[UnitsController::class, 'store']);
     Route::get('/findUnits/{id}',[UnitsController::class, 'show']);
