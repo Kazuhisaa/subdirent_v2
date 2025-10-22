@@ -33,6 +33,12 @@ Route::middleware(['auth:sanctum'])->prefix('tenant')->name('tenant.')->group(fu
     // My Payments
     Route::get('/payments', [TenantController::class, 'payments'])->name('payments');
     Route::post('/payments/pay', [TenantController::class, 'makePayment'])->name('payments.pay');
+    // Property Search
+    Route::get('/propertysearch', [TenantController::class, 'propertysearch'])->name('propertysearch');
+    // Account 
+    Route::get('/account', [TenantController::class, 'account'])->name('account');
+    Route::put('/account', [TenantController::class, 'accountupdate'])->name('update');
+
 });
 
 

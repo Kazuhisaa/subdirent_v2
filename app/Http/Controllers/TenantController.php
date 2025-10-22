@@ -83,6 +83,65 @@ class TenantController extends Controller
         ]);
     }
 
+        public function propertysearch()
+    {
+        $user = Auth::user()->load('tenant.unit', 'tenant.contracts');
+
+        // Safety check: ensure this user has a tenant record
+        if (!$user->tenant) {
+            abort(404, 'Tenant record not found.');
+        }
+
+        $tenant = $user->tenant;
+
+        // Optional: get only active/ongoing contract
+        $activeContract = $tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+
+        return view('tenant.propertysearch', [
+            'tenant' => $user,
+            'contract' => $activeContract,
+            'unit' => $tenant->unit
+        ]);
+    }
+
+        public function account()
+    {
+        $user = Auth::user()->load('tenant.unit');
+        $tenant = $user->tenant;
+
+        if (!$tenant) {
+            abort(404, 'Tenant record not found.');
+        }
+
+        return view('tenant.account', [
+            'tenant' => $user, // includes ->tenant->unit
+        ]);
+    }
+
+        public function accountupdate(Request $request)
+    {
+        $user = Auth::user();
+        $tenant = $user->tenant;
+
+        if (!$tenant) {
+            abort(404, 'Tenant not found.');
+        }
+
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'birth_date' => 'nullable|date',
+            'address' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string|max:20',
+        ]);
+
+        $tenant->update($validated);
+
+        return redirect()->back()->with('success', 'Account updated successfully.');
+    }
+
+
     public function ledger()
     {
         return view('tenant.ledger'); // optional
