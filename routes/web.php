@@ -56,7 +56,15 @@ Route::middleware(['web'])->group(function () {
 */
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
 
+    Route::get('/applications/archived', [ApplicationController::class, 'getArchived'])->name('applications.archived');
+Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unarchive'])->name('applications.unarchive');
 
+
+
+    
+    Route::get('/', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.home');
+
+    
     // Dashboard
     Route::get('/', [AdminController::class, 'index'])->name('home');
 
@@ -138,3 +146,6 @@ Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook']);
     Route::put('/editUnits/{unit}',[UnitsController::class, 'update']);  
     Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);
     Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
+
+
+

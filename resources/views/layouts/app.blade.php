@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <title>@yield('title', 'SubdiRent')</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-  
-</head>
+
   <style>
     :root {
       --blue-900: #0A2540;
@@ -49,92 +48,98 @@
       text-decoration: none;
     }
     footer a:hover { color: var(--blue-500); }
-        /* I-dagdag ang code na ito para sa Slider */
+    
+    /* Slider */
     .slider img {
-        position: absolute; /* I-overlay ang lahat ng images */
-        top: 0;
-        left: 0;
-        opacity: 0; /* Itago ang lahat by default */
-        transition: opacity 1.5s ease-in-out; /* Maganda at malambot na transition */
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
     }
 
     .slider img.active {
-        opacity: 1; /* Ipakita lang ang image na may active class */
-        z-index: 10;
+      opacity: 1;
+      z-index: 10;
     }
 
     .slider-btn {
-        z-index: 20; /* Ilagay sa ibabaw ng images ang buttons */
-        opacity: 0.8;
-        transition: opacity 0.3s;
+      z-index: 20;
+      opacity: 0.8;
+      transition: opacity 0.3s;
     }
     .slider-btn:hover {
-        opacity: 1;
-    }
-    @keyframes fadeInSlideUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px); /* Magsisimula 20px sa ibaba */
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0); /* Aakyat sa orihinal na posisyon */
-        }
+      opacity: 1;
     }
 
-    /* I-apply ang animation sa pangunahing content area */
+    @keyframes fadeInSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     main {
-        animation: fadeInSlideUp 1s ease-out forwards; /* 1 segundo ang tagal, smooth, at mananatili sa dulo (forwards) */
-        opacity: 0; /* Itago muna ang main content habang naglo-load ang page */
+      animation: fadeInSlideUp 1s ease-out forwards;
+      opacity: 0;
     }
   </style>
-
+  </head>
 <body>
+
+  @include('partials.navbar')
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   @include('partials.login-modal')
-  @include('partials.navbar')
 
   <main>
     @yield('content')
   </main>
 
   @include('partials.footer')
+  
+  {{-- ... (yung iba mong script tags) ... --}}
+   <script>
+    // Simple Image Slider
+    const slides = document.querySelectorAll('.slider img');
+    const prev = document.querySelector('.prev');
+    const next = document.querySelector('.next');
+    let index = 0;
 
-  <script>
-    // Simple Image Slider
-    const slides = document.querySelectorAll('.slider img');
-    const prev = document.querySelector('.prev');
-    const next = document.querySelector('.next');
-    let index = 0;
+    function showSlide(i) {
+      slides.forEach(s => s.classList.remove('active'));
+      slides[i].classList.add('active');
+    }
 
-    function showSlide(i) {
-      slides.forEach(s => s.classList.remove('active'));
-      slides[i].classList.add('active');
-    }
-
-    if (next && prev && slides.length > 0) {
-      next.addEventListener('click', () => {
-        index = (index + 1) % slides.length;
-        showSlide(index);
-      });
-      prev.addEventListener('click', () => {
-        index = (index - 1 + slides.length) % slides.length;
-        showSlide(index);
-      });
-      setInterval(() => {
+    if (next && prev && slides.length > 0) {
+      next.addEventListener('click', () => {
+        index = (index + 1) % slides.length;
+        showSlide(index);
+      });
+      prev.addEventListener('click', () => {
+        index = (index - 1 + slides.length) % slides.length;
+        showSlide(index);
+      });
+      setInterval(() => {
       index = (index + 1) % slides.length;
       showSlide(index);
       }, 5000); // <-- Ito ang nagpapa-auto-slide tuwing 5 segundo (5000 milliseconds)
     }
-  </script>
+  </script>
 @if ($errors->any())
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-      loginModal.show();
-    });
-  </script>
-  @endif
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+      loginModal.show();
+    });
+  </script>
+  @endif
+
 </body>
 </html>
+ 
