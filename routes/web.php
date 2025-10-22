@@ -17,7 +17,7 @@ use App\Http\Controllers\RevenuePredictionController;
 
 Route::view('/', 'index')->name('home');
 Route::view('/welcome', 'welcome')->name('welcome');
-Route::get('/units', [UnitsController::class, 'index'])->name('units');
+
 
 // API endpoint (returns JSON)
 Route::get('/units', [UnitsController::class, 'index'])->name('units.api');

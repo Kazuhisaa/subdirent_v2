@@ -4,13 +4,19 @@
 
 @section('content')
 <style>
+/* 🧩 Fix overlay issues */
 .modal-backdrop.show {
   opacity: 0.5 !important;
-  z-index: 1050 !important;
+  z-index: 1040 !important;
+}
+
+.modal-backdrop {
+  z-index: 1040 !important;
 }
 
 .modal {
-  z-index: 2000 !important;
+  z-index: 1055 !important;
+  pointer-events: auto !important;
 }
 
 .modal-dialog-centered {
@@ -20,23 +26,24 @@
 }
 
 body.modal-open {
-  overflow: hidden; /* prevent scroll issues */
+  overflow: hidden; /* prevent background scroll */
 }
 </style>
-<section class="py-5">
-    <div class="container">
-        <h2 class="fw-bold mb-4 text-primary">🏠 Available Units</h2>
 
-        <div id="units-container" class="row g-4">
-            <p class="text-muted">Loading available units...</p>
-        </div>
+<section class="py-5">
+  <div class="container">
+    <h2 class="fw-bold mb-4 text-primary">🏠 Available Units</h2>
+
+    <div id="units-container" class="row g-4">
+      <p class="text-muted">Loading available units...</p>
     </div>
+  </div>
 </section>
 
 <!-- 🟢 Reserve Unit Modal -->
 <div class="modal fade" id="reserveModal" tabindex="-1" aria-labelledby="reserveModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- ✅ Centered + Larger -->
-    <div class="modal-content border-0 shadow-lg" style="z-index: 2000;"> <!-- ✅ Ensure above backdrop -->
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title" id="reserveModalLabel">Reserve Unit</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -87,90 +94,88 @@ body.modal-open {
   </div>
 </div>
 
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    fetch("/units") // ✅ API endpoint
-        .then(res => res.json())
-        .then(units => {
-            const container = document.getElementById("units-container");
-            container.innerHTML = ""; // clear loading text
+  fetch("/units")
+    .then(res => res.json())
+    .then(units => {
+      const container = document.getElementById("units-container");
+      container.innerHTML = "";
 
-            if (!units.length) {
-                container.innerHTML = `<p class="text-muted">No available units at the moment.</p>`;
-                return;
-            }
+      if (!units.length) {
+        container.innerHTML = `<p class="text-muted">No available units at the moment.</p>`;
+        return;
+      }
 
-            units.forEach(unit => {
-                const imageUrl = unit.files?.length ? `/${unit.files[0]}` : '/uploads/default-room.jpg';
+      units.forEach(unit => {
+        const imageUrl = unit.files?.length ? `/${unit.files[0]}` : '/uploads/default-room.jpg';
 
-                container.innerHTML += `
-                    <div class="col-md-4">
-                        <div class="card shadow-sm h-100">
-                            <img src="${imageUrl}" class="card-img-top" alt="${unit.title}">
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title fw-bold mb-1">${unit.title}</h5>
-                                <p class="text-muted small mb-2">📍 ${unit.location}</p>
-                                <p class="text-primary fw-semibold mb-2">₱${unit.monthly_rent.toLocaleString()} / month</p>
-                                <p class="card-text mb-3 flex-grow-1">${unit.description?.substring(0, 80) || ''}...</p>
+        container.innerHTML += `
+          <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+              <img src="${imageUrl}" class="card-img-top" alt="${unit.title}">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title fw-bold mb-1">${unit.title}</h5>
+                <p class="text-muted small mb-2">📍 ${unit.location}</p>
+                <p class="text-primary fw-semibold mb-2">₱${unit.monthly_rent.toLocaleString()} / month</p>
+                <p class="card-text mb-3 flex-grow-1">${unit.description?.substring(0, 80) || ''}...</p>
 
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-primary reserve-btn" data-id="${unit.id}" data-title="${unit.title}">
-                                        <i class="bi bi-calendar-check"></i> Reserve Unit
-                                    </button>
-                                    <a href="/application/${unit.id}" class="btn btn-outline-primary">
-                                        <i class="bi bi-file-earmark-text"></i> Apply Now
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
+                <div class="d-grid gap-2">
+                  <button class="btn btn-primary reserve-btn" data-id="${unit.id}" data-title="${unit.title}">
+                    <i class="bi bi-calendar-check"></i> Reserve Unit
+                  </button>
+                  <a href="/application/${unit.id}" class="btn btn-outline-primary">
+                    <i class="bi bi-file-earmark-text"></i> Apply Now
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
 
-            // 🟢 Attach click events after cards are rendered
-            document.querySelectorAll('.reserve-btn').forEach(btn => {
-                btn.addEventListener('click', e => {
-                    const id = e.target.closest('button').dataset.id;
-                    const title = e.target.closest('button').dataset.title;
+      // ✅ Show modal when "Reserve Unit" is clicked
+      document.querySelectorAll('.reserve-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const button = e.currentTarget;
+          const id = button.dataset.id;
+          const title = button.dataset.title;
 
-                    // Set unit_id hidden input
-                    document.getElementById('unit_id').value = id;
-                    document.getElementById('reserveModalLabel').textContent = `Reserve Unit - ${title}`;
+          document.getElementById('unit_id').value = id;
+          document.getElementById('reserveModalLabel').textContent = `Reserve Unit - ${title}`;
 
-                    // Show modal
-                    const modal = new bootstrap.Modal(document.getElementById('reserveModal'));
-                    modal.show();
-                });
-            });
-        })
-        .catch(error => {
-            console.error("Error fetching units:", error);
-            document.getElementById("units-container").innerHTML = `<p class="text-danger">Failed to load units.</p>`;
+          const modal = new bootstrap.Modal(document.getElementById('reserveModal'));
+          modal.show();
         });
-
-    // 🟢 Handle form submission
-    document.getElementById('reserveForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-
-        try {
-            const res = await fetch('/api/bookings', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!res.ok) throw new Error('Reservation failed');
-            const data = await res.json();
-
-            alert('✅ Reservation successful!');
-            bootstrap.Modal.getInstance(document.getElementById('reserveModal')).hide();
-            e.target.reset();
-        } catch (err) {
-            console.error(err);
-            alert('❌ Failed to reserve unit.');
-        }
+      });
+    })
+    .catch(error => {
+      console.error("Error fetching units:", error);
+      document.getElementById("units-container").innerHTML = `<p class="text-danger">Failed to load units.</p>`;
     });
+
+  // ✅ Handle reservation form
+  document.getElementById('reserveForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!res.ok) throw new Error('Reservation failed');
+      const data = await res.json();
+
+      alert('✅ Reservation successful!');
+      bootstrap.Modal.getInstance(document.getElementById('reserveModal')).hide();
+      e.target.reset();
+    } catch (err) {
+      console.error(err);
+      alert('❌ Failed to reserve unit.');
+    }
+  });
 });
 </script>
 @endsection

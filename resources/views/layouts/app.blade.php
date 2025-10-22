@@ -8,7 +8,6 @@
   <title>@yield('title', 'SubdiRent')</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   
 </head>
