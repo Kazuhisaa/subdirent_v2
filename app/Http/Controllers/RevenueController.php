@@ -32,7 +32,7 @@ class RevenueController extends Controller
        return response()->json($total_revenue);
     }
    
-    public function store(Request $request, RevenuePredictionService $service)
+    public function store(Request $request, RevenueService $service)
     {
 
 

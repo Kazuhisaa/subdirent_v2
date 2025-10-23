@@ -8,13 +8,13 @@
     <div class="d-none d-lg-flex align-items-center flex-grow-1">
       <ul class="navbar-nav gap-4 ms-2">
         <li class="nav-item"><a class="nav-link fw-semibold text-uppercase" href="{{ route('home') }}">Home</a></li>
-        <li class="nav-item"><a class="nav-link fw-semibold text-uppercase" href="{{ route('units') }}">Units</a></li>
+        <li class="nav-item"><a class="nav-link fw-semibold text-uppercase" href="{{ route('public.units') }}">Units</a></li>
         <li class="nav-item"><a class="nav-link fw-semibold text-uppercase" href="#contact">Contact</a></li>
       </ul>
     </div>
 
     <div class="d-flex align-items-center gap-3">
-      <a href="#" class="text-dark fw-semibold text-uppercase small text-decoration-none">Sign In</a>
+      
       <button 
   type="button" 
   class="btn btn-primary fw-semibold px-3 rounded-pill"
