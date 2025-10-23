@@ -25,10 +25,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         units.forEach(unit => {
             const imagePath = (unit.files && unit.files.length > 0)
-                ? `/uploads/units/${unit.files[0].split('/').pop()}`
-                : `/images/no-image.png`;
+                ? `/${unit.files[0]}`
+                : `/uploads/default.jpg`;
 
-            // ✅ Clean price (remove symbols, prevent NaN)
             const cleanPrice = Number((unit.unit_price || '0').toString().replace(/[^0-9.]/g, ''));
 
             const card = `
@@ -37,7 +36,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="position-relative" style="height: 200px; background: #f5f9ff;">
                             <img src="${imagePath}" 
                                  alt="${unit.title}" 
-                                 class="w-100 h-100 object-fit-cover">
+                                 class="w-100 h-100 object-fit-cover clickable-image"
+                                 data-full="${imagePath}">
                             <span class="badge position-absolute top-2 end-2 px-3 py-2 bg-success">
                                 Available
                             </span>
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // 🟢 Fetch all available units from API
+    // 🟢 Fetch all available units
     try {
         const res = await fetch('/api/allUnits', {
             method: 'GET',
@@ -86,9 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-
-        // only available units
-        allUnits = data.filter(unit =>
+        allUnits = (data.data ?? data).filter(unit =>
             unit.status && unit.status.toLowerCase() === 'available'
         );
 
@@ -98,26 +96,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         grid.innerHTML = `<div class="col-12 text-danger text-center">⚠ Error loading units.</div>`;
     }
 
-    // 🟢 Search filter (instant)
+    // 🟢 Search filter
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase().trim();
-
-        const filtered = allUnits.filter(unit => {
-            return (
-                (unit.title && unit.title.toLowerCase().includes(searchTerm)) ||
-                (unit.unit_code && unit.unit_code.toLowerCase().includes(searchTerm)) ||
-                (unit.location && unit.location.toLowerCase().includes(searchTerm))
-            );
-        });
-
+        const filtered = allUnits.filter(unit => (
+            (unit.title && unit.title.toLowerCase().includes(searchTerm)) ||
+            (unit.unit_code && unit.unit_code.toLowerCase().includes(searchTerm)) ||
+            (unit.location && unit.location.toLowerCase().includes(searchTerm))
+        ));
         renderUnits(filtered);
     });
 
-    // 🟢 Edit button event
+    // 🟢 Edit button
     document.addEventListener('click', (e) => {
         if (e.target.closest('.edit-unit-btn')) {
             const id = e.target.closest('.edit-unit-btn').dataset.id;
-            window.location.href = `/admin/units/${id}/edit`;
+            window.location.href = `/admin/edit-unit/${id}`;
+        }
+    });
+
+    // 🟢 Image click viewer (modal)
+    document.addEventListener('click', (e) => {
+        const img = e.target.closest('.clickable-image');
+        if (img) {
+            const fullImg = document.getElementById('imageModalImg');
+            fullImg.src = img.dataset.full;
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
         }
     });
 });

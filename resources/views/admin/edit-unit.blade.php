@@ -1,162 +1,164 @@
 @extends('admin.dashboard')
 
-@section('title', 'Edit Unit')
+@section('page-title', 'Edit Room')
 
 @section('content')
-<div class="container mt-4">
-    <h2 class="mb-4">Edit Unit</h2>
+<div class="container-fluid py-4">
 
-    {{-- Success / Error messages --}}
+    {{-- Alert Messages --}}
     <div id="alert-container"></div>
 
-    <form id="updateUnitForm" action="{{ route('admin.units.update', $unit->id) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
-
-        {{-- Title --}}
-        <div class="mb-3">
-            <label for="title" class="form-label">Unit Title</label>
-            <input type="text" class="form-control" id="title" name="title" value="{{ old('title', $unit->title) }}" required>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header fw-bold text-white"
+             style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem;">
+            EDIT ROOM DETAILS
         </div>
 
-        {{-- Location --}}
-        <div class="mb-3">
-            <label for="location" class="form-label">Location</label>
-            <input type="text" class="form-control" id="location" name="location" value="{{ old('location', $unit->location) }}" required>
-        </div>
+        <div class="card-body">
+            <form id="updateUnitForm" data-id="{{ $unit->id }}" enctype="multipart/form-data">
+                @csrf
 
-        {{-- Unit Code --}}
-        <div class="mb-3">
-            <label for="unit_code" class="form-label">Unit Code</label>
-            <input type="text" class="form-control" id="unit_code" name="unit_code" value="{{ old('unit_code', $unit->unit_code) }}" required>
-        </div>
+                {{-- Title, Location, Unit Code --}}
+                <div class="row g-3 mb-4">
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold text-dark">Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="Unit Title" value="{{ $unit->title }}" required>
+                    </div>
 
-        {{-- Description --}}
-        <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $unit->description) }}</textarea>
-        </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Phase / Location</label>
+                        <select name="location" class="form-select" required>
+                            <option value="">Select Phase</option>
+                            @foreach (['Phase 1','Phase 2','Phase 3','Phase 4','Phase 5'] as $phase)
+                                <option value="{{ $phase }}" {{ $unit->location === $phase ? 'selected' : '' }}>
+                                    {{ $phase }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-        {{-- Floor Area --}}
-        <div class="mb-3">
-            <label for="floor_area" class="form-label">Floor Area (sqm)</label>
-            <input type="number" class="form-control" id="floor_area" name="floor_area" value="{{ old('floor_area', $unit->floor_area) }}">
-        </div>
-
-        {{-- Bathroom --}}
-        <div class="mb-3">
-            <label for="bathroom" class="form-label">Bathrooms</label>
-            <input type="number" class="form-control" id="bathroom" name="bathroom" value="{{ old('bathroom', $unit->bathroom) }}">
-        </div>
-
-        {{-- Bedroom --}}
-        <div class="mb-3">
-            <label for="bedroom" class="form-label">Bedrooms</label>
-            <input type="number" class="form-control" id="bedroom" name="bedroom" value="{{ old('bedroom', $unit->bedroom) }}">
-        </div>
-
-        {{-- Monthly Rent --}}
-        <div class="mb-3">
-            <label for="monthly_rent" class="form-label">Monthly Rent</label>
-            <input type="number" step="0.01" class="form-control" id="monthly_rent" name="monthly_rent" value="{{ old('monthly_rent', $unit->monthly_rent) }}">
-        </div>
-
-        {{-- Unit Price --}}
-        <div class="mb-3">
-            <label for="unit_price" class="form-label">Unit Price</label>
-            <input type="number" step="0.01" class="form-control" id="unit_price" name="unit_price" value="{{ old('unit_price', $unit->unit_price) }}">
-        </div>
-
-        {{-- Status --}}
-        <div class="mb-3">
-            <label for="status" class="form-label">Status</label>
-            <select id="status" name="status" class="form-control">
-                <option value="Available" {{ $unit->status == 'Available' ? 'selected' : '' }}>Available</option>
-                <option value="Occupied" {{ $unit->status == 'Occupied' ? 'selected' : '' }}>Occupied</option>
-                <option value="Archived" {{ $unit->status == 'Archived' ? 'selected' : '' }}>Archived</option>
-            </select>
-        </div>
-
-        {{-- Upload Files --}}
-        <div class="mb-3">
-            <label for="files" class="form-label">Upload Files (Images)</label>
-            <input type="file" class="form-control" id="files" name="files[]" multiple>
-
-            @php
-                $files = is_array($unit->files) ? $unit->files : json_decode($unit->files, true) ?? [];
-            @endphp
-
-            @if(count($files) > 0)
-                <div class="mt-3" id="current-files">
-                    <p><strong>Current Files:</strong></p>
-                    @foreach($files as $file)
-                        <div class="mb-2 file-item">
-                            @if(preg_match('/\.(jpg|jpeg|png|gif)$/i', $file))
-                                <img src="{{ asset($file) }}" alt="File" width="120" class="rounded shadow">
-                            @else
-                                <a href="{{ asset($file) }}" target="_blank">{{ basename($file) }}</a>
-                            @endif
-                            <button type="button" class="btn btn-sm btn-danger remove-file" data-file="{{ $file }}">Remove</button>
-                        </div>
-                    @endforeach
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark">Unit Code</label>
+                        <input type="text" name="unit_code" class="form-control" placeholder="Unique Code" value="{{ $unit->unit_code }}" required>
+                    </div>
                 </div>
-            @endif
-        </div>
 
-        <button type="submit" class="btn btn-success">Update Unit</button>
-        <a href="{{ route('admin.rooms') }}" class="btn btn-secondary">Cancel</a>
-    </form>
+                {{-- Floor, Rent, Price, Status --}}
+                <div class="row g-3 mb-4">
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold text-dark">Floor Area</label>
+                        <input type="number" name="floor_area" class="form-control" placeholder="m²" value="{{ $unit->floor_area }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold text-dark">Monthly Rent</label>
+                        <input type="number" step="0.01" name="monthly_rent" class="form-control" value="{{ $unit->monthly_rent }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold text-dark">Unit Price</label>
+                        <input type="number" step="0.01" name="unit_price" class="form-control" value="{{ $unit->unit_price }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold text-dark">Bedrooms</label>
+                        <input type="number" name="bedroom" class="form-control" min="0" value="{{ $unit->bedroom ?? 0 }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold text-dark">Bathrooms</label>
+                        <input type="number" name="bathroom" class="form-control" min="0" value="{{ $unit->bathroom ?? 0 }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold text-dark">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="available" {{ $unit->status === 'available' ? 'selected' : '' }}>Available</option>
+                            <option value="rented" {{ $unit->status === 'rented' ? 'selected' : '' }}>Rented</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Contract Years --}}
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-dark">Contract Years</label>
+                    <input type="number" name="contract_years" class="form-control" min="1" value="{{ $unit->contract_years ?? 1 }}">
+                </div>
+
+                {{-- Description --}}
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-dark">Description</label>
+                    <textarea name="description" class="form-control" rows="4">{{ $unit->description }}</textarea>
+                </div>
+
+                {{-- Upload Images --}}
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-dark">Upload Images</label>
+                    <input type="file" name="files[]" class="form-control" multiple>
+                </div>
+
+                {{-- Buttons --}}
+                <div class="text-center">
+                    <button type="submit" class="btn text-white fw-semibold px-5 py-2"
+                            style="background: linear-gradient(90deg, #2A9DF4, #0A2540); border-radius: 6px;">
+                        Save Changes
+                    </button>
+                    <a href="/admin/rooms" class="btn btn-secondary fw-semibold px-4 py-2 ms-2">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('updateUnitForm');
     const alertContainer = document.getElementById('alert-container');
-    const currentFilesContainer = document.getElementById('current-files');
+    const token = sessionStorage.getItem('admin_api_token');
+    const unitId = form.dataset.id;
 
-    // Track removed files
-    let removeFiles = [];
-
-    // Remove file button
-    document.querySelectorAll('.remove-file').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const filePath = this.dataset.file;
-            removeFiles.push(filePath);
-            this.parentElement.remove();
-        });
-    });
-
-    form.addEventListener('submit', function(e) {
+    // Handle update form submission
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        alertContainer.innerHTML = '';
 
-        let formData = new FormData(form);
-        removeFiles.forEach(f => formData.append('remove_files[]', f));
+        const formData = new FormData(form);
 
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {'X-Requested-With': 'XMLHttpRequest'}
-        })
-        .then(res => res.json())
-        .then(data => {
-            alertContainer.innerHTML = '';
-            if(data.message) {
-                alertContainer.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                // Redirect after 2 seconds
-                setTimeout(() => {
-                    window.location.href = "{{ route('admin.rooms') }}";
-                }, 2000);
-            }
-            if(data.errors) {
-                let errorsHtml = '<div class="alert alert-danger"><ul>';
-                for(let key in data.errors) {
-                    errorsHtml += `<li>${data.errors[key][0]}</li>`;
-                }
-                errorsHtml += '</ul></div>';
-                alertContainer.innerHTML = errorsHtml;
-            }
-        })
-        .catch(err => console.error('Error:', err));
+        // Remove blank fields for rent and price
+        if (!form.monthly_rent.value.trim()) formData.delete('monthly_rent');
+        if (!form.unit_price.value.trim()) formData.delete('unit_price');
+
+        try {
+            const res = await fetch(`/api/editUnits/${unitId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+
+            let dataText = await res.text();
+            let data;
+            try { data = JSON.parse(dataText); }
+            catch { throw new Error('Invalid server response'); }
+
+            if (!res.ok) throw new Error(data.message || 'Update failed');
+
+            alertContainer.innerHTML = `
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    ✅ ${data.message || 'Room updated successfully!'}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            setTimeout(() => window.location.href = '/admin/rooms', 1500);
+
+        } catch (err) {
+            console.error(err);
+            alertContainer.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    ⚠ Failed to update: ${err.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
     });
 });
 </script>

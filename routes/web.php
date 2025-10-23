@@ -55,6 +55,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/', [AdminController::class, 'index'])->name('home');
 
     Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
+    Route::get('/edit-unit/{id}', [UnitsController::class, 'edit'])->name('admin.edit-unit');
 
     // Revenue Analytics
     Route::get('/admin/analytics', [RevenuePredictionController::class, 'showAnalyticsPage'])
@@ -78,18 +79,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::view('/reports', 'admin.reports')->name('reports');
     Route::view('/records', 'admin.records')->name('records');
 
-    // Units Controller
-    Route::prefix('units')->name('units.')->controller(UnitsController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::post('/store', 'store')->name('store');
-        Route::get('/{id}', 'show')->name('show');
-        Route::get('/{id}/edit', 'edit')->name('edit');
-        Route::put('/{unit}', 'update')->name('update');
-        Route::post('/{id}/archive', 'archive')->name('archive');
-        Route::post('/{id}/unarchive', 'unarchive')->name('unarchive');
-       
-    });
-    
+  
     // Application Controller
     Route::get('/applications', [ApplicationController::class, 'indexView'])->name('applications');
         Route::post('/applications/{id}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
@@ -120,8 +110,5 @@ Route::get('/tenant/{tenant}/payment-cancel', [PaymentController::class, 'cancel
 
 });
 
-// Webhook (API route)
-Route::post('/webhook/paymongo', [PaymentController::class, 'webhook'])->name('payment.webhook');
-
-Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook']);
+Route::post('payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');
 

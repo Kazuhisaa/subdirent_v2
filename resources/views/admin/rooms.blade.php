@@ -24,6 +24,16 @@
     </div>
 </div>
 
+<!-- Full Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-transparent border-0">
+      <img id="imageModalImg" src="" class="w-100 rounded shadow" alt="Full Image">
+    </div>
+  </div>
+</div>
+
+
 {{-- ✅ Pass API token safely --}}
 <script>
     sessionStorage.setItem('admin_api_token', '{{ session('admin_api_token') }}');
@@ -36,6 +46,19 @@
     filter: grayscale(100%) brightness(0.85);
     opacity: 0.8;
 }
+
+.clickable-image {
+    cursor: zoom-in;
+    transition: transform 0.2s;
+}
+.clickable-image:hover {
+    transform: scale(1.03);
+}
+
+
+
 </style>
+
+
 @endsection
 @vite(['resources/css/admin.css','resources/css/admin_tenant.css', 'resources/js/showUnit.js'])
