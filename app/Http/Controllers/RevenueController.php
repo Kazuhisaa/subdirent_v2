@@ -32,7 +32,7 @@ class RevenueController extends Controller
        return response()->json($total_revenue);
     }
    
-    public function store(Request $request, RevenuePredictionService $service)
+    public function store(Request $request, RevenueService $service)
     {
 
 
@@ -86,6 +86,11 @@ class RevenueController extends Controller
     ]);
        
     }
+public function showLatestRevenue(){
+    $data = $this->revenueservice->getlatestrevenue();
+    return response()->json($data);
+}
+
     
 public function addNewContract(Request $request)
 {
@@ -110,5 +115,5 @@ public function addNewContract(Request $request)
     ]);
 }
    
-
+    
 }

@@ -27,7 +27,9 @@ class Application extends Model
         'remarks'
     ];
 
-    public function unit(): BelongsTo
+    protected $dates = ['deleted_at'];
+
+    public function unit()
     {
         return $this->belongsTo(Unit::class);
     }

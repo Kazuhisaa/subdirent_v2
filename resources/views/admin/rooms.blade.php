@@ -36,11 +36,10 @@
 
 {{-- ✅ Pass API token safely --}}
 <script>
-    sessionStorage.setItem('admin_api_token', '{{ session('admin_api_token') }}');
+sessionStorage.setItem('admin_api_token', "{{ session('admin_api_token') }}");
 </script>
 
 {{-- ✅ Script --}}
-<script src="{{ asset('fetch_js/showUnit.js') }}"></script>
 
 <style>
 .archived-card {
@@ -59,6 +58,5 @@
 
 
 </style>
-
-
+@vite(['resources/css/admin.css','resources/css/admin_tenant.css', 'resources/js/showUnit.js'])
 @endsection

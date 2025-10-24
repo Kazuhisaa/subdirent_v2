@@ -1,7 +1,11 @@
 <?php
 namespace App\Services;
-
+use Illuminate\Support\Facades\DB;
 use App\Models\RevenuePrediction;
+
+
+
+
 use Carbon\Carbon;
 
 class RevenueService {
@@ -22,7 +26,10 @@ class RevenueService {
         return RevenuePrediction::create($data);
     }
   
-
+    public function getlatestRevenue(){
+         $retrievefeatureData = RevenuePrediction::orderBy('year_month', 'desc')->take(12)->get(['year_month', 'monthly_revenue'])->reverse()->values();
+        return $retrievefeatureData;
+    }
     public function incrementRevenueFromDate($date,$amount){
          return RevenuePrediction::where('year_month', '>=', $date)
             ->increment('monthly_revenue', $amount);
@@ -35,8 +42,8 @@ public function addnewContract($date, $contract)
 {
     return RevenuePrediction::where('year_month', '>=', $date)
         ->update([
-            'active_contracts' => \DB::raw("active_contracts + $contract"),
-            'new_contracts' => \DB::raw("new_contracts + $contract")
+            'active_contracts' => DB::raw("active_contracts + $contract"),
+            'new_contracts' => DB::raw("new_contracts + $contract")
         ]);
 }
 
@@ -44,8 +51,8 @@ public function subtractContract($date,$contract)
 {
 
     return RevenuePrediction::where('year_month','>=',$date)->update([
-        'active_contracts' => \DB::raw("active_contracts - $contract"),
-        'expired_contracts' =>  \DB::raw("expired_contracts + $contract")
+        'active_contracts' => DB::raw("active_contracts - $contract"),
+        'expired_contracts' =>  DB::raw("expired_contracts + $contract")
     ]);
 }
 

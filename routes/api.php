@@ -19,7 +19,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::post('/login', [AuthController::class, 'login']); // API login for admin
 
 Route::middleware(['auth:sanctum'])->prefix('admin/api')->group(function () {
     Route::get('/tenants', [TenantController::class, 'index']);
@@ -43,6 +42,9 @@ Route::middleware(['auth:sanctum'])->group(function() {
         return response()->json(['message'=>'Welcome Admin']);
     });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/units', [UnitsController::class, 'index'])->name('units.index');
+});
     Route::get('/allUnits',[UnitsController::class, 'index']);
 
 
@@ -65,15 +67,12 @@ Route::prefix('applications')->group(function () {
 
 
 Route::prefix('bookings')->group(function () {
-    Route::get('/find/{id}', [BookingController::class, 'show']);       // GET /bookings/find/{id}
-    Route::get('/unit/{unit_id}', [BookingController::class, 'showByUnitId']); // GET /bookings/unit/{unit_id}
-    Route::post('/confirm/{id}',[BookingController::class, 'confirm']);
+    Route::get('/', [BookingController::class, 'index']);
+    Route::get('/find/{id}', [BookingController::class, 'show']);
+    Route::get('/unit/{unit_id}', [BookingController::class, 'showByUnitId']);
+    Route::post('/confirm/{id}', [BookingController::class, 'confirm']);
 });
-    
-
 });
-
-
 Route::prefix('bookings')->group(function () {
     Route::post('/', [BookingController::class, 'store']);              // POST /bookings
     Route::get('/getOccupiedTime/{unit_id}/{date}',[BookingController::class,'showAllOccupiedTime']);
@@ -84,7 +83,7 @@ Route::prefix('applications')->group(function () {
     Route::post('/addApplicants',[ApplicationController::class,'store']);
 });
 
-
+Route::post('/applications', [ApplicationController::class, 'store']);
 
 Route::prefix('prediction')->group(function(){
     Route::get('/revenue/permonth',[RevenuePredictionController::class,'showPredictionMonth']);
@@ -151,3 +150,19 @@ Route::post('/payments/pay', [PaymentController::class, 'createPayment']);
 
 
 Route::post('/login', [AuthController::class, 'apiLogin']);
+
+
+
+Route::post('/bookings', [BookingController::class, 'store']);
+
+Route::get('/applications', [ApplicationController::class, 'index']);
+Route::get('/applications/{id}', [ApplicationController::class, 'show']);
+Route::post('/applications', [ApplicationController::class, 'store']);
+Route::put('/applications/{id}', [ApplicationController::class, 'update']);
+Route::post('/applications/{id}/approve', [ApplicationController::class, 'approve']);
+Route::post('/applications/{id}/reject', [ApplicationController::class, 'reject']);
+Route::post('/applications/{id}/archive', [ApplicationController::class, 'archive']);
+Route::get('/applications/archived', [ApplicationController::class, 'viewArchive']);
+
+
+

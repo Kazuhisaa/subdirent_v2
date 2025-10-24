@@ -58,7 +58,7 @@ public function getAnalyticsData()
 {
     try {
         $totalTenants = Tenant::count();
-        $totalUnits = Unit::count();
+        $totalUnits = Unit::count()->where('status', '!=', 'completed');
 
         // You can call your prediction service here too:
         $peakMonth = $this->revenuepredictionservice->predictMonthly()['peak_month'] ?? 'N/A';

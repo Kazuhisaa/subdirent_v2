@@ -30,20 +30,10 @@ class Unit extends Model
         'floor_area'   => 'integer',
         'bathroom'     => 'integer',
         'bedroom'      => 'integer',
-        'monthly_rent' => 'float',
-        'unit_price'   => 'float',
+        'monthly_rent' => 'integer',
+        'unit_price'   => 'integer',
         'files'        => 'array', 
     ];
-
-    public function getMonthlyRentAttribute($value)
-    {
-        return number_format($value, 2, '.', ',');
-    }
-
-    public function getUnitPriceAttribute($value)
-    {
-        return number_format($value, 2, '.', ',');
-    }
 
     public function applications(): HasMany
     {

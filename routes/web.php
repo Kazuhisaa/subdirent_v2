@@ -8,6 +8,7 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\RevenuePredictionController;
+use App\Http\Controllers\BookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +18,13 @@ use App\Http\Controllers\RevenuePredictionController;
 
 Route::view('/', 'index')->name('home');
 Route::view('/welcome', 'welcome')->name('welcome');
-Route::view('/units', 'units')->name('units');
+
+
+// API endpoint (returns JSON)
+Route::get('/units', [UnitsController::class, 'index'])->name('units.api');
+
+// Public page (Blade view)
+Route::view('/available-units', 'units')->name('public.units');
 
 Route::middleware(['auth:sanctum'])->prefix('tenant')->name('tenant.')->group(function () {  
     // Dashboard
@@ -37,7 +44,7 @@ Route::middleware(['auth:sanctum'])->prefix('tenant')->name('tenant.')->group(fu
     Route::get('/maintenance', [TenantController::class, 'maintenance'])->name('maintenance');
 
 });
-
+    
 
 // Authentication
 Route::middleware(['web'])->group(function () {
@@ -53,7 +60,15 @@ Route::middleware(['web'])->group(function () {
 */
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
 
+    Route::get('/applications/archived', [ApplicationController::class, 'getArchived'])->name('applications.archived');
+Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unarchive'])->name('applications.unarchive');
 
+
+
+    
+    Route::get('/', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.home');
+
+    
     // Dashboard
     Route::get('/', [AdminController::class, 'index'])->name('home');
 
@@ -83,6 +98,19 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::view('/records', 'admin.records')->name('records');
 
   
+    // Units Controller
+    Route::prefix('units')->name('units.')->controller(UnitsController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/{id}', 'show')->name('show');
+        Route::get('/{id}/edit', 'edit')->name('edit');
+        Route::put('/{unit}', 'update')->name('update');
+        Route::post('/{id}/archive', 'archive')->name('archive');
+        Route::post('/{id}/unarchive', 'unarchive')->name('unarchive');
+       
+    });
+    Route::get('/admin/bookings', [BookingController::class, 'indexPage'])
+    ->name('admin.bookings');
     // Application Controller
     Route::get('/applications', [ApplicationController::class, 'indexView'])->name('applications');
         Route::post('/applications/{id}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
@@ -101,14 +129,27 @@ Route::get('/payments/failed', function () {
 
 
 
+// Tenant Payment Routes
 Route::middleware(['auth'])->group(function () {
-        Route::get('/tenant/payments', [TenantController::class, 'payments'])->name('tenant.payments');
-    Route::get('tenant/{tenant}/dashboard', [PaymentController::class, 'dashboard'])->name('tenant.dashboard');
-    Route::get('tenant/{tenant}/payments', [PaymentController::class, 'payments'])->name('tenant.payments');
-    Route::post('tenant/{tenant}/payments/create', [PaymentController::class, 'createPayment'])->name('payments.create');
-    Route::get('tenant/{tenant}/payments/success', [PaymentController::class, 'success'])->name('payments.success');
-    Route::get('tenant/{tenant}/payments/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
+    Route::get('/tenant/{tenant}/dashboard', [PaymentController::class, 'dashboard'])->name('tenant.home');
+    
+    // Payment Creation (GCash/Card)
+    Route::post('/tenant/{tenant}/pay', [PaymentController::class, 'createPayment'])->name('tenant.payment.create');
+
+Route::get('/tenant/{tenant}/payment-success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/tenant/{tenant}/payment-cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+
 });
 
 Route::post('payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');
+
+
+ Route::get('/allUnits',[UnitsController::class, 'index']);
+    Route::post('/addUnits',[UnitsController::class, 'store']);
+    Route::get('/findUnits/{id}',[UnitsController::class, 'show']);
+    Route::put('/editUnits/{unit}',[UnitsController::class, 'update']);  
+    Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);
+    Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
+
+
 
