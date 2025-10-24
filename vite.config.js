@@ -13,6 +13,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/css/admin_tenant.css',
                 'resources/js/admin_tenant.js',
+                'resources/js/showUnit.js',
             ],
             refresh: true,
         }),

@@ -34,9 +34,6 @@
   font-size: 0.9rem;
 }
 
-.room-card img {
-  max-height: 100px; /* was 150px */
-}
 
 .room-card .card-body {
   padding: 0.75rem;
@@ -294,10 +291,8 @@ header .h6 {
   border-radius: 12px;
   background: #fff;
   box-shadow: 0 2px 6px rgba(10, 37, 64, 0.1);
-  transition: all 0.2s ease-in-out;
-}
+  transition: box-shadow 0.2s ease-in-out;}
 .card:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(10, 37, 64, 0.15);
 }
 .card-title {

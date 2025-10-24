@@ -4,72 +4,40 @@
 @section('content')
 <div class="container-fluid py-4">
     {{-- Page Header --}}
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="fw-bold text-dark" style="color:#0A2540;">MAINTENANCE</h3>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-blue-900">Maintenance</h2>
     </div>
 
-    {{-- Maintenance Summary Cards --}}
-    <div class="row text-center mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-0" style="background:#EAF8FF;">
-                <div class="card-body">
-                    <h6 class="text-muted">TOTAL REQUESTS</h6>
-                    <h3 class="fw-bold text-dark">3</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-success">
-                <div class="card-body">
-                    <h6 class="text-success">COMPLETE</h6>
-                    <h3 class="fw-bold text-success">1</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-info">
-                <div class="card-body">
-                    <h6 class="text-info">PENDING</h6>
-                    <h3 class="fw-bold text-info">1</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-primary">
-                <div class="card-body">
-                    <h6 class="text-primary">IN PROGRESS</h6>
-                    <h3 class="fw-bold text-primary">1</h3>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{-- ✅ CHANGED: Wrapped the table in the same card style as the tenants page --}}
+    <div class="card border-0 shadow-sm">
 
-    {{-- Maintenance Requests Table --}}
-    <div class="card shadow-sm border-0" style="background-color:#EAF8FF;">
-        <div class="card-header d-flex justify-content-between align-items-center text-white fw-bold"
-             style="background: linear-gradient(90deg, #2A9DF4, #0A2540);">
+        {{-- ✅ ADDED: A gradient card-header to match --}}
+        <div class="card-header fw-bold text-white d-flex justify-content-between align-items-center"
+             style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem;">
             <span>MAINTENANCE REQUESTS</span>
-            <a href="#" class="btn btn-sm text-white"
-               style="background: linear-gradient(90deg, #2A9DF4, #0A2540); border:none;">
-               + Add Request
+
+            {{-- ✅ MOVED: The "Add Request" button is now here --}}
+            <a href="#" class="btn btn-sm text-white fw-semibold" 
+                    style="background: linear-gradient(90deg, #2A9DF4, #0A2540); border:none; border-radius: 6px;">
+                + Add Request
             </a>
         </div>
 
+        {{-- Maintenance Requests Table --}}
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-bordered mb-0 text-center align-middle">
-                    <thead style="background-color:#D8EEFF; color:#0A2540;">
+                {{-- ✅ ADDED: The .tenant-table class for consistent styling --}}
+                <table class="table align-middle mb-0 tenant-table text-center">
+                    <thead class="table-light small text-uppercase text-secondary">
                         <tr>
-                            <th>ID</th>
-                            <th>FULL NAME</th>
-                            <th>ROOM</th>
-                            <th>ISSUE TYPE</th>
-                            <th>DESCRIPTION</th>
-                            <th>DATE</th>
-                            <th>STATUS</th>
-                            <th>ACTIONS</th>
+                            <th class="fw-semibold py-3 ps-4">ID</th>
+                            <th class="fw-semibold">Full Name</th>
+                            <th class="fw-semibold">Room</th>
+                            <th class="fw-semibold">Issue Type</th>
+                            <th class="fw-semibold">Description</th>
+                            <th class="fw-semibold">Date</th>
+                            <th class="fw-semibold">Status</th>
+                            <th class="fw-semibold pe-4">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,12 +49,16 @@
                             <td>Plumbing</td>
                             <td>Leaking faucet in bathroom</td>
                             <td>2025-10-01</td>
+                            {{-- This 'bg-success' is styled by your CSS --}}
                             <td><span class="badge bg-success">Complete</span></td>
                             <td>
-                                <a href="#" class="btn btn-sm text-white" 
-                                   style="background-color:#2A9DF4;">Edit</a>
-                                <a href="#" class="btn btn-sm text-white" 
-                                   style="background-color:#0A2540;">Archive</a>
+                                {{-- ✅ CHANGED: Buttons now use icons and theme classes --}}
+                                <a href="#" class="btn btn-sm btn-outline-blue">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-archive-fill"></i>
+                                </a>
                             </td>
                         </tr>
                         <tr>
@@ -96,12 +68,16 @@
                             <td>Electrical</td>
                             <td>No power in outlets</td>
                             <td>2025-10-02</td>
-                            <td><span class="badge bg-warning text-dark">Pending</span></td>
+                            {{-- This 'bg-secondary' is styled by your CSS --}}
+                            <td><span class="badge bg-secondary">Pending</span></td>
                             <td>
-                                <a href="#" class="btn btn-sm text-white" 
-                                   style="background-color:#2A9DF4;">Edit</a>
-                                <a href="#" class="btn btn-sm text-white" 
-                                   style="background-color:#0A2540;">Archive</a>
+                                {{-- ✅ CHANGED: Buttons now use icons and theme classes --}}
+                                <a href="#" class="btn btn-sm btn-outline-blue">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-archive-fill"></i>
+                                </a>
                             </td>
                         </tr>
                         <tr>
@@ -113,10 +89,13 @@
                             <td>2025-10-03</td>
                             <td><span class="badge bg-primary">In Progress</span></td>
                             <td>
-                                <a href="#" class="btn btn-sm text-white" 
-                                   style="background-color:#2A9DF4;">Edit</a>
-                                <a href="#" class="btn btn-sm text-white" 
-                                   style="background-color:#0A2540;">Archive</a>
+                                {{-- ✅ CHANGED: Buttons now use icons and theme classes --}}
+                                <a href="#" class="btn btn-sm btn-outline-blue">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-archive-fill"></i>
+                                </a>
                             </td>
                         </tr>
                         {{-- End Dummy Data --}}

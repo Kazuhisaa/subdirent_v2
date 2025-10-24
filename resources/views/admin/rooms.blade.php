@@ -49,10 +49,11 @@ sessionStorage.setItem('admin_api_token', "{{ session('admin_api_token') }}");
 
 .clickable-image {
     cursor: zoom-in;
-    transition: transform 0.2s;
+    position: relative; 
+    z-index: 1;
 }
 .clickable-image:hover {
-    transform: scale(1.03);
+   cursor: zoom-in;
 }
 
 

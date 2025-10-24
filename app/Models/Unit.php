@@ -9,7 +9,7 @@ use App\Models\Application;
 class Unit extends Model
 {
     use HasFactory;
-    use HasFactory;
+
 
     protected $fillable = [
         'title',
