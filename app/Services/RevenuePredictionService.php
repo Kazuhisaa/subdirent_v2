@@ -21,7 +21,7 @@ class RevenuePredictionService
     {
         $modelManager = new ModelManager();
         $model = $modelManager->restoreFromFile(storage_path('App/Models/revenue_prediction.model'));
-
+        $modelaccurancy = $this->evaluateAccuracy($model);
         $retrievefeatureData = RevenuePrediction::orderBy('year_month', 'desc')->take(12)->get()->reverse()->values();
         $retrievedates = RevenuePrediction::orderBy('year_month', 'desc')->take(12)->get(['year_month', 'monthly_revenue'])->reverse()->values();
 
@@ -82,6 +82,7 @@ class RevenuePredictionService
             "prediction" => [
                 "prediction_date" => $newDate,
                 "revenue_prediction" => round($predictionValue, 2),
+                 "model Accurancy" => $modelaccurancy,
                 "confidence_interval" => [
                     "lower" => round($lower, 2),
                     "upper" => round($upper, 2),
@@ -282,4 +283,60 @@ class RevenuePredictionService
         $modelManager = new ModelManager();
         $modelManager->saveToFile($regression, storage_path('app/Models/revenue_prediction.model'));
     }
+
+
+
+    public function evaluateAccuracy($model)
+{
+   
+
+    // Prepare dataset again (same structure as training)
+    $dataset = $this->revenueprediction::all();
+    $targets = [];
+    $features = [];
+
+    foreach ($dataset as $data) {
+        $features[] = [
+            $data['year'],
+            $data['month'],
+            $data['active_contracts'],
+            $data['new_contracts'],
+            $data['expired_contracts'],
+            $data['prev_month_revenue']
+        ];
+        $targets[] = $data['monthly_revenue'];
+    }
+
+    // Evaluate
+    $predictions = [];
+    foreach ($features as $f) {
+        $predictions[] = $model->predict($f);
+    }
+
+    // Compute R²
+    $meanTarget = array_sum($targets) / count($targets);
+    $ss_total = array_sum(array_map(fn($y) => pow($y - $meanTarget, 2), $targets));
+    $ss_res = 0;
+    for ($i = 0; $i < count($targets); $i++) {
+        $ss_res += pow($targets[$i] - $predictions[$i], 2);
+    }
+    $r2 = 1 - ($ss_res / $ss_total);
+
+    // Compute MAPE
+    $abs_percentage_errors = [];
+    for ($i = 0; $i < count($targets); $i++) {
+        if ($targets[$i] != 0) {
+            $abs_percentage_errors[] = abs(($targets[$i] - $predictions[$i]) / $targets[$i]);
+        }
+    }
+    $mape = array_sum($abs_percentage_errors) / count($abs_percentage_errors) * 100;
+     $r2_percent = $r2 * 100;
+    return [
+       'Accuracy(r2Score)' => number_format($r2_percent, 2) . '%',
+        'mape' => round($mape, 2) . '%'
+    ];
 }
+
+}
+
+
