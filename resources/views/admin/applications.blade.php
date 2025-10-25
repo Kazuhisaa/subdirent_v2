@@ -7,15 +7,17 @@
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h3 class="fw-bold text-blue-900">Applications</h3>
-            <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#archivedModal">
-                🗂 Archived Applicants
+
+            <button class="btn btn-action rounded-pill fw-bold px-4" data-bs-toggle="modal" data-bs-target="#archivedModal">
+                <i class="bi bi-archive-fill me-1"></i> Archived Applicants
             </button>
         </div>
     </div>
 
     {{-- Summary Cards --}}
     <div class="row text-center mb-4">
-        <div class="col-md-4 mb-3">
+        {{-- ... summary card content ... --}}
+         <div class="col-md-4 mb-3">
             <div class="card border-0 shadow-sm booking-card">
                 <div class="card-body">
                     <h6 class="card-title">Total Applications</h6>
@@ -42,11 +44,16 @@
     </div>
 
     {{-- Applications List --}}
-    <div class="card shadow-sm border-0">
-        <div class="card-header fw-bold text-blue-900">Applications List</div>
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header fw-bold text-white"
+             style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem;">
+            APPLICATIONS LIST
+        </div>
 
         <div class="card-body p-0">
             <div class="table-responsive">
+                {{-- Ensure align-middle is here for overall row alignment --}}
                 <table class="table mb-0 text-center booking-table align-middle">
                     <thead>
                         <tr>
@@ -71,12 +78,15 @@
                             <td>{{ $application->created_at?->format('M d, Y') }}</td>
                             <td>
                                 @if($application->unit)
-                                    <strong>{{ $application->unit->unit_name }}</strong><br>
-                                    <small class="text-muted">{{ $application->unit->title }}</small>
+                                    <div class="d-flex flex-column align-items-center">
+                                        <strong>{{ $application->unit->unit_name }}</strong>
+                                        <small class="text-muted">{{ $application->unit->title }}</small>
+                                    </div>
                                 @else
                                     <span class="text-muted">N/A</span>
                                 @endif
                             </td>
+                            
                             <td>
                                 @if($application->unit_price)
                                     ₱{{ number_format($application->unit_price, 2) }}
@@ -90,25 +100,37 @@
                                 @elseif($application->status === 'Rejected')
                                     <span class="badge bg-danger">Rejected</span>
                                 @else
-                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    <span class="badge bg-secondary">Pending</span>
                                 @endif
                             </td>
-                            <td class="d-flex justify-content-center gap-2">
-                                @if($application->status !== 'Approved')
-                                    <form action="{{ route('admin.applications.approve', $application->id) }}" method="POST">@csrf
-                                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                    </form>
-                                @endif
 
-                                @if($application->status !== 'Rejected')
-                                    <form action="{{ route('admin.applications.reject', $application->id) }}" method="POST">@csrf
-                                        <button type="submit" class="btn btn-sm btn-danger">Deny</button>
-                                    </form>
-                                @endif
+                            {{-- Action buttons --}}
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                    @if($application->status === 'Pending')
+                                        {{-- Approve Button --}}
+                                        <form action="{{ route('admin.applications.approve', $application->id) }}" method="POST" class="mb-0">@csrf
+                                            <button type="submit" class="btn btn-sm btn-success" title="Approve">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
 
-                                <form action="{{ route('admin.applications.archive', $application->id) }}" method="POST">@csrf
-                                    <button type="submit" class="btn btn-sm btn-outline-warning text-dark fw-semibold">Archive</button>
-                                </form>
+                                        {{-- Deny Button --}}
+                                        <form action="{{ route('admin.applications.reject', $application->id) }}" method="POST" class="mb-0">@csrf
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Deny">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    {{-- Archive Button (Always Visible) --}}
+                                    <form action="{{ route('admin.applications.archive', $application->id) }}" method="POST" class="mb-0">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Archive">
+                                            <i class="bi bi-archive-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @empty
@@ -121,68 +143,97 @@
     </div>
 </div>
 
-{{-- 🗂 Archived Applications Modal --}}
+{{-- Archived Applications Modal --}}
 <div class="modal fade" id="archivedModal" tabindex="-1" aria-labelledby="archivedModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold" id="archivedModalLabel">Archived Applicants</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="table-responsive">
-          <table class="table table-striped text-center align-middle">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Contact</th>
-                <th>Unit</th>
-                <th>Archived At</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="archivedTableBody">
-              <tr><td colspan="7" class="text-muted">Loading...</td></tr>
-            </tbody>
-          </table>
+    {{-- ... modal content ... --}}
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" id="archivedModalLabel">Archived Applicants</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="table-responsive">
+              <table class="table table-striped text-center align-middle">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Contact</th>
+                    <th>Unit</th>
+                    <th>Archived At</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="archivedTableBody">
+                  <tr><td colspan="7" class="text-muted">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 </div>
 
 {{-- JS to load archived applicants --}}
 <script>
-document.getElementById('archivedModal').addEventListener('show.bs.modal', async () => {
-    const tbody = document.getElementById('archivedTableBody');
-    tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Loading...</td></tr>';
+    {{-- ... modal javascript ... --}}
+    document.getElementById('archivedModal').addEventListener('show.bs.modal', async () => {
+        const tbody = document.getElementById('archivedTableBody');
+        tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Loading...</td></tr>';
 
-    const res = await fetch('/api/archived-applications');
-    const data = await res.json();
+        const token = sessionStorage.getItem('admin_api_token');
+        if (!token) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-danger">⚠ Authorization token not found.</td></tr>';
+            return;
+        }
 
-    if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-muted">No archived applicants.</td></tr>';
-        return;
-    }
+        try {
+            const res = await fetch('/api/archived-applications', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
 
-    tbody.innerHTML = data.map(app => `
-        <tr>
-            <td>${app.id}</td>
-            <td>${app.first_name} ${app.middle_name ?? ''} ${app.last_name}</td>
-            <td>${app.email}</td>
-            <td>${app.contact_num}</td>
-            <td>${app.unit ? app.unit.unit_name : '—'}</td>
-            <td>${app.archived_at ?? '—'}</td>
-            <td>
-                <form method="POST" action="/admin/applications/${app.id}/restore">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-primary">Restore</button>
-                </form>
-            </td>
-        </tr>
-    `).join('');
-});
+            if (!res.ok) throw new Error('Failed to fetch archived data.');
+
+            const data = await res.json();
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted">No archived applicants.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(app => {
+                const unitName = app.unit ? app.unit.unit_name : '—';
+                const archivedDate = app.archived_at ? new Date(app.archived_at).toLocaleDateString() : '—';
+
+                return `
+                    <tr>
+                        <td>${app.id}</td>
+                        <td>${app.first_name} ${app.middle_name ?? ''} ${app.last_name}</td>
+                        <td>${app.email}</td>
+                        <td>${app.contact_num}</td>
+                        <td>${unitName}</td>
+                        <td>${archivedDate}</td>
+                        <td>
+                            <form method="POST" action="/admin/applications/${app.id}/restore">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                `
+            }).join('');
+
+        } catch (err) {
+            console.error('Error loading archived applicants:', err);
+            tbody.innerHTML = `<tr><td colspan="7" class="text-danger">⚠ ${err.message}</td></tr>`;
+        }
+    });
 </script>
 @endsection

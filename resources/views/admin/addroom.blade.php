@@ -21,12 +21,12 @@
                 {{-- Title, Location, Unit Code --}}
                 <div class="row g-3 mb-4">
                     <div class="col-md-12">
-                        <label class="form-label fw-semibold text-dark">Title</label>
+                        <label class="form-label fw-semibold text-dark">Unit Title</label>
                         <input type="text" name="title" class="form-control" placeholder="Unit Title" required>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold text-dark">Phase / Location</label>
+                        <label class="form-label fw-semibold text-dark">Phase</label>
                         <select name="location" class="form-select" required>
                             <option value="">Select Phase</option>
                             <option value="Phase 1">Phase 1</option>
@@ -39,7 +39,7 @@
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-dark">Unit Code</label>
-                        <input type="text" name="unit_code" class="form-control" placeholder="Unique Code" required>
+                        <input type="text" name="unit_code" class="form-control" placeholder="Unit Code" required>
                     </div>
                 </div>
 
@@ -51,34 +51,24 @@
                     </div>
 
                     <div class="col-md-3">
-                        <label class="form-label fw-semibold text-dark">Monthly Rent</label>
-                        <input type="number" step="0.01" name="monthly_rent" class="form-control" placeholder="₱">
-                    </div>
-
-                    <div class="col-md-3">
                         <label class="form-label fw-semibold text-dark">Unit Price</label>
-                        <input type="number" step="0.01" name="unit_price" class="form-control" placeholder="₱">
+                        <input type="number" step="0.01" name="unit_price" class="form-control" placeholder="₱"required>
                     </div>
 
+                    {{-- Contract Years --}}
                     <div class="col-md-3">
-                        <label class="form-label fw-semibold text-dark">Status</label>
-                        <select name="status" class="form-select">
-                            <option value="available" selected>Available</option>
-                            <option value="rented">Rented</option>
-                        </select>
-                    </div>
+                        <label class="form-label fw-semibold text-dark">Contract Years</label>
+                        <input type="number" name="contract_years" class="form-control" min="1" value="1"required>
+                </div>
+                   
                 </div>
 
-                {{-- Contract Years --}}
-                <div class="mb-4">
-                    <label class="form-label fw-semibold text-dark">Contract Years</label>
-                    <input type="number" name="contract_years" class="form-control" min="1" value="1">
-                </div>
+                
 
                 {{-- Description --}}
                 <div class="mb-4">
                     <label class="form-label fw-semibold text-dark">Description</label>
-                    <textarea name="description" class="form-control" rows="4" placeholder="Enter description..."></textarea>
+                    <textarea name="description" class="form-control" rows="4" placeholder="Enter description..."required></textarea>
                 </div>
 
                 {{-- Upload Images --}}

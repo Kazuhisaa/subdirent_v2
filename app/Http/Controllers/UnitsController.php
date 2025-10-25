@@ -20,14 +20,14 @@ class UnitsController extends Controller
                     'title' => 'required|string|max:255',
                     'location' => 'required|string',
                     'unit_code' => 'required|string|unique:units,unit_code',
-                    'description' => 'required|string|max:10000',
+                    'description' => 'nullable|string|max:10000',
                     'floor_area' => 'nullable|integer|min:0',
                     'bathroom' => 'nullable|integer|min:0',
                     'bedroom' => 'nullable|integer|min:0',
-                    'monthly_rent' => 'required|numeric|min:0',
+                    'monthly_rent' => 'nullable|numeric|min:0',
                     'unit_price' => 'required|numeric|min:0',
                     'status' => 'nullable|in:available,rented',
-                    'contract_years' => 'required|integer|min:1',
+                    'contract_years' => 'nullable|integer|min:1',
                     'files.*' => 'nullable|file|mimes:jpeg,jpg,pdf|max:2048'
                 ]);
 
