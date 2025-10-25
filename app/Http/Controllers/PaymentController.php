@@ -232,8 +232,7 @@ public function dashboard(Tenant $tenant)
             ->orderBy('for_month', 'desc') // <-- ✅ CRITICAL FIX: 'desc' para makuha ang huli
             ->first();
 
-        $nextBilling; // I-declare ang variable
-
+        $nextBilling = null;
         if ($latestRentPayment) {
             // Kung ang huling bayad ay Oct 16, ang susunod ay Nov 16
             // Kung ang huling bayad ay Nov 16, ang susunod ay Dec 16
