@@ -187,9 +187,10 @@
             const predLabel = data.prediction?.prediction_date?.slice(0, 7) || '';
             const ciLower = data.prediction?.confidence_interval?.lower || pred;
             const ciUpper = data.prediction?.confidence_interval?.upper || pred;
-            const confidenceLevel = data.prediction?.confidence_interval?.confidence_level || 'N/A';
-
+           const r2Score = data.prediction?.ModelAccuracy?.R2Score || '';
+             const mape = data.prediction?.ModelAccuracy?.Mape || '';
             const offset = (pred * 0.05) || 1000;
+    
 
             const allLabels = [...labels, predLabel];
             const histDataExtended = [...histData, null];
@@ -210,12 +211,12 @@
                         pointHoverRadius: 14, showLine: false
                     },
                     {
-                        label: 'High CI', data: highData, borderColor: 'transparent',
+                        label: 'Higher Confidence interval', data: highData, borderColor: 'transparent',
                         backgroundColor: 'rgba(25,135,84,0.9)', pointStyle: 'triangle',
                         rotation: 0, pointRadius: 14, pointHoverRadius: 16, showLine: false
                     },
                     {
-                        label: 'Low CI', data: lowData, borderColor: 'transparent',
+                        label: 'Lower Confidence interval', data: lowData, borderColor: 'transparent',
                         backgroundColor: 'rgba(220,53,69,0.9)', pointStyle: 'triangle',
                         rotation: 180, pointRadius: 14, pointHoverRadius: 16, showLine: false
                     }
@@ -232,7 +233,8 @@
                                 const y = ctx.parsed.y || 0;
                                 const label = ctx.dataset.label;
                                 if (label === 'Predicted Revenue')
-                                    return [`Predicted: ₱${pred.toLocaleString()}`, `Confidence: ${confidenceLevel}`];
+                                    return [`Predicted: ₱${pred.toLocaleString()}`,`Accuracy(r2score of model): ${r2Score}`, // Ito ang idinagdag
+        `MAPE: ${mape}`];
                                 if (label === 'High CI') return `High CI: ₱${ciUpper.toLocaleString()}`;
                                 if (label === 'Low CI') return `Low CI: ₱${ciLower.toLocaleString()}`;
                                 return '₱' + y.toLocaleString();
