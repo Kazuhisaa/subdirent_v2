@@ -53,35 +53,54 @@ class TenantController extends Controller
         ]);
     }
 
-    public function payments()
-    {
-        $user = Auth::user()->load('tenant.contracts', 'tenant.payments');
-        if (!$user->tenant) { abort(404, 'Tenant record not found.'); }
-        $tenant = $user->tenant;
-        $payments = $tenant->payments->sortByDesc('payment_date');
-        $activeContract = $tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
-        $outstanding = 0;
-        $nextMonth = ['date' => 'N/A', 'for_month' => null];
 
-        if ($activeContract) {
-            $outstanding = $activeContract->monthly_payment; 
-            $dueDay = $activeContract->payment_due_date;
-            $nextDueDateCarbon = Carbon::now()->day($dueDay);
-            if (Carbon::now()->day > $dueDay) {
-                $nextDueDateCarbon->addMonth();
-            } 
-            $nextMonth['date'] = $nextDueDateCarbon->format('M d, Y');
-            $nextMonth['for_month'] = $nextDueDateCarbon->format('Y-m-d');
+   public function payments()
+{
+    $user = Auth::user()->load('tenant.contracts', 'tenant.payments');
+    if (!$user->tenant) { abort(404, 'Tenant record not found.'); }
+
+    $tenant = $user->tenant;
+    $payments = $tenant->payments->sortByDesc('payment_date');
+    $activeContract = $tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+    
+    $outstanding = 0;
+    $nextBilling = ['date' => 'N/A', 'for_month' => null];
+
+    if ($activeContract) {
+        $dueDay = $activeContract->payment_due_date;
+
+        // Pinakahuling bayad (hindi DP)
+        $lastPaidMonth = $tenant->payments
+            ->where('payment_status', 'paid')
+            ->whereNotIn('remarks', ['Downpayment', 'Initial Deposit'])
+            ->max('for_month');
+
+        if ($lastPaidMonth) {
+            $nextPaymentDateCarbon = \Carbon\Carbon::parse($lastPaidMonth)->addMonth();
+        } else {
+            $nextPaymentDateCarbon = now();
+            if (now()->day > $dueDay) {
+                $nextPaymentDateCarbon->addMonth();
+            }
         }
 
-        return view('tenant.payments', [
-            'tenant' => $tenant,
-            'outstanding' => $outstanding,
-            'nextMonth' => $nextMonth,
-            'payments' => $payments,
-            'activeContract' => $activeContract
-        ]);
+        // Itama ang due day
+        $nextPaymentDateCarbon->day($dueDay);
+
+        $outstanding = $activeContract->monthly_payment;
+
+        // **Gawin na array para sa Blade**
+        $nextBilling = [
+            'date' => $nextPaymentDateCarbon->format('M d, Y'),
+            'for_month' => $nextPaymentDateCarbon->format('Y-m-d'),
+            'month_name' => $nextPaymentDateCarbon->format('F'),
+            'month_year' => $nextPaymentDateCarbon->format('F Y')
+        ];
     }
+
+    return view('tenant.payments', compact('tenant', 'payments', 'activeContract', 'outstanding', 'nextBilling'));
+}
+
 
         public function maintenance()
     {
@@ -167,11 +186,13 @@ class TenantController extends Controller
     }
 
 
-    public function ledger()
-    {
-        return view('tenant.ledger'); // optional
-    }
+   public function ledger($tenant_id)
+{
+    $payments = \App\Models\Payment::where('tenant_id', $tenant_id)
+        ->orderBy('payment_date', 'desc')
+        ->get();
 
+}   
     //===========================================================
     // ADMIN API ROUTES (Sanctum Protected)
     //===========================================================
