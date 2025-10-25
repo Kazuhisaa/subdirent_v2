@@ -187,8 +187,8 @@
             const predLabel = data.prediction?.prediction_date?.slice(0, 7) || '';
             const ciLower = data.prediction?.confidence_interval?.lower || pred;
             const ciUpper = data.prediction?.confidence_interval?.upper || pred;
-           const r2Score = data.prediction?.ModelAccuracy?.R2Score || '';
-             const mape = data.prediction?.ModelAccuracy?.Mape || '';
+            const r2Score = data.prediction?.["model Accurancy"]?.["Accuracy(r2Score)"] || '';
+            const mape = data.prediction?.["model Accurancy"]?.mape || '';
             const offset = (pred * 0.05) || 1000;
     
 
