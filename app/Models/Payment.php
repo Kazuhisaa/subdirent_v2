@@ -16,11 +16,11 @@ class Payment extends Model
         'payment_method',
         'payment_status',
         'payment_date',
+        'for_month', 
         'reference_no',
         'invoice_no',
         'invoice_pdf',
         'remarks',
-        'unit_id',
     ];
 
     /**
@@ -29,7 +29,8 @@ class Payment extends Model
      * @var array
      */
     protected $casts = [
-        'payment_date' => 'datetime', // <-- IDAGDAG MO ITONG LINE NA ITO
+        'payment_date' => 'datetime',
+        'for_month' => 'date',
     ];
 
     // ... (iyong relationships)
