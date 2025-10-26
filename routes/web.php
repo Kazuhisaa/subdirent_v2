@@ -140,9 +140,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tenant/property', [TenantController::class, 'property'])
         ->name('tenant.property');
 
-        
 Route::get('/tenant/{tenant}/ledger', [TenantController::class, 'ledger'])
     ->name('tenant.ledger');
+    
+Route::get('tenant/payment/invoice/{payment}', [PaymentController::class,'downloadInvoice'])
+    ->name('tenant.payment.invoice.download');
 
 });
 
