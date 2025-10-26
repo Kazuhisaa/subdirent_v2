@@ -23,7 +23,6 @@
                   <th>Description</th>
                   <th>Method</th>
                   <th class="text-end">Amount</th>
-                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -34,13 +33,7 @@
                     <td>{{ $p->remarks ?? 'Rent Payment' }}</td>
                     <td>{{ ucfirst($p->payment_method) }}</td>
                     <td class="text-end">₱{{ number_format($p->amount, 2) }}</td>
-                    <td>
-                      @if($p->payment_status === 'paid')
-                        <span class="badge bg-success">Paid</span>
-                      @else
-                        <span class="badge bg-warning text-dark">Pending</span>
-                      @endif
-                    </td>
+                    
                   </tr>
                 @endforeach
               </tbody>

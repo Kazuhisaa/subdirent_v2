@@ -21,7 +21,6 @@ class Payment extends Model
         'invoice_no',
         'invoice_pdf',
         'remarks',
-        'unit_id',
     ];
 
     /**
