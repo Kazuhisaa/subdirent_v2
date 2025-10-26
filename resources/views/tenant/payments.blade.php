@@ -53,30 +53,36 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @foreach($payments->take(3) as $payment)
-                    <tr>
-                      <td>
-                        <strong>{{ $payment->remarks ?? 'Payment' }}</strong><br>
-                        <small>{{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}</small><br>
-                        <span class="text-success fw-bold">₱{{ number_format($payment->amount, 2) }}</span>
-                      </td>
-                      <td>
-                        @if($payment->invoice_pdf)
-                          <a href="{{ asset('storage/' . $payment->invoice_pdf) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
-                            Download PDF
-                          </a>
-                        @else
-                          <span class="text-muted small">N/A</span>
-                        @endif
-                      </td>
-                    </tr>
-                  @endforeach
-                  @if($payments->isEmpty())
-                    <tr>
-                      <td colspan="2" class="text-center text-muted">No payments yet.</td>
-                    </tr>
-                  @endif
-                </tbody>
+@php
+    $rentPayments = $payments->filter(function ($payment) {
+        return str_starts_with($payment->remarks, 'Rent Payment');
+    })->sortByDesc('for_month');
+@endphp
+
+    @forelse($rentPayments as $payment)
+    <tr>
+        <td>
+            <strong>{{ $payment->remarks }}</strong><br>
+            <small>{{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}</small><br>
+            <span class="text-success fw-bold">₱{{ number_format($payment->amount, 2) }}</span>
+        </td>
+        <td>
+            @if($payment->invoice_pdf)
+            <a href="{{ asset('storage/' . $payment->invoice_pdf) }}" target="_blank" class="btn btn-sm btn-primary">
+                Download Invoice
+            </a>
+            @else
+            <span class="text-muted">N/A</span>
+            @endif
+        </td>
+    </tr>
+    @empty
+    <tr>
+        <td colspan="2" class="text-center text-muted">No rent payments yet.</td>
+    </tr>
+    @endforelse
+</tbody>
+
               </table>
             </div>
           </div>
