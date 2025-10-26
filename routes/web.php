@@ -56,11 +56,6 @@ Route::middleware(['web'])->group(function () {
 });
 
 
-
-Route::get('/admin/payments', [PaymentController::class, 'index'])
-    ->middleware(['auth'])
-    ->name('admin.payments');
-
 /*
 |--------------------------------------------------------------------------
 | Admin Routes (Protected)

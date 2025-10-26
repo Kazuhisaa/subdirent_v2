@@ -321,14 +321,5 @@ public function handleWebhook(Request $request)
     return response()->download($path, $payment->invoice_no . '.pdf');
 }
 
-public function index()
-{
-    // Kunin lahat ng payments kasama ang tenant
-    $payments = \App\Models\Payment::with('tenant')->latest()->get();
-
-    // Ibalik sa Blade view
-    return view('admin.payments', compact('payments'));
-}
-
 
 }
