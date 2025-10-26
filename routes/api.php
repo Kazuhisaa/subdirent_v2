@@ -166,3 +166,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // 🔁 Restore deleted contract
     Route::post('/contracts/restore/{id}', [ContractController::class, 'restore']);
 });
+
+Route::get('/payments', [PaymentController::class, 'index']);

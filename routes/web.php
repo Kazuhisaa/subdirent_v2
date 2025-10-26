@@ -57,8 +57,9 @@ Route::middleware(['web'])->group(function () {
 
 
 
-Route::get('/admin/payments', [PaymentController::class, 'index'])->name('admin.payments')->middleware(['auth']);
-    
+Route::get('/admin/payments', [PaymentController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('admin.payments');
 
 /*
 |--------------------------------------------------------------------------

@@ -322,13 +322,13 @@ public function handleWebhook(Request $request)
 }
 
 public function index()
-    {
-        // Kunin ang lahat ng payments, kasama ang related 'tenant' data
-        // Naka-latest() para 'yung mga bago ang nasa taas
-        $payments = Payment::with('tenant')->latest()->get();
+{
+    // Kunin lahat ng payments kasama ang tenant
+    $payments = \App\Models\Payment::with('tenant')->latest()->get();
 
-        // I-return ang view at ipasa ang $payments variable
-        return view('admin.payments', compact('payments')); 
-        // Siguraduhin na 'admin.payments.index' ang tamang path
-    }
+    // Ibalik sa Blade view
+    return view('admin.payments', compact('payments'));
+}
+
+
 }
