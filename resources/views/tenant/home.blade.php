@@ -48,16 +48,6 @@
     </div>
   </div>
 
-  <!-- Full Width Calendar -->
-  <div class="row mb-5">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm p-4 w-100">
-        <h6 class="fw-bold mb-3">Payment Schedule</h6>
-        <div id="tenant-calendar" class="tenant-calendar w-100"></div>
-      </div>
-    </div>
-  </div>
-
   <!-- Maintenance + Alerts -->
   <div class="row mb-4">
     <div class="col-lg-8">
@@ -78,6 +68,16 @@
           <i class="bi bi-exclamation-circle me-2"></i>
           Payment due on Oct 17.
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Width Calendar -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm p-4 w-100">
+        <h6 class="fw-bold mb-3">Payment Schedule</h6>
+        <div id="tenant-calendar" class="tenant-calendar w-100"></div>
       </div>
     </div>
   </div>

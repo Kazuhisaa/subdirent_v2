@@ -136,6 +136,41 @@ public function payments()
 
     $amountToPay = $outstanding;
 
+    // Determine payment status for current and next month dynamically
+    $currentDate = Carbon::now();
+    $currentMonthKey = $currentDate->format('Y-m');
+    $nextMonthKey = $currentDate->copy()->addMonth()->format('Y-m');
+
+    // Check if current and next months are paid in full
+    $isCurrentMonthPaid = false;
+    $isNextMonthPaid = false;
+
+    foreach ($paymentsByMonth as $month => $monthPayments) {
+        $totalPaid = $monthPayments->sum('amount');
+
+        if ($month === $currentMonthKey && $totalPaid >= $monthlyRent) {
+            $isCurrentMonthPaid = true;
+        }
+        if ($month === $nextMonthKey && $totalPaid >= $monthlyRent) {
+            $isNextMonthPaid = true;
+        }
+    }
+
+    // For extra clarity: detect if user has prepaid beyond next month
+    $prepaidMonths = collect($paymentsByMonth)
+        ->filter(fn($monthPayments) => $monthPayments->sum('amount') >= $monthlyRent)
+        ->keys()
+        ->filter(fn($month) => Carbon::parse($month . '-01')->greaterThan($currentDate))
+        ->count();
+
+    $paymentStatus = [
+        'currentMonthPaid' => $isCurrentMonthPaid,
+        'nextMonthPaid' => $isNextMonthPaid,
+        'prepaidMonths' => $prepaidMonths,
+        'currentMonth' => $currentDate->format('F'),
+        'nextMonth' => $currentDate->copy()->addMonth()->format('F'),
+    ];
+
     return view('tenant.payments', compact(
         'tenant',
         'activeContract',
@@ -143,7 +178,8 @@ public function payments()
         'nextMonth',
         'outstanding',
         'penalty',
-        'amountToPay'
+        'amountToPay',
+        'paymentStatus'
     ));
 }
 
