@@ -36,9 +36,7 @@ Route::middleware(['auth:sanctum'])->prefix('tenant')->name('tenant.')->group(fu
     // My Payments
     Route::get('/payments', [TenantController::class, 'payments'])->name('payments');
     Route::post('/payments/pay', [TenantController::class, 'makePayment'])->name('payments.pay');
-    // Property Search
-    Route::get('/propertysearch', [TenantController::class, 'propertysearch'])->name('propertysearch');
-    // Account 
+    // Account Settings
     Route::get('/account', [TenantController::class, 'account'])->name('account');
     Route::put('/account', [TenantController::class, 'accountupdate'])->name('update');
     Route::put('account/credentials', [TenantController::class, 'updatecredentials'])->name('credentials.update');

@@ -67,12 +67,6 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a class="nav-link {{ request()->routeIs('tenant.propertysearch') ? 'active' : '' }}" href="{{ route('tenant.propertysearch') }}">
-            <i class="bi bi-search-heart me-2"></i> <span>Property Search</span>
-          </a>
-        </li>
-
         <!-- Logout -->
         <li class="mt-auto p-3 nav-item border-top">
           <form action="{{ route('logout') }}" method="POST">
