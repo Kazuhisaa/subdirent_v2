@@ -44,11 +44,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             const fullName = [app.first_name, app.middle_name, app.last_name].filter(Boolean).join(" ");
             const row = `
                 <tr>
-                    <td>${i + 1}</td>
                     <td>${fullName}</td>
                     <td>${app.email}</td>
                     <td>${app.contact_num}</td>
-                    <td>${app.unit_id || "N/A"}</td>
+                    <td>${app.unit?.title ?? "N/A"}</td>
                     <td>
                         <button class="btn btn-sm btn-light border-0 text-primary me-2" title="Edit">
                             <i class="bi bi-pencil-square fs-5"></i>

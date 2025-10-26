@@ -31,7 +31,6 @@
                 <table class="table align-middle mb-0 tenant-table text-center">
                     <thead class="table-light small text-uppercase text-secondary">
                         <tr>
-                            <th class="fw-semibold py-3 ps-4">#</th>
                             <th class="fw-semibold">Full Name</th>
                             <th class="fw-semibold">Email</th>
                             <th class="fw-semibold">Contact No.</th>

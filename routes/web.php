@@ -55,6 +55,11 @@ Route::middleware(['web'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
+
+
+Route::get('/admin/payments', [PaymentController::class, 'index'])->name('admin.payments')->middleware(['auth']);
+    
+
 /*
 |--------------------------------------------------------------------------
 | Admin Routes (Protected)
@@ -97,7 +102,6 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
     Route::view('/payments', 'admin.payments')->name('payments');
     Route::view('/contracts', 'admin.contracts')->name('contracts');
     Route::view('/reports', 'admin.reports')->name('reports');
-    Route::view('/records', 'admin.records')->name('records');
 
   
     // Units Controller

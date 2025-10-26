@@ -92,11 +92,6 @@
                         <i class="bi bi-bar-chart"></i> <span>Reports</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.records') ? 'active' : '' }}" href="{{ route('admin.records') }}">
-                        <i class="bi bi-archive"></i> <span>Records</span>
-                    </a>
-                </li>
 
                 <li class="mt-auto p-3 nav-item">
                     <form action="{{ route('logout') }}" method="POST">
