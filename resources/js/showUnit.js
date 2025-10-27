@@ -33,17 +33,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             const card = `
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 room-card">
+                        
                         <div class="position-relative" style="height: 200px; background: #f5f9ff;">
                             <img src="${imagePath}" 
                                  alt="${unit.title}" 
-                                 class="w-100 h-100 object-fit-cover clickable-image"
+                                 class="w-100 h-100 clickable-image"
+                                 style="object-fit: cover;" 
                                  data-full="${imagePath}">
-                            <span class="badge position-absolute top-2 end-2 px-3 py-2 bg-success">
-                                Available
-                            </span>
                         </div>
 
                         <div class="card-body">
+                            
+                            <span class="badge bg-success mb-2">
+                                Available
+                            </span>
+                            
                             <h5 class="fw-bold text-blue-900 mb-1">${unit.title ?? 'Untitled'}</h5>
                             <p class="text-blue-700 small mb-2">
                                 <i class="bi bi-geo-alt-fill"></i> ${unit.location ?? 'Unknown'}
@@ -73,6 +77,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             grid.insertAdjacentHTML('beforeend', card);
         });
     };
+    
+    // ... (rest of your file is identical) ...
 
     // 🟢 Fetch all available units
     try {

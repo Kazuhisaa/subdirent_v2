@@ -185,6 +185,7 @@ class ApplicationController extends Controller
             'payment_method' => 'Initial Deposit',
             'payment_status' => 'Paid',
             'payment_date'   => now(),
+            'for_month'   => now(),
             'reference_no'   => 'DP-' . str_pad($application->id, 6, '0', STR_PAD_LEFT),
             'invoice_no'     => 'INV-DP-' . str_pad($application->id, 6, '0', STR_PAD_LEFT),
             'remarks'        => 'Downpayment'

@@ -21,12 +21,12 @@
                 {{-- Title, Location, Unit Code --}}
                 <div class="row g-3 mb-4">
                     <div class="col-md-12">
-                        <label class="form-label fw-semibold text-dark">Title</label>
+                        <label class="form-label fw-semibold text-dark">Unit Title</label>
                         <input type="text" name="title" class="form-control" placeholder="Unit Title" value="{{ $unit->title }}" required>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold text-dark">Phase / Location</label>
+                        <label class="form-label fw-semibold text-dark">Phase</label>
                         <select name="location" class="form-select" required>
                             <option value="">Select Phase</option>
                             @foreach (['Phase 1','Phase 2','Phase 3','Phase 4','Phase 5'] as $phase)
@@ -39,7 +39,7 @@
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-dark">Unit Code</label>
-                        <input type="text" name="unit_code" class="form-control" placeholder="Unique Code" value="{{ $unit->unit_code }}" required>
+                        <input type="text" name="unit_code" class="form-control" placeholder="Unit Code" value="{{ $unit->unit_code }}" required>
                     </div>
                 </div>
 
@@ -69,7 +69,7 @@
                         <label class="form-label fw-semibold text-dark">Status</label>
                         <select name="status" class="form-select">
                             <option value="available" {{ $unit->status === 'available' ? 'selected' : '' }}>Available</option>
-                            <option value="rented" {{ $unit->status === 'rented' ? 'selected' : '' }}>Rented</option>
+                            <option value="maintenance" {{ $unit->status === 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                         </select>
                     </div>
                 </div>

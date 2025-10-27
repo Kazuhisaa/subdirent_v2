@@ -12,6 +12,8 @@ use App\Http\Controllers\RevenueController;
 use App\Http\Controllers\OccupancyController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\RevenuePredictionController;
+use App\Http\Controllers\ContractController;
+
 
 
 Route::get('/user', function (Request $request) {
@@ -46,26 +48,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/units', [UnitsController::class, 'index'])->name('units.index');
 });
     Route::get('/allUnits',[UnitsController::class, 'index']);
-
-
-
     Route::post('/addUnits', [UnitsController::class, 'store']);
-
     Route::get('/findUnits/{id}',[UnitsController::class, 'show']);
     Route::post('/editUnits/{unit}',[UnitsController::class, 'update']);  
     Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);
     Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
-
-    
-    
 Route::prefix('applications')->group(function () {
     Route::get('/find/{id}',[ApplicationController::class,'show']);
     Route::put('/editApplications/{id}',[ApplicationController::class,'update']);
     Route::patch('/archive/{id}', [ApplicationController::class, 'archive']);
     Route::post('/approve/{id}',[ApplicationController::class,'approve']);
 });
-
-
 Route::prefix('bookings')->group(function () {
     Route::get('/', [BookingController::class, 'index']);
     Route::get('/find/{id}', [BookingController::class, 'show']);
@@ -78,26 +71,22 @@ Route::prefix('bookings')->group(function () {
     Route::get('/getOccupiedTime/{unit_id}/{date}',[BookingController::class,'showAllOccupiedTime']);
 });
     
-
 Route::prefix('applications')->group(function () {
     Route::post('/addApplicants',[ApplicationController::class,'store']);
 });
-
 Route::post('/applications', [ApplicationController::class, 'store']);
-
 Route::prefix('prediction')->group(function(){
     Route::get('/revenue/permonth',[RevenuePredictionController::class,'showPredictionMonth']);
     Route::get('/revenue/perQuarter',[RevenuePredictionController::class,'showPredictionQuarter']);
     Route::get('/revenue/perAnnual',[RevenuePredictionController::class,'showPredictionAnnual']);
     Route::post('/revenue/train',[RevenuePredictionController::class,'trainModel']);
 });
-
 Route::prefix('revenue')->group(function(){
     Route::get('/average',[RevenueController::class,'showAverage']);
      Route::get('/peakmonth',[RevenueController::class,'showPeakMonth']);
      Route::get('/totalrevenue',[RevenueController::class,'showTotalRevenue']);
      Route::post('/addNewMonthRevenue',[RevenueController::class,'store']);
-     
+     Route::get('/latestRevenue',[RevenueController::class,'showLatestRevenue']);
      Route::put('/addRevenue',[RevenueController::class,'addrevenue']);
      /* 
      example put json
@@ -166,3 +155,16 @@ Route::get('/applications/archived', [ApplicationController::class, 'viewArchive
 
 
 
+
+Route::middleware('auth:sanctum')->group(function () {
+    // 📄 Get all contracts (list)
+    Route::get('/contracts', [ContractController::class, 'index']);
+    // 🖊 Update contract
+    Route::put('/contracts/{id}', [ContractController::class, 'update']);
+    // 🗑 Soft delete contract
+    Route::delete('/contracts/{id}', [ContractController::class, 'destroy']);
+    // 🔁 Restore deleted contract
+    Route::post('/contracts/restore/{id}', [ContractController::class, 'restore']);
+});
+
+Route::get('/payments', [PaymentController::class, 'index']);

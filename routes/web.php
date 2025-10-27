@@ -9,6 +9,8 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\RevenuePredictionController;
 use App\Http\Controllers\BookingController;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +41,9 @@ Route::middleware(['auth:sanctum'])->prefix('tenant')->name('tenant.')->group(fu
     // Account 
     Route::get('/account', [TenantController::class, 'account'])->name('account');
     Route::put('/account', [TenantController::class, 'accountupdate'])->name('update');
+    Route::put('account/credentials', [TenantController::class, 'updatecredentials'])->name('credentials.update');
+    // Maintenance Requests
+    Route::get('/maintenance', [TenantController::class, 'maintenance'])->name('maintenance');
 
 });
     
@@ -49,6 +54,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -92,7 +98,6 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
     Route::view('/payments', 'admin.payments')->name('payments');
     Route::view('/contracts', 'admin.contracts')->name('contracts');
     Route::view('/reports', 'admin.reports')->name('reports');
-    Route::view('/records', 'admin.records')->name('records');
 
   
     // Units Controller
@@ -116,29 +121,37 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
 
 });
 
-Route::get('/payments/success', function () {
-    return "Payment successful!";
-})->name('payments.success');
 
-Route::get('/payments/failed', function () {
-    return "Payment failed!";
-})->name('payments.failed');
+ Route::get('/tenant/{tenantId}/payment-success', [PaymentController::class, 'success'])
+        ->name('tenant.payment.success');
+    Route::get('/tenant/{tenantId}/payment-cancel', [PaymentController::class, 'cancel'])
+        ->name('tenant.payment.cancel');
 
 
-
-// Tenant Payment Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/tenant/{tenant}/dashboard', [PaymentController::class, 'dashboard'])->name('tenant.home');
-    
-    // Payment Creation (GCash/Card)
-    Route::post('/tenant/{tenant}/pay', [PaymentController::class, 'createPayment'])->name('tenant.payment.create');
 
-Route::get('/tenant/{tenant}/payment-success', [PaymentController::class, 'success'])->name('payment.success');
-Route::get('/tenant/{tenant}/payment-cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+    Route::get('/tenant/{tenant}/payments', [PaymentController::class, 'dashboard'])
+        ->name('tenant.payments');
+        Route::post('/tenant/{tenant}/payment/create', [PaymentController::class, 'createPayment'])
+        ->name('tenant.payment.create');
+    Route::get('/tenant/home', [TenantController::class, 'home'])
+        ->name('tenant.home'); // Siguro ito 'yung home dashboard mo
+
+    Route::get('/tenant/property', [TenantController::class, 'property'])
+        ->name('tenant.property');
+
+Route::get('/tenant/{tenant}/ledger', [TenantController::class, 'ledger'])
+    ->name('tenant.ledger');
+    
+Route::get('tenant/payment/invoice/{payment}', [PaymentController::class,'downloadInvoice'])
+    ->name('tenant.payment.invoice.download');
 
 });
 
+
 Route::post('payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');
+Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook'])
+    ->withoutMiddleware([ValidateCsrfToken::class]);
 
 
  Route::get('/allUnits',[UnitsController::class, 'index']);

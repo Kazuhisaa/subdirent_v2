@@ -2,105 +2,324 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Tenant;
+use App\Models\Payment;
+use App\Models\Contract;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Facades\Storage;
+  
 class PaymentController extends Controller
 {
-    public function createPayment(Request $request , $tenantId)
+    /**
+     * CREATE PAYMENT — PayMongo Checkout
+     */
+    public function createPayment(Request $request, $tenantId)
     {
         try {
-          $tenant = Tenant::findOrFail($tenantId); 
-            // Example values (palitan mo ng real data mo)
+            $tenant = Tenant::findOrFail($tenantId);
             $amount = $request->amount * 100; // PayMongo uses centavos
-            $email = $request->email ?? 'test@example.com';
+            $forMonth = $request->for_month; // e.g. 2025-12-16
 
-            // Create checkout session sa PayMongo
             $response = Http::withHeaders([
-                'accept' => 'application/json',
-                'content-type' => 'application/json',
-                'authorization' => 'Basic ' . base64_encode(env('PAYMONGO_SECRET_KEY') . ':'),
+                'Authorization' => 'Basic ' . base64_encode(env('PAYMONGO_SECRET_KEY') . ':'),
+                'Content-Type' => 'application/json',
             ])->post('https://api.paymongo.com/v1/checkout_sessions', [
                 'data' => [
                     'attributes' => [
-                        'send_email_receipt' => true,
-                        'show_description' => true,
-                        'description' => 'Tenant Monthly Payment',
                         'line_items' => [[
-                            'currency' => 'PHP',
                             'amount' => $amount,
+                            'currency' => 'PHP',
                             'name' => 'Rent Payment',
                             'quantity' => 1,
                         ]],
+                        'description' => 'Tenant Monthly Payment',
+                        'success_url' => route('tenant.payment.success', $tenant->id),
+                        'cancel_url' => route('tenant.payment.cancel', $tenant->id),
+                        'metadata' => [
+                            'tenant_id' => $tenant->id,
+                            'for_month' => $forMonth,
+                        ],
                         'payment_method_types' => ['gcash', 'card'],
-                        'success_url' => env('APP_URL') . "/tenant/{$tenant->id}/payment-success",
-                        'cancel_url' => env('APP_URL') . "/tenant/{$tenant->id}/payment-cancel",
                     ],
                 ],
-            ]); 
+            ]);
 
             $checkout = $response->json();
 
             if (isset($checkout['data']['attributes']['checkout_url'])) {
                 return redirect()->away($checkout['data']['attributes']['checkout_url']);
-            } else {
-                return back()->with('error', 'Failed to create PayMongo checkout session.');
             }
 
+            Log::error('PayMongo Error:', $checkout);
+            return back()->with('error', 'Failed to create PayMongo checkout session.');
+
         } catch (\Exception $e) {
+            Log::error('Payment Error: ' . $e->getMessage());
             return back()->with('error', 'Payment error: ' . $e->getMessage());
         }
     }
 
+
 public function handleWebhook(Request $request)
 {
-    // Basahin ang payload mula sa PayMongo
     $payload = $request->getContent();
-    $signature = $request->header('Paymongo-Signature');
-
-    // Optional: i-log mo muna para makita mo kung anong dumadating
-    Log::info('PayMongo Webhook received:', [
-        'signature' => $signature,
-        'payload' => $payload,
-    ]);
-
-    // Decode JSON payload
     $event = json_decode($payload, true);
 
-    if (isset($event['data']['attributes']['type'])) {
-        $type = $event['data']['attributes']['type'];
+    Log::info('PayMongo Webhook received:', ['payload' => $payload]);
 
-        if ($type === 'payment.paid') {
-            // Handle successful payment
-            Log::info('Payment successful event received!');
-        } elseif ($type === 'payment.failed') {
-            Log::warning('Payment failed event received.');
+    $type = $event['data']['attributes']['type'] ?? null;
+
+    if ($type !== 'payment.paid') {
+        return response()->json(['status' => 'ignored']);
+    }
+
+    try {
+        $attributes = $event['data']['attributes']['data']['attributes'] ?? [];
+        $metadata = $attributes['metadata'] ?? [];
+
+        $tenantId = $metadata['tenant_id'] ?? null;
+        $amount = ($attributes['amount'] ?? 0) / 100;
+        $reference = $attributes['reference_number'] ?? uniqid('PAY-');
+
+        $tenant = $tenantId ? Tenant::find($tenantId) : null;
+        if (!$tenant) {
+            $email = $attributes['billing']['email'] ?? null;
+            $tenant = $email ? Tenant::where('email', $email)->first() : null;
+        }
+        if (!$tenant) {
+            Log::warning('Webhook: Tenant not found.', ['metadata' => $metadata]);
+            return response()->json(['status' => 'tenant_not_found']);
+        }
+
+        $contract = Contract::where('tenant_id', $tenant->id)
+            ->whereIn('status', ['active', 'ongoing'])
+            ->first();
+        if (!$contract) {
+            Log::warning('Webhook: No active contract found.', ['tenant_id' => $tenant->id]);
+            return response()->json(['status' => 'no_active_contract']);
+        }
+
+        $now = now();
+
+        $isDownpayment = stripos($attributes['description'] ?? '', 'Deposit') !== false;
+
+        // Determine starting month
+        $downpaymentMonth = Payment::where('tenant_id', $tenant->id)
+            ->where('contract_id', $contract->id)
+            ->where('remarks', 'Downpayment')
+            ->orderBy('for_month', 'asc')
+            ->value('for_month');
+
+        $currentMonth = $downpaymentMonth ? Carbon::parse($downpaymentMonth) : Carbon::parse($contract->start_date);
+
+        // Determine next month for Rent Payment
+        if ($isDownpayment) {
+            $forMonthDate = $currentMonth->copy();
+            $remarks = 'Downpayment';
+        } else {
+            // Group payments by month and find first month not fully paid
+            $monthlyPayments = Payment::where('tenant_id', $tenant->id)
+                ->where('contract_id', $contract->id)
+                ->where('remarks', 'like', 'Rent Payment%')
+                ->get()
+                ->groupBy(function($payment) {
+                    return Carbon::parse($payment->for_month)->format('Y-m');
+                });
+
+            $nextMonth = $currentMonth->copy()->addMonth()->day($contract->payment_due_date);
+
+            foreach ($monthlyPayments as $month => $payments) {
+                $totalPaid = $payments->sum('amount');
+                if ($totalPaid < $contract->monthly_payment) {
+                    $nextMonth = Carbon::parse($month)->day($contract->payment_due_date);
+                    break;
+                } else {
+                    $nextMonth = Carbon::parse($month)->addMonth()->day($contract->payment_due_date);
+                }
+            }
+
+            $forMonthDate = $nextMonth;
+            $remarks = 'Rent Payment for ' . $forMonthDate->format('F Y');
+        }
+
+        // Determine payment status
+        $monthlyPayment = $contract->monthly_payment;
+
+        $existingPaid = Payment::where('tenant_id', $tenant->id)
+            ->whereYear('for_month', $forMonthDate->year)
+            ->whereMonth('for_month', $forMonthDate->month)
+            ->whereIn('payment_status', ['paid','partial'])
+            ->sum('amount');
+
+        $totalPaid = $existingPaid + $amount;
+        $paymentStatus = $totalPaid >= $monthlyPayment ? 'paid' : 'partial';
+
+        // Create payment record
+        $payment = Payment::create([
+            'tenant_id' => $tenant->id,
+            'contract_id' => $contract->id,
+            'amount' => $amount,
+            'payment_method' => 'gcash',
+            'payment_status' => $paymentStatus,
+            'payment_date' => $now,
+            'for_month' => $forMonthDate,
+            'reference_no' => $reference,
+            'invoice_no' => 'INV-' . $reference,
+            'remarks' => $remarks,
+        ]);
+
+        // Generate PDF invoice
+        $invoiceFilename = 'invoices/' . $payment->invoice_no . '.pdf';
+       $pdf = PDF::loadView('tenant.invoice', [
+    'payment' => $payment,
+    'tenant' => $tenant,
+    'contract' => $contract,
+])
+->setOptions(['isRemoteEnabled' => true]); // para ma-load ang images
+
+        $pdf->save(storage_path('app/public/' . $invoiceFilename));
+
+        // Update payment record with PDF link
+        $payment->invoice_pdf = $invoiceFilename;
+        $payment->save();
+
+        if ($paymentStatus === 'paid') {
+            $contract->last_billed_at = $now;
+            $contract->save();
+        }
+
+        Log::info('Payment recorded successfully with invoice.', [
+            'tenant' => $tenant->id,
+            'for_month' => $forMonthDate->toDateString(),
+            'status' => $paymentStatus,
+            'invoice' => $invoiceFilename
+        ]);
+
+        return response()->json(['status' => 'ok', 'payment_status' => $paymentStatus]);
+
+    } catch (\Exception $e) {
+        Log::error('Webhook error: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString(),
+        ]);
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+}
+
+    /**
+     * DASHBOARD — Next month & outstanding
+     */
+  public function dashboard(Tenant $tenant)
+    {
+        try {
+            $activeContract = Contract::where('tenant_id', $tenant->id)
+                ->whereIn('status', ['active', 'ongoing'])
+                ->first();
+
+            if (!$activeContract) {
+                return back()->with('error', 'No active contract found.');
+            }
+
+            $now = Carbon::now();
+            $billingDay = $activeContract->payment_due_date;
+            $monthlyRent = $activeContract->monthly_payment;
+
+            // Kunin lahat ng payments para sa history
+            $payments = Payment::where('tenant_id', $tenant->id)
+                ->whereIn('payment_status', ['paid', 'partial'])
+                ->orderBy('for_month', 'asc')
+                ->get();
+
+            // Kunin lahat ng "Rent Payment" para sa computation
+            $rentPayments = $payments->where('remarks', 'like', 'Rent Payment%');
+
+            // I-group payments per month
+            $paymentsByMonth = $rentPayments->groupBy(function($payment) {
+                return Carbon::parse($payment->for_month)->format('Y-m');
+            });
+
+            // Simula month = next month after downpayment
+            $downpayment = $payments->where('remarks', 'Downpayment')->first();
+            $currentMonth = $downpayment
+                ? Carbon::parse($downpayment->for_month)->copy()->addMonth()
+                : Carbon::parse($activeContract->start_date);
+            $currentMonth->day($billingDay);
+
+            $outstanding = $monthlyRent;
+
+            // Hanapin month na may kulang pa
+            foreach ($paymentsByMonth as $month => $monthPayments) {
+                $totalPaid = $monthPayments->sum('amount');
+
+                if ($totalPaid < $monthlyRent) {
+                    $outstanding = $monthlyRent - $totalPaid;
+                    $currentMonth = Carbon::parse($month . '-' . $billingDay);
+                    break;
+                } else {
+                    // Full payment, move to next month
+                    $currentMonth->addMonth();
+                    $outstanding = $monthlyRent;
+                }
+            }
+
+            // Penalty kung overdue sa current month
+            $penalty = 0;
+            if ($now->greaterThan($currentMonth) && $outstanding > 0) {
+                $daysLate = $now->diffInDays($currentMonth);
+                if ($daysLate > 5) {
+                    $penalty = $monthlyRent * 0.02;
+                    $outstanding += $penalty;
+                }
+            }
+
+            $nextMonth = [
+                'for_month' => $currentMonth->format('Y-m-d'),
+                'date' => $currentMonth->format('M d, Y'),
+            ];
+
+            $amountToPay = $outstanding;
+
+            return view('tenant.payments', compact(
+                'tenant',
+                'activeContract',
+                'payments',
+                'nextMonth',
+                'outstanding',
+                'penalty',
+                'amountToPay'
+            ));
+
+        } catch (\Exception $e) {
+            Log::error('Dashboard Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            return back()->with('error', 'Dashboard error: ' . $e->getMessage());
         }
     }
 
-    // Always return 200 OK para hindi mag-retry si PayMongo
-    return response()->json(['status' => 'ok']);
-}
-
-
-   public function success($tenantId)
+    public function success($tenantId)
     {
-          $tenant = Tenant::findOrFail($tenantId);
+        $tenant = Tenant::findOrFail($tenantId);
         return view('tenant.success', compact('tenant'));
     }
 
     public function cancel($tenantId)
     {
-          $tenant = Tenant::findOrFail($tenantId);
+        $tenant = Tenant::findOrFail($tenantId);
         return view('tenant.cancel', compact('tenant'));
     }
-public function dashboard($tenantId)
+
+    public function downloadInvoice(Payment $payment)
 {
-    $tenant = Tenant::findOrFail($tenantId);
-    return view('tenant.dashboard', compact('tenant'));
+    $path = storage_path('app/public/' . $payment->invoice_pdf);
+    if (!file_exists($path)) {
+        abort(404, 'Invoice file not found.');
+    }
+    return response()->download($path, $payment->invoice_no . '.pdf');
 }
+
 
 }
