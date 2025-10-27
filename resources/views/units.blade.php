@@ -4,389 +4,604 @@
 
 @section('content')
 
+{{-- Google Fonts: Kinuha mula sa home.blade.php --}}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Salsa&display=swap" rel="stylesheet">
 
-<section class="py-5">
-  <div class="container">
-    <h2 class="fw-bold mb-4 text-primary">🏠 Available Units</h2>
+<style>
+    /* === KINUHA MULA SA HOME.BLADE.PHP (Second Code) === */
+    body {
+        font-family: 'Poppins', 'Segoe UI', sans-serif;
+        background-image: url("{{ asset('uploads/bg1.jpg') }}");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed;
+        overflow-x: hidden;
+    }
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        will-change: opacity, transform;
+    }
+    .animate-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .section-heading {
+        font-family: 'Salsa', 'Poppins', sans-serif;
+        font-size: 3.8rem;
+        font-weight: normal;
+        background-image: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        position: relative;
+        padding-bottom: 20px;
+        margin-bottom: 70px;
+        text-align: center;
+    }
+    .section-heading::after {
+        content: '';
+        position: absolute;
+        display: block;
+        width: 120px;
+        height: 4px;
+        background-image: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+        border-radius: 2px;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .section-heading.mb-3 {
+        margin-bottom: 1rem !important;
+    }
 
-    <div class="mb-4">
-      <div class="search-filter-container">
-        <input type="text" id="searchInput" class="form-control search-box" placeholder="Search Unit Name">
+    /* === PROPERTIES SECTION (Second Code) === */
+    .properties-section {
+        padding: 80px 0;
+        background-color: #EAF8FF; /* Solid light blue */
+        overflow: hidden;
+    }
+    .property-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(5px);
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .property-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    .property-card img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .property-card .info {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .property-card .info h6 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--blue-900);
+        margin-bottom: 8px;
+    }
+    .property-card .info .location {
+        font-size: 1rem;
+        color: var(--blue-700);
+        margin-bottom: 1rem;
+    }
+    .property-details-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 1.5rem;
+        color: var(--blue-800);
+        font-size: 0.95rem;
+        line-height: 1.8;
+    }
+    .property-details-list li strong {
+        font-weight: 600;
+        color: var(--blue-900);
+    }
+    .property-card .info .unit-price {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--blue-800);
+        margin-bottom: 1.5rem;
+    }
 
-        <div class="filter-buttons mt-3">
-          <button class="filter-btn active" data-phase="all">All Phase</button>
-          <button class="filter-btn" data-phase="Phase I">Phase I</button>
-          <button class="filter-btn" data-phase="Phase II">Phase II</button>
-          <button class="filter-btn" data-phase="Phase III">Phase III</button>
-          <button class="filter-btn" data-phase="Phase IV">Phase IV</button>
-          <button class="filter-btn" data-phase="Phase V">Phase V</button>
+    /* === BUTTONS (Second Code) === */
+    .btn-details {
+        background: var(--gradient-diagonal);
+        border: none;
+        color: white;
+        border-radius: 50px;
+        padding: 8px 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    .btn-details:hover {
+        filter: brightness(1.1);
+        color: white;
+    }
+    .btn-outline-details {
+        background-color: transparent;
+        border: 2px solid var(--blue-600);
+        color: var(--blue-600);
+        border-radius: 50px;
+        padding: 8px 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-details:hover {
+        background-color: var(--blue-600);
+        color: #fff;
+    }
+    .btn-outline-danger {
+        background-color: transparent;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        border-radius: 50px;
+        padding: 8px 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+
+    /* === FILTERS (Second Code) === */
+    .search-filter-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(5px);
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+    .search-box {
+        border-radius: 100px;
+        padding: 10px 15px;
+        border: 2px solid var(--blue-200);
+        font-size: 16px;
+    }
+    .search-box:focus {
+        border-color: var(--blue-500);
+        box-shadow: 0 0 0 3px var(--blue-100);
+        outline: none;
+    }
+    .filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .filter-btn {
+        border: none;
+        background: #fff;
+        border: 1px solid var(--blue-200);
+        color: var(--blue-700);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .filter-btn:hover {
+        background-color: var(--blue-100);
+    }
+    .filter-btn.active {
+        background: var(--gradient-diagonal);
+        color: white;
+        border-color: transparent;
+    }
+
+
+    /* ===== (PINAGSAMANG MODAL STYLING) ===== */
+    /* Kinuha sa Code 1, Inapply ang design ng Code 2 */
+
+    /* Overlay (Design from Code 2) */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(240, 248, 255, 0.8); /* Mula sa Code 2 */
+        backdrop-filter: blur(5px); /* Mula sa Code 2 */
+        z-index: 1040;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+    .modal-overlay.show {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Modal Content (Base from Code 1, Style from Code 2) */
+    .custom-modal {
+        display: none;
+        position: fixed;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%) scale(0.95);
+        background: white;
+        width: 600px; /* Mula sa Code 2 */
+        max-width: 90%; /* Mula sa Code 2 */
+        border-radius: 20px; /* Mula sa Code 2 */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Mula sa Code 2 */
+        z-index: 1050;
+        opacity: 0;
+        transition: all 0.25s ease-in-out;
+    }
+
+    .custom-modal.show {
+        display: block;
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+        animation: fadeInUp 0.3s ease; /* Animation mula sa Code 2 */
+    }
+
+    /* Keyframes para sa animation (Mula sa Code 2) */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(1); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
+
+    /* Modal Header (Style mula sa Code 2) */
+    .custom-modal-header {
+        color: var(--blue-800);
+        font-weight: 600;
+        font-size: 1.5rem;
+        border-bottom: 2px solid var(--blue-500);
+        padding: 20px 30px;
+    }
+
+    /* Modal Body (Style mula sa Code 2) */
+    .custom-modal-body {
+        padding: 30px;
+    }
+
+    /* Modal Footer (Style mula sa Code 2) */
+    .custom-modal-footer {
+        padding: 20px 30px;
+        text-align: center;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    @media (max-width: 768px) {
+        .search-box { font-size: 14px; }
+        .filter-buttons { justify-content: center; }
+        .filter-btn { padding: 6px 12px; font-size: 14px; }
+        .custom-modal { width: 95%; padding: 20px; }
+        .custom-modal-header { padding: 15px 20px; font-size: 1.25rem; }
+        .custom-modal-body { padding: 20px; }
+        .custom-modal-footer { padding: 15px 20px; flex-direction: column; }
+    }
+</style>
+
+
+<section class="py-5" style="padding-top: 5rem !important;">
+    <div class="container">
+        <h2 class="section-heading animate-on-scroll">Available Units</h2>
+
+        <div class="mb-4 animate-on-scroll" data-delay="1">
+            <div class="search-filter-container">
+                <input type="text" id="searchInput" class="form-control search-box" placeholder="Search Unit Name">
+
+                <div class="filter-buttons mt-3">
+                    <button class="filter-btn active" data-phase="all">All Phase</button>
+                    <button class="filter-btn" data-phase="Phase I">Phase I</button>
+                    <button class="filter-btn" data-phase="Phase II">Phase II</button>
+                    <button class="filter-btn" data-phase="Phase III">Phase III</button>
+                    <button class="filter-btn" data-phase="Phase IV">Phase IV</button>
+                    <button class="filter-btn" data-phase="Phase V">Phase V</button>
+                </div>
+            </div>
         </div>
-      </div>
+        
+        <div class="properties-section">
+            <div id="units-container" class="row g-4">
+                <p class="text-muted text-center">Loading available units...</p>
+            </div>
+        </div>
     </div>
-
-    <div id="units-container" class="row g-4">
-      <p class="text-muted">Loading available units...</p>
-    </div>
-  </div>
 </section>
 
 
-<div id="reserveModal" class="modal-overlay">
-  <div class="modal-content">
-    <h4 class="text-center mb-4" id="reserveModalLabel">Reserve Unit</h4>
+{{-- ============================================= --}}
+{{-- ==== MODAL HTML (KINUHA SA FIRST CODE) ==== --}}
+{{-- ============================================= --}}
+{{-- In-update ko ang classes para sa styling --}}
 
-    <form id="reserveForm">
-      <input type="hidden" id="unit_id" name="unit_id">
+{{-- ==== Reserve Unit Modal ==== --}}
+<div id="reserveModal" class="custom-modal">
+    <div class="custom-modal-header">
+        Reserve Unit
+        <span style="float: right; cursor: pointer;" onclick="closeModal('reserveModal')">&times;</span>
+    </div>
+    <div class="custom-modal-body">
+        <form id="reserveForm">
+            <input type="hidden" id="reserveUnitId" name="unit_id">
+            
+            <label for="reserveUnitName" class="form-label">Unit Name</label>
+            <input type="text" id="reserveUnitName" name="unit_name" readonly class="form-control mb-3">
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">First Name</label>
-          <input type="text" class="form-control" name="first_name" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Middle Name</label>
-          <input type="text" class="form-control" name="middle_name">
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Last Name</label>
-          <input type="text" class="form-control" name="last_name" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-control" name="email" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Contact Number</label>
-          <input type="text" class="form-control" name="contact_num" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Date</label>
-          <input type="date" class="form-control" name="date" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Booking Time</label>
-          <input type="time" class="form-control" name="booking_time" required>
-        </div>
-      </div>
+            <label for="first_name" class="form-label">First Name</label>
+            <input type="text" id="first_name" name="first_name" required class="form-control mb-3">
 
-      <div class="text-center mt-4">
-        <button type="submit" class="btn btn-success px-4">Reserve</button>
-        <button type="button" class="btn btn-outline-danger px-4 closeModalBtn">Cancel</button>
-      </div>
-    </form>
-  </div>
+            <label for="last_name" class="form-label">Last Name</label>
+            <input type="text" id="last_name" name="last_name" required class="form-control mb-3">
+
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" required class="form-control mb-3">
+
+            <label for="contact_num" class="form-label">Contact Number</label>
+            <input type="text" id="contact_num" name="contact_num" required class="form-control mb-3">
+
+            <label for="move_in_date" class="form-label">Preferred Move-in Date</label>
+            <input type="date" id="move_in_date" name="move_in_date" required class="form-control mb-3">
+        </form>
+    </div>
+    <div class="custom-modal-footer">
+        <button class="btn btn-details" type="submit" form="reserveForm">Submit Reservation</button>
+        <button type="button" class="btn btn-outline-danger" onclick="closeModal('reserveModal')">Cancel</button>
+    </div>
 </div>
 
-<div id="applyModal" class="modal-overlay">
-  <div class="modal-content">
-    <h4 class="text-center mb-4" id="applyModalLabel">Apply for Unit</h4>
+{{-- ==== Apply Now Modal ==== --}}
+<div id="applyModal" class="custom-modal">
+    <div class="custom-modal-header">
+        Apply Now
+        <span style="float: right; cursor: pointer;" onclick="closeModal('applyModal')">&times;</span>
+    </div>
+    <div class="custom-modal-body">
+        <form id="applyForm">
+            <input type="hidden" id="applyUnitId" name="unit_id">
+            
+            <label for="applyUnitName" class="form-label">Unit Name</label>
+            <input type="text" id="applyUnitName" name="unit_name" readonly class="form-control mb-3">
 
-    <form id="applyForm">
-      <input type="hidden" id="apply_unit_id" name="unit_id">
+            <label for="apply_first_name" class="form-label">First Name</label>
+            <input type="text" id="apply_first_name" name="first_name" required class="form-control mb-3">
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">First Name</label>
-          <input type="text" class="form-control" name="first_name" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Middle Name</label>
-          <input type="text" class="form-control" name="middle_name">
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Last Name</label>
-          <input type="text" class="form-control" name="last_name" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-control" name="email" required>
-        </div>
-        <div class="col-md-12 mb-3">
-          <label class="form-label">Contact Number</label>
-          <input type="text" class="form-control" name="contact_num" required>
-        </div>
-      </div>
+            <label for="apply_last_name" class="form-label">Last Name</label>
+            <input type="text" id="apply_last_name" name="last_name" required class="form-control mb-3">
 
-      <div class="text-center mt-4">
-        <button type="submit" class="btn btn-success px-4">Submit Application</button>
-        <button type="button" class="btn btn-outline-danger px-4 closeModalBtn">Cancel</button>
-      </div>
-    </form>
-  </div>
+            <label for="apply_email" class="form-label">Email</label>
+            <input type="email" id="apply_email" name="email" required class="form-control mb-3">
+
+            <label for="apply_contact_num" class="form-label">Contact Number</label>
+            <input type="text" id="apply_contact_num" name="contact_num" required class="form-control mb-3">
+
+            <label for="message" class="form-label">Message / Remarks</label>
+            <textarea id="message" name="message" rows="3" class="form-control mb-3"></textarea>
+        </form>
+    </div>
+    <div class="custom-modal-footer">
+        <button class="btn btn-details" type="submit" form="applyForm">Submit Application</button>
+        <button type="button" class="btn btn-outline-danger" onclick="closeModal('applyModal')">Cancel</button>
+    </div>
 </div>
 
+{{-- ==== Overlay (KINUHA SA FIRST CODE) ==== --}}
+<div id="modalOverlay" class="modal-overlay" onclick="closeAllModals()"></div>
 
-<style>
-  .search-filter-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.search-box {
-  border-radius: 100px;
-  padding: 10px 15px;
-  border: 1px solid #3a0b8dff;
-  font-size: 16px;
-}
-
-.filter-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.filter-btn {
-  border: none;
-  background: #ffffff19;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.filter-btn:hover {
-  background-color: var(--blue-200);
-}
-
-.filter-btn.active {
-      background: var(--gradient-diagonal);
-  color: white;
-}
-
-@media (max-width: 768px) {
-  .search-box {
-    font-size: 14px;
-  }
-  .filter-buttons {
-    justify-content: center;
-  }
-  .filter-btn {
-    padding: 6px 12px;
-    font-size: 14px;
-  }
-}
-
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background-color: rgba(255, 255, 255, 0.9);
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 5vh;
-  z-index: 1050;
-  overflow-y: auto;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 1px;
-  padding: 30px;
-  width: 600px;
-  max-width: 90%;
-  box-shadow: 0 0 15px rgba(32, 3, 3, 0.85);
-  animation: fadeInUp 0.3s ease;
-  position: relative;
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.modal-content h4 {
-  color: #2084d6ff;
-  font-weight: 600;
-  border-bottom: 2px solid #0ab2beff;
-  padding-bottom: 10px;
-  
-}
-
-.modal-overlay.show {
-  display: flex;
-}
-
-@media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    padding: 20px;
-    border-radius: 10px;
-  }
-}
-</style>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const reserveModal = document.getElementById("reserveModal");
-  const applyModal = document.getElementById("applyModal");
-  const reserveForm = document.getElementById("reserveForm");
-  const applyForm = document.getElementById("applyForm");
-
-  const container = document.getElementById("units-container");
-  const searchInput = document.getElementById("searchInput");
-  const filterButtons = document.querySelectorAll(".filter-btn");
-
-
-  let allUnits = [];
-  let currentPhase = "all";
-
-  // 🟢 Fetch and render units
-  fetch("/units")
-    .then(res => res.json())
-    .then(units => {
-      allUnits = units;
-      renderUnits(allUnits);
-    })
-    .catch(err => {
-      console.error("Error fetching units:", err);
-      container.innerHTML = `<p class="text-danger">Failed to load units.</p>`;
+    
+    // === SCRIPT PARA SA SCROLL ANIMATION (Mula sa Code 2) ===
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                const delay = entry.target.dataset.delay;
+                if (delay) {
+                    entry.target.style.transitionDelay = `${delay * 0.15}s`;
+                }
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1
     });
 
-  // 🟢 Render units dynamically
-  function renderUnits(units) {
-    container.innerHTML = "";
+    const staticAnimatedElements = document.querySelectorAll('.animate-on-scroll');
+    staticAnimatedElements.forEach((el) => observer.observe(el));
 
-    if (!units.length) {
-      container.innerHTML = `<p class="text-muted">No available units found.</p>`;
-      return;
+    // === Kinuha sa First Code (para sa form submission)
+    const reserveForm = document.getElementById("reserveForm");
+    const applyForm = document.getElementById("applyForm");
+
+    // === Kinuha sa Second Code (para sa fetching at filtering)
+    const container = document.getElementById("units-container");
+    const searchInput = document.getElementById("searchInput");
+    const filterButtons = document.querySelectorAll(".filter-btn");
+
+    let allUnits = [];
+    let currentPhase = "all";
+
+    fetch("/units")
+        .then(res => res.json())
+        .then(units => {
+            allUnits = units;
+            renderUnits(allUnits);
+        })
+        .catch(err => {
+            console.error("Error fetching units:", err);
+            container.innerHTML = `<p class="text-danger text-center">Failed to load units.</p>`;
+        });
+
+    function renderUnits(units) {
+        container.innerHTML = "";
+
+        if (!units.length) {
+            container.innerHTML = `<p class="text-muted text-center">No available units found.</p>`;
+            return;
+        }
+
+        units.forEach((unit, index) => {
+            const imageUrl = unit.files?.length ? `/${unit.files[0]}` : '/uploads/default-room.jpg';
+            const unitPrice = unit.price ? unit.price.toLocaleString() : (unit.monthly_rent ? unit.monthly_rent.toLocaleString() : 'N/A');
+            const code = unit.code || 'N/A';
+            const floorArea = unit.floor_area ? `${unit.floor_area} sqm` : 'N/A';
+            const bedrooms = unit.bedrooms || 'N/A';
+            const bathrooms = unit.bathrooms || 'N/A';
+
+            container.innerHTML += `
+                <div class="col-lg-4 col-md-6 animate-on-scroll" data-delay="${index + 1}">
+                    <div class="property-card">
+                        <img src="${imageUrl}" alt="${unit.title || 'Property Image'}">
+                        
+                        <div class="info text-start">
+                            <h6>${unit.title || 'Untitled Property'}</h6>
+                            <p class="location mb-3">
+                                <i class="fas fa-map-marker-alt me-1"></i>${unit.location || 'Location not specified'}
+                            </p>
+                            
+                            <ul class="property-details-list">
+                                <li><strong>Code:</strong> ${code}</li>
+                                <li><strong>Floor Area:</strong> ${floorArea}</li>
+                                <li><strong>Bedroom:</strong> ${bedrooms}</li>
+                                <li><strong>Bathroom:</strong> ${bathrooms}</li>
+                            </ul>
+                            
+                            <p class="unit-price">Unit Price: ₱${unitPrice}</p>
+
+                            <div class="d-flex gap-2 mt-auto">
+                                {{-- ============================================= --}}
+                                {{-- ==== BUTTONS (STYLE: Code 2, FUNC: Code 1) ==== --}}
+                                {{-- ============================================= --}}
+                                <button class="btn btn-details flex-fill" onclick="openModal('reserveModal','${unit.id}','${unit.title}')">
+                                    <i class="fas fa-calendar-check me-1"></i> Reserve
+                                </button>
+                                <button class="btn btn-outline-details flex-fill" onclick="openModal('applyModal','${unit.id}','${unit.title}')">
+                                    <i class="fas fa-file-alt me-1"></i> Apply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        
+        // I-observe ulit 'yung mga bagong gawang cards (Mula sa Code 2)
+        const dynamicAnimatedElements = container.querySelectorAll('.animate-on-scroll');
+        dynamicAnimatedElements.forEach((el) => observer.observe(el));
     }
 
-    units.forEach(unit => {
-      const imageUrl = unit.files?.length ? `/${unit.files[0]}` : '/uploads/default-room.jpg';
-      container.innerHTML += `
-        <div class="col-md-4">
-          <div class="card shadow-sm h-100">
-            <img src="${imageUrl}" class="card-img-top" alt="${unit.title}">
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title fw-bold mb-1">${unit.title}</h5>
-              <p class="text-muted small mb-2">📍 ${unit.location || 'N/A'}</p>
-              <p class="text-primary fw-semibold mb-2">₱${unit.monthly_rent?.toLocaleString() || 0} / month</p>
-              <p class="card-text mb-3 flex-grow-1">${unit.description?.substring(0, 80) || ''}...</p>
-
-              <div class="d-grid gap-2">
-                <button class="btn btn-primary reserve-btn" data-id="${unit.id}" data-title="${unit.title}">
-                  <i class="bi bi-calendar-check"></i> Reserve Unit
-                </button>
-                <button class="btn btn-outline-primary apply-btn" data-id="${unit.id}" data-title="${unit.title}">
-                  <i class="bi bi-file-earmark-text"></i> Apply Now
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>`;
+    // Search and Filter logic (Mula sa Code 2)
+    searchInput.addEventListener("input", applyFilters);
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            filterButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            currentPhase = btn.dataset.phase;
+            applyFilters();
+        });
     });
 
-    attachButtonEvents();
-  }
-
-  // 🟢 Search and Filter logic
-  searchInput.addEventListener("input", applyFilters);
-  filterButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      filterButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentPhase = btn.dataset.phase;
-      applyFilters();
-    });
-  });
-
-  function applyFilters() {
-  const term = searchInput.value.toLowerCase();
-  const filtered = allUnits.filter(unit => {
-    const matchesSearch = unit.title.toLowerCase().includes(term);
-
-    // Normalize both filter and unit location text
-    const normalize = str => str
-      ?.toLowerCase()
-      .replace(/phase\s+/i, "")
-      .replace(/\bii\b/g, "2")
-      .replace(/\biii\b/g, "3")
-      .replace(/\biv\b/g, "4")
-      .replace(/\bv\b/g, "5")
-      .replace(/\bvi\b/g, "6")
-      .replace(/\bvii\b/g, "7")
-      .replace(/\bviii\b/g, "8")
-      .replace(/\bix\b/g, "9")
-      .replace(/\bx\b/g, "10")
-      .trim();
-
-    const unitPhase = normalize(unit.location || "");
-    const filterPhase = normalize(currentPhase);
-
-    const matchesPhase =
-      currentPhase === "all" || unitPhase === filterPhase;
-
-    return matchesSearch && matchesPhase;
-  });
-
-  renderUnits(filtered);
-}
-
-  // 🟢 Attach modal button actions
-  function attachButtonEvents() {
-    document.querySelectorAll(".reserve-btn").forEach(btn => {
-      btn.addEventListener("click", e => {
-        const { id, title } = e.currentTarget.dataset;
-        document.getElementById("unit_id").value = id;
-        document.getElementById("reserveModalLabel").textContent = `Reserve Unit - ${title}`;
-        reserveModal.classList.add("show");
-      });
-    });
-
-    document.querySelectorAll(".apply-btn").forEach(btn => {
-      btn.addEventListener("click", e => {
-        const { id, title } = e.currentTarget.dataset;
-        document.getElementById("apply_unit_id").value = id;
-        document.getElementById("applyModalLabel").textContent = `Apply for Unit - ${title}`;
-        applyModal.classList.add("show");
-      });
-    });
-  }
-
-  // 🟢 Close Modals
-  document.querySelectorAll(".closeModalBtn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      reserveModal.classList.remove("show");
-      applyModal.classList.remove("show");
-    });
-  });
-  [reserveModal, applyModal].forEach(modal => {
-    modal.addEventListener("click", e => {
-      if (e.target === modal) modal.classList.remove("show");
-    });
-  });
-
-  // 🟢 Submit Reserve Form
-  reserveForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    const formData = new FormData(reserveForm);
-    try {
-      const res = await fetch("/api/bookings", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Reservation failed");
-      alert("✅ Reservation successful!");
-      reserveForm.reset();
-      reserveModal.classList.remove("show");
-    } catch (err) {
-      alert("❌ Failed to reserve unit.");
+    function applyFilters() {
+        const term = searchInput.value.toLowerCase();
+        const filtered = allUnits.filter(unit => {
+            const matchesSearch = (unit.title || '').toLowerCase().includes(term);
+            const normalize = str => str?.toLowerCase().replace(/phase\s+/i, "").replace(/\bii\b/g, "2").replace(/\biii\b/g, "3").replace(/\biv\b/g, "4").replace(/\bv\b/g, "5").replace(/\bvi\b/g, "6").replace(/\bvii\b/g, "7").replace(/\bviii\b/g, "8").replace(/\bix\b/g, "9").replace(/\bx\b/g, "10").trim();
+            const unitPhase = normalize(unit.location || "");
+            const filterPhase = normalize(currentPhase);
+            const matchesPhase = currentPhase === "all" || unitPhase === filterPhase || (unit.location || '').toLowerCase().includes(currentPhase.toLowerCase());
+            return matchesSearch && matchesPhase;
+        });
+        renderUnits(filtered);
     }
-  });
 
-  // 🟢 Submit Apply Form
-  applyForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    const formData = new FormData(applyForm);
-    try {
-      const res = await fetch("/api/applications", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Application failed");
-      alert("✅ Application submitted successfully!");
-      applyForm.reset();
-      applyModal.classList.remove("show");
-    } catch (err) {
-      alert("❌ Failed to submit application.");
+    // =============================================
+    // ==== MODAL CONTROLS (KINUHA SA FIRST CODE) ====
+    // =============================================
+    window.openModal = function(id, unitId = null, unitName = '') {
+        document.getElementById('modalOverlay').classList.add('show');
+        const modal = document.getElementById(id);
+        modal.classList.add('show');
+
+        if (id === 'reserveModal') {
+            document.getElementById('reserveUnitId').value = unitId;
+            document.getElementById('reserveUnitName').value = unitName;
+        }
+        if (id === 'applyModal') {
+            document.getElementById('applyUnitId').value = unitId;
+            document.getElementById('applyUnitName').value = unitName;
+        }
     }
-  });
+
+    window.closeModal = function(id) {
+        document.getElementById(id).classList.remove('show');
+        // Check if other modals are open before closing overlay
+        const anyModalOpen = document.querySelector('.custom-modal.show');
+        if (!anyModalOpen) {
+            document.getElementById('modalOverlay').classList.remove('show');
+        }
+    }
+
+    window.closeAllModals = function() {
+        document.querySelectorAll('.custom-modal').forEach(m => m.classList.remove('show'));
+        document.getElementById('modalOverlay').classList.remove('show');
+    }
+
+    // ==================================================
+    // ==== FORM SUBMISSION (KINUHA SA FIRST CODE) ====
+    // ==================================================
+    reserveForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        const formData = new FormData(reserveForm);
+        try {
+            const res = await fetch("/api/bookings", { method: "POST", body: formData });
+            if (!res.ok) throw new Error("Reservation failed");
+            alert("✅ Reservation successful!");
+            reserveForm.reset();
+            closeAllModals();
+        } catch {
+            alert("❌ Failed to reserve unit.");
+        }
+    });
+
+    // =======================================================
+    // ==== ITO YUNG BINAGO KO (GINAYA SA FIRST CODE) ====
+    // =======================================================
+    applyForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        const formData = new FormData(applyForm);
+        try {
+            const res = await fetch("/api/applications", { method: "POST", body: formData });
+            if (!res.ok) throw new Error("Application failed");
+            alert("✅ Application submitted successfully!");
+            applyForm.reset();
+            // Ginamit ko ang closeAllModals() para pareho sa reserveForm
+            closeAllModals(); 
+        } catch (err) {
+            alert("❌ Failed to submit application.");
+        }
+    });
+
 });
 </script>
 
