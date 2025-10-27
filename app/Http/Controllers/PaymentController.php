@@ -6,10 +6,12 @@ use Carbon\Carbon;
 use App\Models\Tenant;
 use App\Models\Payment;
 use App\Models\Contract;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Facades\Storage;
+  
 class PaymentController extends Controller
 {
     /**
@@ -61,136 +63,151 @@ class PaymentController extends Controller
         }
     }
 
-    /**
-     * HANDLE WEBHOOK — Automatic record kapag successful payment
-     */
-    public function handleWebhook(Request $request)
-    {
-        $payload = $request->getContent();
-        $event = json_decode($payload, true);
 
-        Log::info('PayMongo Webhook received:', ['payload' => $payload]);
+public function handleWebhook(Request $request)
+{
+    $payload = $request->getContent();
+    $event = json_decode($payload, true);
 
-        $type = $event['data']['attributes']['type'] ?? null;
+    Log::info('PayMongo Webhook received:', ['payload' => $payload]);
 
-        if ($type !== 'payment.paid') {
-            return response()->json(['status' => 'ignored']);
-        }
+    $type = $event['data']['attributes']['type'] ?? null;
 
-        try {
-            $attributes = $event['data']['attributes']['data']['attributes'] ?? [];
-            $metadata = $attributes['metadata'] ?? [];
-
-            $tenantId = $metadata['tenant_id'] ?? null;
-            $amount = ($attributes['amount'] ?? 0) / 100;
-            $reference = $attributes['reference_number'] ?? uniqid('PAY-');
-
-            $tenant = $tenantId ? Tenant::find($tenantId) : null;
-            if (!$tenant) {
-                $email = $attributes['billing']['email'] ?? null;
-                $tenant = $email ? Tenant::where('email', $email)->first() : null;
-            }
-            if (!$tenant) {
-                Log::warning('Webhook: Tenant not found.', ['metadata' => $metadata]);
-                return response()->json(['status' => 'tenant_not_found']);
-            }
-
-            $contract = Contract::where('tenant_id', $tenant->id)
-                ->whereIn('status', ['active', 'ongoing'])
-                ->first();
-            if (!$contract) {
-                Log::warning('Webhook: No active contract found.', ['tenant_id' => $tenant->id]);
-                return response()->json(['status' => 'no_active_contract']);
-            }
-
-            $now = now();
-
-            $isDownpayment = stripos($attributes['description'] ?? '', 'Deposit') !== false;
-
-            // Determine starting month
-            $downpaymentMonth = Payment::where('tenant_id', $tenant->id)
-                ->where('contract_id', $contract->id)
-                ->where('remarks', 'Downpayment')
-                ->orderBy('for_month', 'asc')
-                ->value('for_month');
-
-            $currentMonth = $downpaymentMonth ? Carbon::parse($downpaymentMonth) : Carbon::parse($contract->start_date);
-
-            // Determine next month for Rent Payment
-            if ($isDownpayment) {
-                $forMonthDate = $currentMonth->copy();
-                $remarks = 'Downpayment';
-            } else {
-                // Group payments by month and find first month not fully paid
-                $monthlyPayments = Payment::where('tenant_id', $tenant->id)
-                    ->where('contract_id', $contract->id)
-                    ->where('remarks', 'like', 'Rent Payment%')
-                    ->get()
-                    ->groupBy(function($payment) {
-                        return Carbon::parse($payment->for_month)->format('Y-m');
-                    });
-
-                $nextMonth = $currentMonth->copy()->addMonth()->day($contract->payment_due_date);
-
-                foreach ($monthlyPayments as $month => $payments) {
-                    $totalPaid = $payments->sum('amount');
-                    if ($totalPaid < $contract->monthly_payment) {
-                        $nextMonth = Carbon::parse($month)->day($contract->payment_due_date);
-                        break;
-                    } else {
-                        $nextMonth = Carbon::parse($month)->addMonth()->day($contract->payment_due_date);
-                    }
-                }
-
-                $forMonthDate = $nextMonth;
-                $remarks = 'Rent Payment for ' . $forMonthDate->format('F Y');
-            }
-
-            // Determine payment status
-            $monthlyPayment = $contract->monthly_payment;
-
-            $existingPaid = Payment::where('tenant_id', $tenant->id)
-                ->whereYear('for_month', $forMonthDate->year)
-                ->whereMonth('for_month', $forMonthDate->month)
-                ->whereIn('payment_status', ['paid','partial'])
-                ->sum('amount');
-
-            $totalPaid = $existingPaid + $amount;
-            $paymentStatus = $totalPaid >= $monthlyPayment ? 'paid' : 'partial';
-
-            Payment::create([
-                'tenant_id' => $tenant->id,
-                'contract_id' => $contract->id,
-                'amount' => $amount,
-                'payment_method' => 'gcash',
-                'payment_status' => $paymentStatus,
-                'payment_date' => $now,
-                'for_month' => $forMonthDate,
-                'reference_no' => $reference,
-                'invoice_no' => 'INV-' . $reference,
-                'remarks' => $remarks,
-            ]);
-
-            if ($paymentStatus === 'paid') {
-                $contract->last_billed_at = $now;
-                $contract->save();
-            }
-
-            Log::info('Payment recorded successfully.', [
-                'tenant' => $tenant->id,
-                'for_month' => $forMonthDate->toDateString(),
-                'status' => $paymentStatus
-            ]);
-
-            return response()->json(['status' => 'ok', 'payment_status' => $paymentStatus]);
-
-        } catch (\Exception $e) {
-            Log::error('Webhook error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
-        }
+    if ($type !== 'payment.paid') {
+        return response()->json(['status' => 'ignored']);
     }
+
+    try {
+        $attributes = $event['data']['attributes']['data']['attributes'] ?? [];
+        $metadata = $attributes['metadata'] ?? [];
+
+        $tenantId = $metadata['tenant_id'] ?? null;
+        $amount = ($attributes['amount'] ?? 0) / 100;
+        $reference = $attributes['reference_number'] ?? uniqid('PAY-');
+
+        $tenant = $tenantId ? Tenant::find($tenantId) : null;
+        if (!$tenant) {
+            $email = $attributes['billing']['email'] ?? null;
+            $tenant = $email ? Tenant::where('email', $email)->first() : null;
+        }
+        if (!$tenant) {
+            Log::warning('Webhook: Tenant not found.', ['metadata' => $metadata]);
+            return response()->json(['status' => 'tenant_not_found']);
+        }
+
+        $contract = Contract::where('tenant_id', $tenant->id)
+            ->whereIn('status', ['active', 'ongoing'])
+            ->first();
+        if (!$contract) {
+            Log::warning('Webhook: No active contract found.', ['tenant_id' => $tenant->id]);
+            return response()->json(['status' => 'no_active_contract']);
+        }
+
+        $now = now();
+
+        $isDownpayment = stripos($attributes['description'] ?? '', 'Deposit') !== false;
+
+        // Determine starting month
+        $downpaymentMonth = Payment::where('tenant_id', $tenant->id)
+            ->where('contract_id', $contract->id)
+            ->where('remarks', 'Downpayment')
+            ->orderBy('for_month', 'asc')
+            ->value('for_month');
+
+        $currentMonth = $downpaymentMonth ? Carbon::parse($downpaymentMonth) : Carbon::parse($contract->start_date);
+
+        // Determine next month for Rent Payment
+        if ($isDownpayment) {
+            $forMonthDate = $currentMonth->copy();
+            $remarks = 'Downpayment';
+        } else {
+            // Group payments by month and find first month not fully paid
+            $monthlyPayments = Payment::where('tenant_id', $tenant->id)
+                ->where('contract_id', $contract->id)
+                ->where('remarks', 'like', 'Rent Payment%')
+                ->get()
+                ->groupBy(function($payment) {
+                    return Carbon::parse($payment->for_month)->format('Y-m');
+                });
+
+            $nextMonth = $currentMonth->copy()->addMonth()->day($contract->payment_due_date);
+
+            foreach ($monthlyPayments as $month => $payments) {
+                $totalPaid = $payments->sum('amount');
+                if ($totalPaid < $contract->monthly_payment) {
+                    $nextMonth = Carbon::parse($month)->day($contract->payment_due_date);
+                    break;
+                } else {
+                    $nextMonth = Carbon::parse($month)->addMonth()->day($contract->payment_due_date);
+                }
+            }
+
+            $forMonthDate = $nextMonth;
+            $remarks = 'Rent Payment for ' . $forMonthDate->format('F Y');
+        }
+
+        // Determine payment status
+        $monthlyPayment = $contract->monthly_payment;
+
+        $existingPaid = Payment::where('tenant_id', $tenant->id)
+            ->whereYear('for_month', $forMonthDate->year)
+            ->whereMonth('for_month', $forMonthDate->month)
+            ->whereIn('payment_status', ['paid','partial'])
+            ->sum('amount');
+
+        $totalPaid = $existingPaid + $amount;
+        $paymentStatus = $totalPaid >= $monthlyPayment ? 'paid' : 'partial';
+
+        // Create payment record
+        $payment = Payment::create([
+            'tenant_id' => $tenant->id,
+            'contract_id' => $contract->id,
+            'amount' => $amount,
+            'payment_method' => 'gcash',
+            'payment_status' => $paymentStatus,
+            'payment_date' => $now,
+            'for_month' => $forMonthDate,
+            'reference_no' => $reference,
+            'invoice_no' => 'INV-' . $reference,
+            'remarks' => $remarks,
+        ]);
+
+        // Generate PDF invoice
+        $invoiceFilename = 'invoices/' . $payment->invoice_no . '.pdf';
+       $pdf = PDF::loadView('tenant.invoice', [
+    'payment' => $payment,
+    'tenant' => $tenant,
+    'contract' => $contract,
+])
+->setOptions(['isRemoteEnabled' => true]); // para ma-load ang images
+
+        $pdf->save(storage_path('app/public/' . $invoiceFilename));
+
+        // Update payment record with PDF link
+        $payment->invoice_pdf = $invoiceFilename;
+        $payment->save();
+
+        if ($paymentStatus === 'paid') {
+            $contract->last_billed_at = $now;
+            $contract->save();
+        }
+
+        Log::info('Payment recorded successfully with invoice.', [
+            'tenant' => $tenant->id,
+            'for_month' => $forMonthDate->toDateString(),
+            'status' => $paymentStatus,
+            'invoice' => $invoiceFilename
+        ]);
+
+        return response()->json(['status' => 'ok', 'payment_status' => $paymentStatus]);
+
+    } catch (\Exception $e) {
+        Log::error('Webhook error: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString(),
+        ]);
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+}
 
     /**
      * DASHBOARD — Next month & outstanding
@@ -294,4 +311,15 @@ class PaymentController extends Controller
         $tenant = Tenant::findOrFail($tenantId);
         return view('tenant.cancel', compact('tenant'));
     }
+
+    public function downloadInvoice(Payment $payment)
+{
+    $path = storage_path('app/public/' . $payment->invoice_pdf);
+    if (!file_exists($path)) {
+        abort(404, 'Invoice file not found.');
+    }
+    return response()->download($path, $payment->invoice_no . '.pdf');
+}
+
+
 }

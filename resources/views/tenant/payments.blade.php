@@ -104,79 +104,66 @@
 
     {{-- RIGHT COLUMN - Ledger / Payment History --}}
     <div class="col-lg-8">
-      <div class="card shadow-sm border-0">
-        <div class="card-body px-4 py-3">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0 fw-semibold text-dark">
-              <i class="bi bi-journal-text me-2"></i> Payment Ledger
-            </h5>
-              <span class="text-muted small">
-                Showing last 5 transactions
-              </span>
-            <span class="text-muted small">
-              {{ $tenant->tenant->first_name ?? '' }} {{ $tenant->tenant->last_name ?? '' }}
-            </span>
+      <div class="row">
+        {{-- Past Payments Table --}}
+        <div class="col-12 mb-3">
+          <div class="card shadow-sm border-0">
+            <div class="card-header bg-light border-0">
+              <h6 class="fw-bold text-primary mb-0">Recent Payments</h6>
+            </div>
+            <div class="card-body p-0">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Payment Details</th>
+                    <th>Invoice</th>
+                  </tr>
+                </thead>
+                <tbody>
+@php
+    $rentPayments = $payments->filter(function ($payment) {
+        return str_starts_with($payment->remarks, 'Rent Payment');
+    })->sortByDesc('for_month');
+@endphp
+
+    @forelse($rentPayments as $payment)
+    <tr>
+        <td>
+            <strong>{{ $payment->remarks }}</strong><br>
+            <small>{{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}</small><br>
+            <span class="text-success fw-bold">₱{{ number_format($payment->amount, 2) }}</span>
+        </td>
+        <td>
+            @if($payment->invoice_pdf)
+            <a href="{{ asset('storage/' . $payment->invoice_pdf) }}" target="_blank" class="btn btn-sm btn-primary">
+                Download Invoice
+            </a>
+            @else
+            <span class="text-muted">N/A</span>
+            @endif
+        </td>
+    </tr>
+    @empty
+    <tr>
+        <td colspan="2" class="text-center text-muted">No rent payments yet.</td>
+    </tr>
+    @endforelse
+</tbody>
+
+              </table>
+            </div>
           </div>
+        </div>
 
-          {{-- Table --}}
-           <div class="card shadow-sm border-0">
-    <div class="card-body px-4 py-3">
-      <div class="table-responsive">
-        <table class="table align-middle">
-          <thead class="bg-light text-secondary small">
-            <tr>
-              <th>Month</th>
-              <th>Date Paid</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Remarks</th>
-              <th>Invoice</th>
-            </tr>
-          </thead>
-          <tbody>
-            @forelse($payments->sortByDesc('for_month')->take(5) as $payment)
-              <tr>
-                <td>{{ \Carbon\Carbon::parse($payment->for_month)->format('F Y') }}</td>
-                <td>
-                  {{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') : '-' }}
-                </td>
-                <td>₱{{ number_format($payment->amount, 2) }}</td>
-                <td>
-                  @if($payment->payment_status === 'paid')
-                    <span class="badge bg-success">Paid</span>
-                  @elseif($payment->payment_status === 'partial')
-                    <span class="badge bg-warning text-dark">Partial</span>
-                  @else
-                    <span class="badge bg-danger">Unpaid</span>
-                  @endif
-                </td>
-                <td>{{ $payment->remarks ?? '-' }}</td>
-                <td>
-                   @if($payment->invoice_pdf)
-                      <a href="{{ asset('storage/' . $payment->invoice_pdf) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
-                        Download PDF
-                      </a>
-                    @else
-                      <span class="text-muted small">N/A</span>
-                   @endif
-                </td>
-              </tr>
-            @empty
-              <tr>
-                <td colspan="6" class="text-center text-muted py-4">
-                  <i class="bi bi-info-circle me-1"></i> No payments or invoices found.
-                </td>
-              </tr>
-            @endforelse
-          </tbody>
-        </table>
-          
-
-          {{-- Ledger Modal Trigger --}}
-          <div class="text-center mt-4">
-            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ledgerModal">
-              <i class="bi bi-journal-bookmark me-1"></i> View Full Account Ledger
-            </button>
+        {{-- Ledger Button --}}
+        <div class="col-12">
+          <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+              <p class="text-muted small mb-2">Need help understanding your balance?</p>
+              <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ledgerModal">
+                View Full Account Ledger
+              </button>
+            </div>
           </div>
         </div>
       </div>

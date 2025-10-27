@@ -53,6 +53,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | Admin Routes (Protected)
@@ -95,7 +96,6 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
     Route::view('/payments', 'admin.payments')->name('payments');
     Route::view('/contracts', 'admin.contracts')->name('contracts');
     Route::view('/reports', 'admin.reports')->name('reports');
-    Route::view('/records', 'admin.records')->name('records');
 
   
     // Units Controller
@@ -138,9 +138,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tenant/property', [TenantController::class, 'property'])
         ->name('tenant.property');
 
-        
 Route::get('/tenant/{tenant}/ledger', [TenantController::class, 'ledger'])
     ->name('tenant.ledger');
+    
+Route::get('tenant/payment/invoice/{payment}', [PaymentController::class,'downloadInvoice'])
+    ->name('tenant.payment.invoice.download');
 
 });
 

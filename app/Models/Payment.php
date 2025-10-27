@@ -35,7 +35,7 @@ class Payment extends Model
 
     // ... (iyong relationships)
     public function tenant() {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(Tenant::class, 'tenant_id');
     }
 
     public function unit() {
@@ -44,5 +44,6 @@ class Payment extends Model
 
     public function contract() {
         return $this->belongsTo(Contract::class);
+        
     }
 }

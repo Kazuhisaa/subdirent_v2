@@ -110,7 +110,15 @@
     </div>
 </div>
 
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+@if(session('admin_api_token'))
+<script>
+    sessionStorage.setItem('admin_api_token', "{{ session('admin_api_token') }}");
+</script>
+@endif
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     // --- Existing Revenue Chart ---
@@ -186,6 +194,7 @@ document.addEventListener("DOMContentLoaded", function() {
         try {
             const response = await fetch('/api/bookings', {
                 headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
                 }

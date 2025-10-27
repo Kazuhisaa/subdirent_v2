@@ -22,7 +22,7 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $credentials = $request->validate([ 
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
@@ -41,6 +41,8 @@ class AuthController extends Controller
                 session(['admin_api_token' => $token]);
 
                 return redirect()->route('admin.home')->with('status', 'Welcome, Admin!');
+                return redirect()->route('admin.home')->with('admin_api_token', $token);
+
             }
 
             // ✅ Tenant Login: Redirect to tenant dashboard
