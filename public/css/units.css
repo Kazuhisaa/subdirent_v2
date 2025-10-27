@@ -1,0 +1,289 @@
+    /* === KINUHA MULA SA HOME.BLADE.PHP (Second Code) === */
+    body {
+        font-family: 'Poppins', 'Segoe UI', sans-serif;
+        background-image: url('../uploads/bg1.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed;
+        overflow-x: hidden;
+    }
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        will-change: opacity, transform;
+    }
+    .animate-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .section-heading {
+        font-family: 'Salsa', 'Poppins', sans-serif;
+        font-size: 3.8rem;
+        font-weight: normal;
+        background-image: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        position: relative;
+        padding-bottom: 20px;
+        margin-bottom: 70px;
+        text-align: center;
+    }
+    .section-heading::after {
+        content: '';
+        position: absolute;
+        display: block;
+        width: 120px;
+        height: 4px;
+        background-image: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+        border-radius: 2px;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .section-heading.mb-3 {
+        margin-bottom: 1rem !important;
+    }
+
+    /* === PROPERTIES SECTION (Second Code) === */
+    .properties-section {
+        padding: 80px 0;
+        background-color: #EAF8FF; /* Solid light blue */
+        overflow: hidden;
+    }
+    .property-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(5px);
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .property-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    .property-card img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .property-card .info {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .property-card .info h6 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--blue-900);
+        margin-bottom: 8px;
+    }
+    .property-card .info .location {
+        font-size: 1rem;
+        color: var(--blue-700);
+        margin-bottom: 1rem;
+    }
+    .property-details-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 1.5rem;
+        color: var(--blue-800);
+        font-size: 0.95rem;
+        line-height: 1.8;
+    }
+    .property-details-list li strong {
+        font-weight: 600;
+        color: var(--blue-900);
+    }
+    .property-card .info .unit-price {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--blue-800);
+        margin-bottom: 1.5rem;
+    }
+
+    /* === BUTTONS (Second Code) === */
+    .btn-details {
+        background: var(--gradient-diagonal);
+        border: none;
+        color: white;
+        border-radius: 50px;
+        padding: 8px 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    .btn-details:hover {
+        filter: brightness(1.1);
+        color: white;
+    }
+    .btn-outline-details {
+        background-color: transparent;
+        border: 2px solid var(--blue-600);
+        color: var(--blue-600);
+        border-radius: 50px;
+        padding: 8px 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-details:hover {
+        background-color: var(--blue-600);
+        color: #fff;
+    }
+    .btn-outline-danger {
+        background-color: transparent;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        border-radius: 50px;
+        padding: 8px 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+
+    /* === FILTERS (Second Code) === */
+    .search-filter-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(5px);
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+    .search-box {
+        border-radius: 100px;
+        padding: 10px 15px;
+        border: 2px solid var(--blue-200);
+        font-size: 16px;
+    }
+    .search-box:focus {
+        border-color: var(--blue-500);
+        box-shadow: 0 0 0 3px var(--blue-100);
+        outline: none;
+    }
+    .filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .filter-btn {
+        border: none;
+        background: #fff;
+        border: 1px solid var(--blue-200);
+        color: var(--blue-700);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .filter-btn:hover {
+        background-color: var(--blue-100);
+    }
+    .filter-btn.active {
+        background: var(--gradient-diagonal);
+        color: white;
+        border-color: transparent;
+    }
+
+
+    /* ===== (PINAGSAMANG MODAL STYLING) ===== */
+    /* Kinuha sa Code 1, Inapply ang design ng Code 2 */
+
+    /* Overlay (Design from Code 2) */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(240, 248, 255, 0.8); /* Mula sa Code 2 */
+        backdrop-filter: blur(5px); /* Mula sa Code 2 */
+        z-index: 1040;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+    .modal-overlay.show {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Modal Content (Base from Code 1, Style from Code 2) */
+    .custom-modal {
+        display: none;
+        position: fixed;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%) scale(0.95);
+        background: white;
+        width: 600px; /* Mula sa Code 2 */
+        max-width: 90%; /* Mula sa Code 2 */
+        border-radius: 20px; /* Mula sa Code 2 */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Mula sa Code 2 */
+        z-index: 1050;
+        opacity: 0;
+        transition: all 0.25s ease-in-out;
+    }
+
+    .custom-modal.show {
+        display: block;
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+        animation: fadeInUp 0.3s ease; /* Animation mula sa Code 2 */
+    }
+
+    /* Keyframes para sa animation (Mula sa Code 2) */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateX(-50%) translateY(30px) scale(1); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
+
+    /* Modal Header (Style mula sa Code 2) */
+    .custom-modal-header {
+        color: var(--blue-800);
+        font-weight: 600;
+        font-size: 1.5rem;
+        border-bottom: 2px solid var(--blue-500);
+        padding: 20px 30px;
+    }
+
+    /* Modal Body (Style mula sa Code 2) */
+    .custom-modal-body {
+        padding: 30px;
+    }
+
+    /* Modal Footer (Style mula sa Code 2) */
+    .custom-modal-footer {
+        padding: 20px 30px;
+        text-align: center;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    @media (max-width: 768px) {
+        .search-box { font-size: 14px; }
+        .filter-buttons { justify-content: center; }
+        .filter-btn { padding: 6px 12px; font-size: 14px; }
+        .custom-modal { width: 95%; padding: 20px; }
+        .custom-modal-header { padding: 15px 20px; font-size: 1.25rem; }
+        .custom-modal-body { padding: 20px; }
+        .custom-modal-footer { padding: 15px 20px; flex-direction: column; }
+    }

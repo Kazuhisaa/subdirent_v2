@@ -1,0 +1,245 @@
+    /* Gumagamit tayo ng font na kamukha ng nasa reference */
+    body {
+        font-family: 'Poppins', 'Segoe UI', sans-serif;
+        background-image: url('../uploads/bg1.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed; 
+        overflow-x: hidden; /* Para maiwasan ang horizontal scroll galing sa animations */
+    }
+
+    /* ============================================= */
+    /* === BAGONG CSS PARA SA SCROLL ANIMATION === */
+    /* ============================================= */
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        will-change: opacity, transform; /* Para sa performance */
+    }
+    
+    .animate-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    /* ============================================= */
+
+
+    /* --- Hero Section --- */
+    .hero-section {
+        min-height: 80vh; 
+        display: flex;
+        align-items: center;
+        padding: 30px 0;
+        overflow: hidden;
+    }
+
+    .hero-section .hero-text h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: var(--blue-800);
+        line-height: 1.2;
+    }
+
+    .hero-section .hero-text p {
+        font-size: 1.1rem;
+        color: var(--blue-700);
+        margin: 20px 0 30px;
+    }
+
+    .hero-section .btn-custom {
+        padding: 12px 30px;
+        border-radius: 90px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    .btn-explore {
+        background-color: var(--blue-400);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(13, 59, 102, 0.2);
+    }
+    .btn-explore:hover {
+        background-color: var(--blue-200);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(157, 170, 182, 0.3);
+    }
+    
+    .hero-section .hero-image img {
+        max-width: 100%;
+        height: auto;
+        animation: floatAnimation 10s ease-in-out infinite;
+    }
+    
+    @keyframes floatAnimation {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .section-heading {
+        font-family: 'Salsa', 'Poppins', sans-serif; 
+        font-size: 3.8rem; 
+        font-weight: normal; 
+        
+        background-image: linear-gradient(135deg, var(--blue-800), var(--blue-600));
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+
+        position: relative; /* Kailangan para sa ::after */
+        padding-bottom: 20px; /* Space para sa underline */
+        margin-bottom: 70px; /* Original margin */
+    }
+
+    .section-heading::after {
+        content: '';
+        position: absolute;
+        display: block;
+        width: 120px; /* Lapad ng underline */
+        height: 4px; /* kapal */
+        background-image: linear-gradient(135deg, var(--blue-800), var(--blue-600)); /* Kapareho ng text */
+        border-radius: 2px;
+        
+        /* I-center sa baba */
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .section-heading.mb-3 {
+        margin-bottom: 1rem !important; /* Ino-override yung 70px */
+    }
+
+    /* --- Why Choose Us Section --- */
+    .why-choose-section {
+        padding: 100px 0;
+        overflow: hidden; /* Para sa animation */
+    }
+    
+    .why-choose-section .center-image {
+        width: 100%; 
+        height: auto;
+    }
+
+    /* --- CSS para sa Feature Items --- */
+    .feature-item {
+        text-align: center; 
+        margin-bottom: 30px;
+        position: relative; 
+        z-index: 2; 
+        padding: 10px; 
+    }
+
+    .feature-item::before {
+        content: attr(data-number); 
+        position: absolute;
+        z-index: 1; 
+        font-size: 8rem; 
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif; 
+        color: var(--blue-200); 
+        opacity: 0.7; 
+        top: 50%;
+        user-select: none;
+        pointer-events: none;
+    }
+    
+    @media (min-width: 992px) {
+        .feature-col-left .feature-item { text-align: left; }
+        .feature-col-right .feature-item { text-align: right; }
+
+        .feature-col-left .feature-item::before {
+            left: -20px; 
+            transform: translateY(-60%);
+        }
+        .feature-col-right .feature-item::before {
+            right: -20px;
+            transform: translateY(-60%);
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .feature-item::before {
+            left: 50%;
+            transform: translate(-50%, -60%);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .hero-section .hero-text h1 { font-size: 2.8rem; }
+        .why-choose-section .row { flex-direction: column; }
+        .why-choose-section .center-image-col {
+            order: 1; 
+            margin-bottom: 40px;
+        }
+        .why-choose-section .feature-col-left,
+        .why-choose-section .feature-col-right {
+            order: 2; 
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            text-align: center;
+            min-height: auto;
+            padding: 80px 0;
+        }
+    }
+    
+    /* --- Featured Properties Section Styling --- */
+    .properties-section {
+        padding: 80px 0;
+        background-color: rgba(255, 255, 255, 0.5); 
+        overflow: hidden; /* Para sa animation */
+    }
+    
+    .property-card {
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    .property-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    }
+    .property-card img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+    }
+    .property-card .info { padding: 20px; }
+    .property-card .info h6 {
+        font-weight: 600;
+        color: var(--blue-900);
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; 
+    }
+     .property-card .info .price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--blue-600);
+     }
+    .property-card .info .location {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    .property-card .info .btn-details {
+        background: var(--gradient-diagonal);
+        border: none;
+        color: white;
+        border-radius: 50px;
+        padding: 8px 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    .property-card .info .btn-details:hover {
+        filter: brightness(1.1);
+    }
