@@ -64,6 +64,7 @@
                             <th>Full Name</th>
                             <th>Email</th>
                             <th>Contact</th>
+                            <th>Unit ID</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -174,6 +175,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <td>${fullName}</td>
                     <td>${b.email}</td>
                     <td>${b.contact_num}</td>
+                    <td>${b.unit_id}</td>
                     <td><span class="badge ${statusBadgeClass}">${statusText}</span></td>
                     <td>${actionsHtml}</td>
                 </tr>

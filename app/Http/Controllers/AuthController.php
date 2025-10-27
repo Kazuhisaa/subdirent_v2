@@ -14,7 +14,7 @@ class AuthController extends Controller
      */
     public function showLoginForm()
     {
-        return view('admin.login'); // your shared login form
+        return view('partials.login-modal'); // your shared login form
     }
 
     /**

@@ -1,104 +1,104 @@
-{{-- resources/views/admin/home.blade.php --}}
 @extends('admin.dashboard')
 
 @section('title','Admin Dashboard')
 @section('page-title','Dashboard')
 
 @section('content')
+
 <div class="row g-3">
+    {{-- ✅ Registered Tenants --}}
     <div class="col-md-3">
-        <div class="card shadow-sm border-0 rounded-3"> {{-- Added border-0 rounded-3 --}}
+        <div class="card shadow-sm border-0 rounded-3">
             <div class="card-body">
-                <h6 class="card-title text-muted text-uppercase small">Registered Users</h6> {{-- Adjusted text --}}
-                <h2 class="mb-0 fw-bold text-blue-800">{{ $registeredUsers ?? 0 }}</h2> {{-- Added theme text color --}}
+                <h6 class="card-title text-muted text-uppercase small">Registered Tenants</h6>
+                <h2 id="registeredTenantsCount" class="mb-0 fw-bold text-blue-800">0</h2>
             </div>
         </div>
     </div>
 
+    {{-- ✅ Available Units --}}
     <div class="col-md-3">
-        <div class="card shadow-sm border-0 rounded-3"> {{-- Added border-0 rounded-3 --}}
+        <div class="card shadow-sm border-0 rounded-3">
             <div class="card-body">
-                <h6 class="card-title text-muted text-uppercase small">Available Rooms</h6> {{-- Adjusted text --}}
-                <h2 class="mb-0 fw-bold text-blue-800">{{ $roomsForRent ?? 0 }}</h2> {{-- Added theme text color --}}
+                <h6 class="card-title text-muted text-uppercase small">Available Units</h6>
+                <h2 id="availableUnitsCount" class="mb-0 fw-bold text-blue-800">0</h2>
             </div>
         </div>
     </div>
 
+    {{-- Unpaid Rent --}}
     <div class="col-md-3">
-        <div class="card shadow-sm border-0 rounded-3"> {{-- Added border-0 rounded-3 --}}
+        <div class="card shadow-sm border-0 rounded-3">
             <div class="card-body">
-                <h6 class="card-title text-muted text-uppercase small">Unpaid Rent</h6> {{-- Adjusted text --}}
-                <h2 class="mb-0 fw-bold text-blue-800">{{ $unpaidRent ?? 0 }}</h2> {{-- Added theme text color --}}
+                <h6 class="card-title text-muted text-uppercase small">Unpaid Rent</h6>
+                <h2 class="mb-0 fw-bold text-blue-800">{{ $unpaidRent ?? 0 }}</h2>
             </div>
         </div>
     </div>
 
+    {{-- Monthly Income --}}
     <div class="col-md-3">
-        <div class="card shadow-sm border-0 rounded-3"> {{-- Added border-0 rounded-3 --}}
+        <div class="card shadow-sm border-0 rounded-3">
             <div class="card-body">
-                <h6 class="card-title text-muted text-uppercase small">Monthly Income</h6> {{-- Adjusted text --}}
-                <h2 class="mb-0 fw-bold text-blue-800">₱{{ number_format($monthlyIncome ?? 0,2) }}</h2> {{-- Added theme text color --}}
+                <h6 class="card-title text-muted text-uppercase small">Monthly Income</h6>
+                <h2 class="mb-0 fw-bold text-blue-800">₱{{ number_format($monthlyIncome ?? 0,2) }}</h2>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mt-4 g-4"> {{-- Added g-4 for consistent spacing --}}
+{{-- ==== CHART AND TABLE BELOW STAYS SAME ==== --}}
+<div class="row mt-4 g-4">
     <div class="col-md-8">
-        <div class="card shadow-sm border-0 rounded-3 h-100"> {{-- Added border-0 rounded-3 --}}
-            {{-- ✅ ADDED: Gradient Header --}}
+        <div class="card shadow-sm border-0 rounded-3 h-100">
             <div class="card-header fw-bold text-white"
                  style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem .5rem 0 0;">
                 MONTHLY INCOME OVERVIEW
             </div>
             <div class="card-body">
-                {{-- <h6 class="card-title">Monthly Income Overview</h6> --}} {{-- Removed duplicate title --}}
                 <canvas id="revenueChart"></canvas>
             </div>
         </div>
     </div>
 
-        <div class="col-md-4">
-        <div class="card shadow-sm border-0 rounded-3 h-100"> {{-- Added border-0 rounded-3 and h-100 --}}
-             {{-- ✅ ADDED: Gradient Header --}}
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
             <div class="card-header fw-bold text-white"
                  style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem .5rem 0 0;">
-                 QUICK ACTIONS
+                QUICK ACTIONS
             </div>
-            <div class="card-body d-flex flex-column justify-content-center"> {{-- Added flex for vertical centering --}}
-                {{-- <h6 class="card-title text-center mb-3">Quick Actions</h6> --}} {{-- Removed duplicate title --}}
-                <div class="d-grid gap-3"> {{-- Increased gap --}}
-                    <a href="{{ route('admin.reports') }}" class="btn btn-action w-100 py-2 fw-bold">Generate Reports</a> {{-- Point to reports --}}
-                    <a href="#" class="btn btn-outline-blue w-100 py-2 fw-bold">Send Reminder Emails</a> {{-- Placeholder --}}
-                    <a href="#" class="btn btn-outline-blue w-100 py-2 fw-bold">Upload CSV</a> {{-- Placeholder --}}
+            <div class="card-body d-flex flex-column justify-content-center">
+                <div class="d-grid gap-3">
+                    <a href="{{ route('admin.reports') }}" class="btn btn-action w-100 py-2 fw-bold">Generate Reports</a>
+                    <a href="#" class="btn btn-outline-blue w-100 py-2 fw-bold">Send Reminder Emails</a>
+                    <a href="#" class="btn btn-outline-blue w-100 py-2 fw-bold">Upload CSV</a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
+{{-- Latest Bookings Table --}}
 <div class="row mt-4">
     <div class="col-12">
-        <div class="card shadow-sm border-0 rounded-3"> {{-- Added border-0 rounded-3 --}}
-             {{-- ✅ ADDED: Gradient Header --}}
+        <div class="card shadow-sm border-0 rounded-3">
             <div class="card-header fw-bold text-white"
                  style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem .5rem 0 0;">
                 LATEST BOOKINGS
             </div>
-            <div class="card-body p-0"> {{-- Removed padding --}}
-                <div class="table-responsive"> {{-- Added responsive wrapper --}}
-                    <table class="table table-sm mb-0 booking-table align-middle text-center"> {{-- Added align-middle, text-center, removed default table class --}}
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0 booking-table align-middle text-center">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Full Name</th>
-                                <th>Room</th> {{-- Assuming Unit Title is meant --}}
+                                <th>Unit ID</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        {{-- ✅✅✅ ADDED ID HERE ✅✅✅ --}}
                         <tbody id="latestBookingsTableBody">
-                            {{-- Initial loading state --}}
                             <tr>
                                 <td colspan="5" class="text-center text-muted py-4">Loading bookings...</td>
                             </tr>
@@ -110,8 +110,6 @@
     </div>
 </div>
 
-
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 @if(session('admin_api_token'))
@@ -119,138 +117,168 @@
     sessionStorage.setItem('admin_api_token', "{{ session('admin_api_token') }}");
 </script>
 @endif
+
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // --- Existing Revenue Chart ---
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-    // Dummy Data - Replace with your actual data fetching if needed
-    const revenueLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; // Example labels
-    const revenueData = [15000, 25000, 18000, 30000, 22000, 27000, 28000, 31000, 29000, 33000, 35000, 40000]; // Example data
-    const themeBlue600 = getComputedStyle(document.documentElement).getPropertyValue('--blue-600').trim() || '#1E81CE';
-    const themeBlue100 = getComputedStyle(document.documentElement).getPropertyValue('--blue-100').trim() || '#EAF8FF';
+document.addEventListener("DOMContentLoaded", async function() {
 
+    const token = sessionStorage.getItem('admin_api_token');
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: revenueLabels, // Use dynamic labels
-            datasets: [{
-                label: 'Revenue (₱)',
-                data: revenueData, // Use dynamic data
-                borderColor: themeBlue600,
-                backgroundColor: themeBlue100 + 'B3', // Added alpha transparency
-                fill: true,
-                tension: 0.4,
-                borderWidth: 2,
-                pointBackgroundColor: themeBlue600, // Make points visible
-                pointRadius: 3 // Adjust point size
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false, // Allow chart to fill container height
-            plugins: {
-                legend: { display: true, position: 'top' },
-                tooltip: {
-                     callbacks: { // Format tooltip
-                         label: function(context) {
-                             let label = context.dataset.label || '';
-                             if (label) { label += ': '; }
-                             if (context.parsed.y !== null) {
-                                 label += '₱' + context.parsed.y.toLocaleString('en-PH', {minimumFractionDigits: 2});
-                             }
-                             return label;
-                         }
-                     }
-                 }
-            },
-            scales: {
-                x: { grid: { color: 'rgba(10,37,64,0.05)' } },
-                y: {
-                    beginAtZero: true,
-                    grid: { color: 'rgba(10,37,64,0.05)' },
-                    ticks: { // Format Y-axis labels
-                         callback: function(value, index, values) {
-                             return '₱' + value.toLocaleString('en-PH');
-                         }
-                     }
-                 }
-            }
-        }
-    });
-
-    // --- ✅✅✅ NEW: Fetch Latest Bookings ✅✅✅ ---
-    const bookingsTableBody = document.getElementById('latestBookingsTableBody');
-    const token = sessionStorage.getItem('admin_api_token'); // Get auth token
-
-    async function fetchLatestBookings() {
-        if (!bookingsTableBody) return; // Exit if table body not found
-        if (!token) {
-            console.error("Admin API token not found for fetching bookings.");
-            bookingsTableBody.innerHTML = `<tr><td colspan="5" class="text-danger text-center py-4">Error: Missing auth token.</td></tr>`;
-            return;
-        }
-
+    // === ✅ FETCH REGISTERED TENANTS ===
+    async function fetchTenantsCount() {
         try {
-            const response = await fetch('/api/bookings', {
+            const response = await fetch('/api/admin/api/tenants', {
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
                 }
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const bookings = await response.json();
-
-            bookingsTableBody.innerHTML = ''; // Clear loading/error message
-
-            if (!bookings || bookings.length === 0) {
-                bookingsTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No recent bookings found.</td></tr>`;
-                return;
-            }
-
-            // Get the latest 5 bookings (assuming the API returns them in some order, sort if needed)
-            // If API returns oldest first, reverse it. If newest first, slice directly.
-            // Let's assume newest first for this example:
-            const latestFive = bookings.slice(0, 5);
-
-            latestFive.forEach(b => {
-                const fullName = `${b.first_name || ''} ${b.middle_name ? b.middle_name + ' ' : ''}${b.last_name || ''}`.trim();
-
-                // Determine status badge
-                let statusBadgeClass = 'bg-secondary'; // Default Pending
-                let statusText = b.status ?? 'Pending';
-                if (b.status === 'Confirmed') { statusBadgeClass = 'bg-success'; statusText = 'Confirmed'; }
-                else if (b.status === 'Rejected') { statusBadgeClass = 'bg-danger'; statusText = 'Rejected'; }
-
-                const row = `
-                    <tr>
-                        <td>${b.id}</td>
-                        <td>${fullName || 'N/A'}</td>
-                        <td>${b.unit ? b.unit.title : (b.unit_id || 'N/A')}</td> {{-- Adjust if unit relationship isn't loaded --}}
-                        <td><span class="badge ${statusBadgeClass}">${statusText}</span></td>
-                        <td>
-                            {{-- Link to the specific booking view/edit page if available --}}
-                            <a href="/admin/bookings/${b.id}" class="btn btn-sm btn-outline-blue">View</a>
-                        </td>
-                    </tr>
-                `;
-                bookingsTableBody.insertAdjacentHTML('beforeend', row);
-            });
-
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
+            const data = await response.json();
+            
+            // Assume API returns an array of tenants
+            const tenantsCount = Array.isArray(data) ? data.length : (data.total ?? 0);
+            document.getElementById('registeredTenantsCount').textContent = tenantsCount.toLocaleString();
         } catch (error) {
-            console.error('Error fetching latest bookings:', error);
-            bookingsTableBody.innerHTML = `<tr><td colspan="5" class="text-danger text-center py-4">Failed to load bookings.</td></tr>`;
+            console.error('Error fetching tenants:', error);
+            document.getElementById('registeredTenantsCount').textContent = '—';
         }
     }
 
-    // Call the function to fetch bookings
-    fetchLatestBookings();
+    // === ✅ FETCH AVAILABLE UNITS ===
+    async function fetchAvailableUnits() {
+        try {
+            const response = await fetch('/api/allUnits', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
 
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
+            const units = await response.json();
+
+            // Filter only units that are not rented
+            const available = units.filter(u => !u.is_rented && u.status !== 'rented');
+            document.getElementById('availableUnitsCount').textContent = available.length.toLocaleString();
+        } catch (error) {
+            console.error('Error fetching available units:', error);
+            document.getElementById('availableUnitsCount').textContent = '—';
+        }
+    }
+
+    // === ✅ FETCH REVENUE DATA ===
+    async function fetchRevenueData() {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        let revenueChart;
+
+        try {
+            const res = await fetch('http://127.0.0.1:8000/api/revenue/latestRevenue', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
+            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            const data = await res.json();
+
+            const labels = data.map(item => {
+                const date = new Date(item.year_month);
+                return date.toLocaleString('default', { month: 'short', year: 'numeric' });
+            });
+            const revenues = data.map(item => parseFloat(item.monthly_revenue));
+
+            const themeBlue600 = getComputedStyle(document.documentElement).getPropertyValue('--blue-600').trim() || '#1E81CE';
+            const themeBlue100 = getComputedStyle(document.documentElement).getPropertyValue('--blue-100').trim() || '#EAF8FF';
+
+            if (revenueChart) revenueChart.destroy();
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue (₱)',
+                        data: revenues,
+                        borderColor: themeBlue600,
+                        backgroundColor: themeBlue100 + 'B3',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: themeBlue600,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => `₱${ctx.parsed.y.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: val => '₱' + val.toLocaleString('en-PH')
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching revenue data:', error);
+        }
+    }
+
+    // === ✅ FETCH LATEST BOOKINGS ===
+    async function fetchLatestBookings() {
+        const tableBody = document.getElementById('latestBookingsTableBody');
+        try {
+            const res = await fetch('/api/bookings', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
+            if (!res.ok) throw new Error(`Status: ${res.status}`);
+            const bookings = await res.json();
+            tableBody.innerHTML = '';
+
+            if (!bookings.length) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-muted py-4">No recent bookings found.</td></tr>`;
+                return;
+            }
+
+            bookings.slice(0, 5).forEach(b => {
+                const name = `${b.first_name || ''} ${b.middle_name ? b.middle_name + ' ' : ''}${b.last_name || ''}`.trim();
+                let badge = 'bg-secondary';
+                if (b.status === 'Confirmed') badge = 'bg-success';
+                else if (b.status === 'Rejected') badge = 'bg-danger';
+
+                tableBody.insertAdjacentHTML('beforeend', `
+                    <tr>
+                        <td>${b.id}</td>
+                        <td>${name || 'N/A'}</td>
+                        <td>${b.unit?.title ?? b.unit_id ?? 'N/A'}</td>
+                        <td><span class="badge ${badge}">${b.status ?? 'Pending'}</span></td>
+                        <td><a href="/admin/bookings/${b.id}" class="btn btn-sm btn-outline-blue">View</a></td>
+                    </tr>
+                `);
+            });
+        } catch (error) {
+            console.error('Error fetching bookings:', error);
+        }
+    }
+
+    // Run all
+    fetchTenantsCount();
+    fetchAvailableUnits();
+    fetchRevenueData();
+    fetchLatestBookings();
 });
 </script>
 @endsection
