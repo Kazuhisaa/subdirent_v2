@@ -110,7 +110,23 @@
         color: var(--blue-800);
         margin-bottom: 1.5rem;
     }
+#reserveUnitName,
+#applyUnitName {
+    
+    /* 1. Ginagawang BOLD */
+    font-weight: 600; /* Pwede ring '700' o 'bold' kung gusto mo */
+    
+    /* 2. Ginagawang BLUE (gamit ang variable mo) */
+    color: var(--blue-800); 
 
+    /* 3. (Bonus) Medyo nilakihan ko 'yung font 
+          gaya ng sa picture mo */
+    font-size: 1.05rem; 
+
+    /* 4. (Bonus) Tinitiyak na 'di mukhang disabled */
+    background-color: #f8f9fa;
+    opacity: 1;
+}
     /* === BUTTONS (Second Code) === */
     .btn-details {
         background: var(--gradient-diagonal);

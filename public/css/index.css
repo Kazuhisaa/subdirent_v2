@@ -73,7 +73,23 @@
         height: auto;
         animation: floatAnimation 10s ease-in-out infinite;
     }
-    
+    #featured-container {
+  transition: opacity 0.5s ease;
+}
+    .property-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.property-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.property-card .details {
+  font-size: 0.9rem;
+  color: #555;
+}
+
     @keyframes floatAnimation {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-20px); }
