@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Welcome to SubdiRent')
+@section('title', 'Subdirent')
 
 @section('content')
 

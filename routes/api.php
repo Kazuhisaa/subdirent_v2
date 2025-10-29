@@ -24,6 +24,11 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->prefix('admin/api')->group(function () {
     Route::get('/tenants', [TenantController::class, 'index']);
+    Route::get('/tenants/archived', [TenantController::class, 'viewArchive']); // fetch archived
+    Route::get('/tenants/{id}', [TenantController::class, 'show']);          // show single
+    Route::put('/tenants/{id}', [TenantController::class, 'update']);        // update tenant
+    Route::delete('/tenants/{id}', [TenantController::class, 'archive']);    // soft delete
+    Route::put('/tenants/{id}/restore', [TenantController::class, 'restore']); // restore
 });
 
 Route::middleware(['auth:sanctum'])->group(function() {
