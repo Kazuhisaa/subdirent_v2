@@ -173,16 +173,26 @@ public function handleWebhook(Request $request)
         ]);
 
         // Generate PDF invoice
-        $invoiceFilename = 'invoices/' . $payment->invoice_no . '.pdf';
-       $pdf = PDF::loadView('tenant.invoice', [
+// --- Bago (Mas Maganda) ---
+// Generate PDF invoice
+$invoiceFilename = 'invoices/' . $payment->invoice_no . '.pdf';
+
+// Siguraduhin na yung 'invoices' folder ay nage-exist
+$invoiceDirectory = storage_path('app/public/invoices');
+if (!file_exists($invoiceDirectory)) {
+    // Gumawa ng folder kung wala pa
+    mkdir($invoiceDirectory, 0775, true);
+}
+
+$pdf = PDF::loadView('tenant.invoice', [
     'payment' => $payment,
     'tenant' => $tenant,
     'contract' => $contract,
 ])
-->setOptions(['isRemoteEnabled' => true]); // para ma-load ang images
+->setOptions(['isRemoteEnabled' => true]);
 
-        $pdf->save(storage_path('app/public/' . $invoiceFilename));
-
+// Ngayon, i-save ang PDF
+$pdf->save(storage_path('app/public/' . $invoiceFilename));
         // Update payment record with PDF link
         $payment->invoice_pdf = $invoiceFilename;
         $payment->save();
