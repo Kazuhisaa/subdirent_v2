@@ -178,7 +178,7 @@
 
 {{-- JS to load archived applicants --}}
 <script>
-    {{-- ... modal javascript ... --}}
+    // ... modal javascript ...
     document.getElementById('archivedModal').addEventListener('show.bs.modal', async () => {
         const tbody = document.getElementById('archivedTableBody');
         tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Loading...</td></tr>';

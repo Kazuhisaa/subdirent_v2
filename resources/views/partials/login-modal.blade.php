@@ -1,61 +1,70 @@
-<!-- Login Modal -->
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <form method="POST" action="{{ route('login.submit') }}">
-        @csrf
-        <div class="modal-header">
-          <h5 class="modal-title" id="loginModalLabel">Login</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
+    {{-- Itinakda ang sukat na gagayahin sa image --}}
+    <div class="modal-dialog modal-dialog-centered"> 
+        
+        {{-- Gagamit tayo ng bagong class para sa styling --}}
+        <div class="modal-content login-modal-content-v4"> 
+    
+            {{-- 'X' Button --}}
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
-          <!-- Email -->
-          <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" name="email" id="email" class="form-control" placeholder="Email" required>
-          </div>
+            <div class="login-body-v4">
+                
+                <div class="login-logo-group-stacked">
+                    {{-- Palitan mo 'to ng tamang path --}}
+                    <img src="{{ asset('uploads/ddf63450-50d1-4fd2-9994-7a08dd496ac1-removebg-preview.png') }}" alt="Logo" class="login-logo-s-v4">
+                    {{-- Palitan mo 'to ng tamang path --}}
+                    <img src="{{ asset('uploads/1fc18e9c-b6b9-4f39-8462-6e4b7d594471-removebg-preview.png') }}" alt="Subdirent" class="login-logo-text-v4">
+                </div>
+                
+                <form method="POST" action="{{ route('login.submit') }}" class="login-form-v4">
+                    @csrf
+                    
+                    <div class="mb-3">
+                        <input type="email" name="email" id="email" class="form-control" placeholder="Enter your e-mail" required>
+                    </div>
 
-          <!-- Password with show/hide -->
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <div class="input-group">
-              <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
-              <span class="input-group-text" id="togglePassword" style="cursor:pointer;">
-                <i class="bi bi-eye"></i>
-              </span>
+                    <div class="mb-3" style="position: relative;">
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
+                        {{-- Inilagay ang icon sa loob --}}
+                        <span class="password-toggle-icon" id="togglePassword">
+                            <i class="bi bi-eye"></i>
+                        </span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-login-v4 w-100">LOG IN</button>
+                
+                </form>
             </div>
-          </div>
 
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Login</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
 
-<!-- Bootstrap Icons CDN -->
+{{-- Ito ay 'di nagbago --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+{{-- Siguraduhin na ito ang CSS file na ine-edit mo --}}
+<link rel="stylesheet" href="{{ asset('css/login.css') }}"> 
 
 <script>
+// Walang pagbabago sa script mo
 document.addEventListener('DOMContentLoaded', () => {
   const passwordInput = document.getElementById('password');
   const toggleBtn = document.getElementById('togglePassword');
-  const icon = toggleBtn.querySelector('i');
-
-  toggleBtn.addEventListener('click', () => {
-    if (passwordInput.type === 'password') {
-      passwordInput.type = 'text';
-      icon.classList.remove('bi-eye');
-      icon.classList.add('bi-eye-slash');
-    } else {
-      passwordInput.type = 'password';
-      icon.classList.remove('bi-eye-slash');
-      icon.classList.add('bi-eye');
-    }
-  });
+  
+  if (toggleBtn) {
+    const icon = toggleBtn.querySelector('i');
+    toggleBtn.addEventListener('click', () => {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      }
+    });
+  }
 });
 </script>
