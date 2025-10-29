@@ -162,4 +162,4 @@ Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook'])
     Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
 
 
-
+Route::post('/applications', [ApplicationController::class, 'store'])->name('applications.store');

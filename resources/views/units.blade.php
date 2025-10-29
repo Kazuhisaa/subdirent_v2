@@ -5,6 +5,7 @@
 @section('content')
 
 {{-- Google Fonts: Kinuha mula sa home.blade.php --}}
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Salsa&display=swap" rel="stylesheet">
@@ -59,6 +60,9 @@
             <label for="first_name" class="form-label">First Name</label>
             <input type="text" id="first_name" name="first_name" required class="form-control mb-3">
 
+            <label for="first_name" class="form-label">Middle Name</label>
+            <input type="text" name="middle_name" class="form-control mb-3 >
+
             <label for="last_name" class="form-label">Last Name</label>
             <input type="text" id="last_name" name="last_name" required class="form-control mb-3">
 
@@ -68,8 +72,13 @@
             <label for="contact_num" class="form-label">Contact Number</label>
             <input type="text" id="contact_num" name="contact_num" required class="form-control mb-3">
 
-            <label for="move_in_date" class="form-label">Preferred Move-in Date</label>
-            <input type="date" id="move_in_date" name="move_in_date" required class="form-control mb-3">
+            {{-- BINAGO MULA "move_in_date" PATUNGONG "date" --}}
+            <label for="move_in_date" class="form-label">Preferred Date</label>
+            <input type="date" id="move_in_date" name="date" required class="form-control mb-3"> 
+
+            {{-- ITO YUNG MAHALAGANG DAGDAG --}}
+            <label for="booking_time" class="form-label">Preferred Time</label>
+            <input type="time" id="booking_time" name="booking_time" required class="form-control mb-3">
         </form>
     </div>
     <div class="custom-modal-footer">
@@ -93,6 +102,8 @@
 
             <label for="apply_first_name" class="form-label">First Name</label>
             <input type="text" id="apply_first_name" name="first_name" required class="form-control mb-3">
+
+            <input type="text" name="middle_name" placeholder="Middle Name" required>
 
             <label for="apply_last_name" class="form-label">Last Name</label>
             <input type="text" id="apply_last_name" name="last_name" required class="form-control mb-3">
@@ -275,25 +286,68 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('modalOverlay').classList.remove('show');
     }
 
-    // ==================================================
-    // ==== FORM SUBMISSION (KINUHA SA FIRST CODE) ====
-    // ==================================================
-    reserveForm.addEventListener("submit", async e => {
-        e.preventDefault();
-        const formData = new FormData(reserveForm);
-        try {
-            const res = await fetch("/api/bookings", { method: "POST", body: formData });
-            if (!res.ok) throw new Error("Reservation failed");
-            alert("✅ Reservation successful!");
-            reserveForm.reset();
-            closeAllModals();
-        } catch {
-            alert("❌ Failed to reserve unit.");
+    // ---------------------------------------------
+// ▼▼▼ PALITAN MO ITONG BUONG BLOCK... ▼▼▼
+// ---------------------------------------------
+reserveForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    const formData = new FormData(reserveForm);
+    
+    // Kunin ang CSRF token (Mahalaga 'to!)
+    const csrfToken = document.querySelector('meta[name="csrf-token"]') 
+                        ? document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        : null;
+
+    if (!csrfToken) {
+        // Siguraduhin mong may <meta name="csrf-token" ...> sa <head> ng layout mo
+        alert('❌ CSRF Token not found. Please refresh the page.');
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/bookings", { 
+            method: "POST", 
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken, // <-- Idinagdag ang token
+                'Accept': 'application/json' // <-- Para alam ng Laravel na JSON ang sagot
+            }
+        });
+
+        const data = await res.json(); // Kunin ang JSON response kahit error
+
+        if (!res.ok) {
+            console.error('Error Response:', data);
+            
+            let errorMessage = "❌ Failed to reserve unit.";
+            
+            // Kung validation error (422), ipakita kung anong field ang mali
+            if (data.errors) {
+                const errors = Object.values(data.errors).map(err => `• ${err[0]}`).join('\n');
+                errorMessage += "\n\nPlease check the following:\n" + errors;
+            } else if (data.message) {
+                // Kung ibang server error (gaya ng SQL error)
+                errorMessage = "❌ " + data.message;
+            }
+            
+            alert(errorMessage); // Ipakita ang specific error
+            return;
         }
-    });
+
+        // --- Dito ay Success na ---
+        alert("✅ Reservation successful!");
+        reserveForm.reset();
+        closeAllModals();
+
+    } catch(err) {
+        // Kung network error mismo
+        console.error('Fetch Error:', err);
+        alert("❌ A network or server error occurred. Please try again.");
+    }
+});
 
     // =======================================================
-    // ==== ITO YUNG BINAGO KO (GINAYA SA FIRST CODE) ====
+    // ==== ITO YUNG BINAGO KO (MAY CSRF TOKEN AT ERROR HANDLING) ====
     // =======================================================
     applyForm.addEventListener("submit", async e => {
     e.preventDefault();
@@ -302,27 +356,48 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
         const res = await fetch("/applications", {
             method: "POST",
-            body: formData
+            body: formData,
+            headers: {
+                // ITO YUNG MAHALAGANG DAGDAG:
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json' // Para alam ng Laravel na JSON response ang inaasahan mo
+            }
         });
 
+        // Kunin yung JSON data kahit error man o hindi
         const data = await res.json();
 
         if (!res.ok) {
-            console.error(data);
-            alert("❌ Failed to submit application: " + (data.message || "Please check form fields."));
-            return;
+            console.error('Error Response:', data);
+            
+            // Gumawa ng mas malinaw na error message
+            let errorMessage = "❌ Failed to submit application.";
+            
+            // Kung validation error (422), ipakita yung mga error
+            if (data.errors) {
+                // Kunin lahat ng error messages at pagsamahin
+                const errors = Object.values(data.errors).map(err => `• ${err[0]}`).join('\n');
+                errorMessage += "\n\nPlease check the following:\n" + errors;
+            } else if (data.message) {
+                // Kung ibang error na may message
+                errorMessage = "❌ " + data.message;
+            }
+            
+            alert(errorMessage);
+            return; // Itigil dito, huwag i-redirect
         }
 
+        // Kung naging OKAY (res.ok === true)
         alert("✅ Application submitted successfully!");
         applyForm.reset();
         closeAllModals();
 
-        // Optional: redirect to admin panel so it shows immediately
+        // Ito na yung redirect na gusto mong mangyari
         window.location.href = "/admin/applications";
 
     } catch (err) {
-        console.error(err);
-        alert("❌ Error submitting application.");
+        console.error('Fetch Error:', err);
+        alert("❌ A network or server error occurred. Please try again.");
     }
 });
 
