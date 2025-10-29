@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('applications', function (Blueprint $table) {
              $table->id();
              $table->string('first_name', 100);
-             $table->string('middle_name', 100);
+             $table->string('middle_name', 100)->nullable();
              $table->string('last_name', 100);
              $table->string('email', 100);
              $table->string('contact_num', 50);
