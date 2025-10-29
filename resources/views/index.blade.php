@@ -56,8 +56,8 @@
                     <p>Automated reminders and unified receipts — no hidden fees.</p>
                 </div>
                 <div class="feature-item" data-number="4">
-                    <h5 class="fw-bold">24/7 Support</h5>
-                    <p>Our dedicated team is always here to help you with any questions.</p>
+                    <h5 class="fw-bold">Secure Platform</h5>
+                    <p>Your data and payments are protected with advanced encryption.</p>
                 </div>
             </div>
 

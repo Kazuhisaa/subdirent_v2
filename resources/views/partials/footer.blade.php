@@ -48,7 +48,7 @@
         </div>
 
         <div class="footer-copyright text-center">
-            © 2025 SubdiRent. All rights reserved. Designed by <span class="text-primary fw-semibold">SubdiRent Team</span>.
+            © 2025 SubdiRent. All rights reserved. Project by <span class="text-primary fw-semibold">SubdiRent Team</span>.
         </div>
     </div>
 </footer>

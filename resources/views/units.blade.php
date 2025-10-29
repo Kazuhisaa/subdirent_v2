@@ -104,7 +104,7 @@
             <input type="text" id="apply_contact_num" name="contact_num" required class="form-control mb-3">
 
             <label for="message" class="form-label">Message / Remarks</label>
-            <textarea id="message" name="message" rows="3" class="form-control mb-3"></textarea>
+            <textarea id="message" name="remarks" rows="3" class="form-control mb-3"></textarea>
         </form>
     </div>
     <div class="custom-modal-footer">
@@ -296,19 +296,35 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==== ITO YUNG BINAGO KO (GINAYA SA FIRST CODE) ====
     // =======================================================
     applyForm.addEventListener("submit", async e => {
-        e.preventDefault();
-        const formData = new FormData(applyForm);
-        try {
-            const res = await fetch("/api/applications", { method: "POST", body: formData });
-            if (!res.ok) throw new Error("Application failed");
-            alert("✅ Application submitted successfully!");
-            applyForm.reset();
-            // Ginamit ko ang closeAllModals() para pareho sa reserveForm
-            closeAllModals(); 
-        } catch (err) {
-            alert("❌ Failed to submit application.");
+    e.preventDefault();
+    const formData = new FormData(applyForm);
+
+    try {
+        const res = await fetch("/applications", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            console.error(data);
+            alert("❌ Failed to submit application: " + (data.message || "Please check form fields."));
+            return;
         }
-    });
+
+        alert("✅ Application submitted successfully!");
+        applyForm.reset();
+        closeAllModals();
+
+        // Optional: redirect to admin panel so it shows immediately
+        window.location.href = "/admin/applications";
+
+    } catch (err) {
+        console.error(err);
+        alert("❌ Error submitting application.");
+    }
+});
 
 });
 </script>
