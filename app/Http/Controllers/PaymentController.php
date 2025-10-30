@@ -83,6 +83,8 @@ public function handleWebhook(Request $request)
 
         $tenantId = $metadata['tenant_id'] ?? null;
         $amount = ($attributes['amount'] ?? 0) / 100;
+
+        
         $reference = $attributes['reference_number'] ?? uniqid('PAY-');
 
         $tenant = $tenantId ? Tenant::find($tenantId) : null;

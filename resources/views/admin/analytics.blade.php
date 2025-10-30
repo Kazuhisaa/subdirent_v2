@@ -211,12 +211,12 @@
                         pointHoverRadius: 14, showLine: false
                     },
                     {
-                        label: 'Higher Confidence interval', data: highData, borderColor: 'transparent',
+                        label: 'Higher Confidence interval (95%)', data: highData, borderColor: 'transparent',
                         backgroundColor: 'rgba(25,135,84,0.9)', pointStyle: 'triangle',
                         rotation: 0, pointRadius: 14, pointHoverRadius: 16, showLine: false
                     },
                     {
-                        label: 'Lower Confidence interval', data: lowData, borderColor: 'transparent',
+                        label: 'Lower Confidence interval (95%)', data: lowData, borderColor: 'transparent',
                         backgroundColor: 'rgba(220,53,69,0.9)', pointStyle: 'triangle',
                         rotation: 180, pointRadius: 14, pointHoverRadius: 16, showLine: false
                     }
@@ -233,7 +233,7 @@
                                 const y = ctx.parsed.y || 0;
                                 const label = ctx.dataset.label;
                                 if (label === 'Predicted Revenue')
-                                    return [`Predicted: ₱${pred.toLocaleString()}`,`Accuracy(r2score of model): ${r2Score}`, // Ito ang idinagdag
+                                    return [`Predicted: ₱${pred.toLocaleString()}`,`Accuracy: ${r2Score}`, // Ito ang idinagdag
         `MAPE: ${mape}`];
                                 if (label === 'High CI') return `High CI: ₱${ciUpper.toLocaleString()}`;
                                 if (label === 'Low CI') return `Low CI: ₱${ciLower.toLocaleString()}`;

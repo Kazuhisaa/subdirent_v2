@@ -53,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/editUnits/{unit}',[UnitsController::class, 'update']);  
     Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);
     Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
+
 Route::prefix('applications')->group(function () {
     Route::get('/find/{id}',[ApplicationController::class,'show']);
     Route::put('/editApplications/{id}',[ApplicationController::class,'update']);
@@ -80,6 +81,7 @@ Route::prefix('prediction')->group(function(){
     Route::get('/revenue/perQuarter',[RevenuePredictionController::class,'showPredictionQuarter']);
     Route::get('/revenue/perAnnual',[RevenuePredictionController::class,'showPredictionAnnual']);
     Route::post('/revenue/train',[RevenuePredictionController::class,'trainModel']);
+    Route::post('/units/predict',[UnitsController::class,'predict']);
 });
 Route::prefix('revenue')->group(function(){
     Route::get('/average',[RevenueController::class,'showAverage']);
