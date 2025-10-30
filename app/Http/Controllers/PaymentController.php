@@ -331,5 +331,40 @@ $pdf->save(storage_path('app/public/' . $invoiceFilename));
     return response()->download($path, $payment->invoice_no . '.pdf');
 }
 
+public function index()
+{
+    $payments = Payment::with(['tenant', 'contract'])->get();
+    $archivedPayments = Payment::onlyTrashed()->with(['tenant', 'contract'])->get();
+
+    return view('admin.payments', compact('payments', 'archivedPayments'));
+}
+
+
+
+public function archive($id)
+{
+    $payment = Payment::findOrFail($id);
+    $payment->delete(); // assuming you're using SoftDeletes
+    return redirect()->route('admin.payments')->with('success', 'Payment archived successfully.');
+}
+
+public function viewArchive()
+{
+    $archived = Payment::onlyTrashed()->with('tenant')->get();
+    return response()->json($archived);
+}
+
+public function restore($id)
+{
+    $payment = Payment::withTrashed()->findOrFail($id);
+    $payment->restore();
+
+    if (request()->ajax()) {
+        return response()->json(['message' => 'Payment restored successfully.']);
+    }
+
+    return redirect()->route('admin.payments')->with('success', 'Payment restored successfully.');
+}
+
 
 }
