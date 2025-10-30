@@ -90,10 +90,8 @@
                             <td>{{ $payment->remarks ?? 'No remarks' }}</td>
                             <td>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
-                                        <a href="{{ route('admin.admin.payments.download', $payment->id) }}" 
-                                        class="btn btn-sm btn-outline-primary" 
-                                        title="Download Invoice">
-                                            <i class="bi bi-file-earmark-arrow-down"></i>
+                                        <a href="{{ route('admin.payments.download', $payment->id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-file-earmark-arrow-down"></i>
                                         </a>
                                     <form action="{{ route('admin.admin.payments.archive', $payment->id) }}" 
                                           method="POST" class="mb-0">

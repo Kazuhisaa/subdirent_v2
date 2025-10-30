@@ -172,9 +172,7 @@ public function handleWebhook(Request $request)
             'remarks' => $remarks,
         ]);
 
-        // Generate PDF invoice
-// --- Bago (Mas Maganda) ---
-// Generate PDF invoice
+       
 $invoiceFilename = 'invoices/' . $payment->invoice_no . '.pdf';
 
 // Siguraduhin na yung 'invoices' folder ay nage-exist
@@ -183,7 +181,7 @@ if (!file_exists($invoiceDirectory)) {
     // Gumawa ng folder kung wala pa
     mkdir($invoiceDirectory, 0775, true);
 }
-
+    
 $pdf = PDF::loadView('tenant.invoice', [
     'payment' => $payment,
     'tenant' => $tenant,
@@ -191,11 +189,15 @@ $pdf = PDF::loadView('tenant.invoice', [
 ])
 ->setOptions(['isRemoteEnabled' => true]);
 
-// Ngayon, i-save ang PDF
+$invoiceFilename = 'invoices/INV-PAY-' . $payment->reference_no . '.pdf';
 $pdf->save(storage_path('app/public/' . $invoiceFilename));
-        // Update payment record with PDF link
-        $payment->invoice_pdf = $invoiceFilename;
-        $payment->save();
+
+$payment->invoice_pdf = $invoiceFilename;
+
+// Optional: force save check
+if(!$payment->save()) {
+    Log::error("Failed to save invoice PDF path for payment ID: {$payment->id}");
+}
 
         if ($paymentStatus === 'paid') {
             $contract->last_billed_at = $now;
@@ -322,14 +324,18 @@ $pdf->save(storage_path('app/public/' . $invoiceFilename));
         return view('tenant.cancel', compact('tenant'));
     }
 
-    public function downloadInvoice(Payment $payment)
+public function downloadInvoice(Payment $payment)
 {
-    $path = storage_path('app/public/' . $payment->invoice_pdf);
-    if (!file_exists($path)) {
-        abort(404, 'Invoice file not found.');
+    $disk = 'public'; // dahil dine-save natin sa storage/app/public
+
+    if (!$payment->invoice_pdf || !Storage::disk($disk)->exists($payment->invoice_pdf)) {
+        abort(404, "Invoice not found for Payment #{$payment->id}");
     }
-    return response()->download($path, $payment->invoice_no . '.pdf');
+
+    // download method
+    return torage::disk($disk)->download($payment->invoice_pdf, 'Invoice-' . $payment->invoice_no . '.pdf');
 }
+
 
 public function index()
 {
