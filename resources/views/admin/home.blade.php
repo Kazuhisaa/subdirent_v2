@@ -265,7 +265,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                         <td>${name || 'N/A'}</td>
                         <td>${b.unit?.title ?? b.unit_id ?? 'N/A'}</td>
                         <td><span class="badge ${badge}">${b.status ?? 'Pending'}</span></td>
-                        <td><a href="/admin/bookings/${b.id}" class="btn btn-sm btn-outline-blue">View</a></td>
+                        <td><a href="/admin/bookings" class="btn btn-sm btn-outline-blue">View</a></td>
                     </tr>
                 `);
             });

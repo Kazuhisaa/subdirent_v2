@@ -79,7 +79,7 @@ class UnitsController extends Controller
 
         // convert each to full URL (ex: http://127.0.0.1:8000/uploads/units/...)
         $unit->files = array_map(fn($file) => asset($file), $files);
-
+        $unit->phase = $unit->location; 
         return $unit;
     });
 

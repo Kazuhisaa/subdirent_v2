@@ -93,9 +93,17 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
     Route::view('/tenants', 'admin.tenants')->name('tenants');
     Route::view('/bookings', 'admin.bookings')->name('bookings');
     Route::view('/maintenance', 'admin.maintenance')->name('maintenance');
-    Route::view('/payments', 'admin.payments')->name('payments');
     Route::view('/contracts', 'admin.contracts')->name('contracts');
     Route::view('/reports', 'admin.reports')->name('reports');
+
+    Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments');
+    Route::put('/payments/{id}', [PaymentController::class, 'update'])->name('admin.payments.update');
+    Route::post('/payments/{id}/archive', [PaymentController::class, 'archive'])->name('admin.payments.archive');
+    Route::post('/payments/{id}/restore', [PaymentController::class, 'restore'])->name('admin.payments.restore');
+    Route::get('/payments/{payment}/download', [PaymentController::class, 'downloadInvoice'])
+         ->name('admin.payments.download'); 
+         });  
 
   
     // Units Controller
@@ -116,7 +124,7 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
         Route::post('/applications/{id}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{id}/reject', [ApplicationController::class, 'reject'])->name('applications.reject');
         Route::post('/applications/{id}/archive', [ApplicationController::class, 'archive'])->name('applications.archive');
-
+ 
 });
 
 
@@ -143,8 +151,13 @@ Route::get('/tenant/{tenant}/ledger', [TenantController::class, 'ledger'])
     
 Route::get('tenant/payment/invoice/{payment}', [PaymentController::class,'downloadInvoice'])
     ->name('tenant.payment.invoice.download');
-
 });
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('payments/{payment}/download', [PaymentController::class,'downloadInvoice'])
+         ->name('payments.download');
+});
+
 
 
 Route::post('payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');
@@ -160,4 +173,4 @@ Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook'])
     Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
 
 
-
+Route::post('/applications', [ApplicationController::class, 'store'])->name('applications.store');

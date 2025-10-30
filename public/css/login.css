@@ -1,0 +1,141 @@
+/* =========================================
+   BAGONG LOGIN MODAL (v4 - Stacked Logos + New Style)
+   ========================================= */
+
+/* Pangkalahatang Modal Content */
+.login-modal-content-v4 {
+    position: relative;
+    border-radius: 1.5rem !important; /* Mas bilugan pa */
+    overflow: hidden;
+    border: none !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    background: #ffffff;
+}
+
+/* Tinatanggal ang default padding */
+.login-modal-content-v4 .modal-body,
+.login-modal-content-v4 .modal-header,
+.login-modal-content-v4 .modal-footer {
+    border: none;
+    padding: 0;
+}
+
+/* =========================================
+   GLOBAL 'X' CLOSE BUTTON (Gaya sa image)
+   ========================================= */
+.login-modal-content-v4 .btn-close {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    z-index: 20;
+    
+    /* Standard 'x' button */
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    filter: none;
+    
+    /* Kulay ng 'x' (dark gray) */
+    --bs-btn-close-color: rgba(13, 59, 102, 0.2)
+    opacity: 0.8;
+    box-shadow: none;
+}
+.login-modal-content-v4 .btn-close:hover {
+    --bs-btn-close-color: rgba(157, 170, 182, 0.3);
+    opacity: 1;
+}
+.login-modal-content-v4 .btn-close:focus {
+    box-shadow: none;
+    --bs-btn-close-color: rgba(157, 170, 182, 0.3);
+}
+
+/* =========================================
+   FORM & LOGO STYLING (Gaya sa text instruction)
+   ========================================= */
+
+.login-body-v4 {
+    padding: 2.5rem 2.5rem 3rem 2.5rem; /* Padding sa loob */
+    text-align: center;
+}
+
+/* 1. Logo Group (STACKED, ayon sa text mo) */
+.login-logo-group-stacked {
+    display: flex;
+    flex-direction: column; /* Ginawang column */
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem; /* Space sa pagitan ng logo at text */
+    margin-bottom: 2.5rem;
+}
+.login-logo-s-v4 {
+    height: 60px; /* Laki ng 'S' logo */
+    width: auto;
+}
+.login-logo-text-v4 {
+    height: 30px; /* Laki ng 'Subdirent' text */
+    width: auto;
+}
+
+/* Form container */
+.login-form-v4 {
+    text-align: left; 
+}
+
+/* 2. & 3. Input Fields (Gaya sa image) */
+.login-form-v4 .form-control {
+    background: #ffffff; 
+    border: 1px solid #e0e0e0; /* Light grey border */
+    border-radius: 0.75rem; /* Mas bilugan */
+    padding: 1rem 1.2rem;
+    font-size: 0.95rem;
+    height: 54px; /* Fixed height */
+}
+.login-form-v4 .form-control:focus {
+    background: #fff;
+    border-color: #007bff; /* Bright blue focus */
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.15);
+}
+/* Para sa password input, mag-add ng padding sa kanan */
+.login-form-v4 input[name="password"] {
+    padding-right: 3.5rem; 
+}
+
+/* 3. Password Toggle Icon (Nasa loob) */
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 1.2rem;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888; /* Kulay ng icon */
+}
+.password-toggle-icon:hover {
+    color: #000;
+}
+
+
+/* 4. Login Button (Gaya sa image) */
+.btn-login-v4 {
+    
+    border: none;
+    color: white;
+    padding: 0.9rem;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 0.75rem; /* Bilugan */
+    margin-top: 1rem; /* Mas maliit na space */
+    transition: background-color 0.2s ease-in-out;
+    background-color: var(--blue-400);
+        
+        box-shadow: 0 4px 15px rgba(13, 59, 102, 0.2);
+}
+.btn-login-v4:hover {
+    background-color: var(--blue-200);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(157, 170, 182, 0.3);
+}
+@media (min-width: 576px) {
+  #loginModal .modal-dialog {
+    max-width: 420px; 
+  }
+}

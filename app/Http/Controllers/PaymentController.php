@@ -174,20 +174,32 @@ public function handleWebhook(Request $request)
             'remarks' => $remarks,
         ]);
 
-        // Generate PDF invoice
-        $invoiceFilename = 'invoices/' . $payment->invoice_no . '.pdf';
-       $pdf = PDF::loadView('tenant.invoice', [
+       
+$invoiceFilename = 'invoices/' . $payment->invoice_no . '.pdf';
+
+// Siguraduhin na yung 'invoices' folder ay nage-exist
+$invoiceDirectory = storage_path('app/public/invoices');
+if (!file_exists($invoiceDirectory)) {
+    // Gumawa ng folder kung wala pa
+    mkdir($invoiceDirectory, 0775, true);
+}
+    
+$pdf = PDF::loadView('tenant.invoice', [
     'payment' => $payment,
     'tenant' => $tenant,
     'contract' => $contract,
 ])
-->setOptions(['isRemoteEnabled' => true]); // para ma-load ang images
+->setOptions(['isRemoteEnabled' => true]);
 
-        $pdf->save(storage_path('app/public/' . $invoiceFilename));
+$invoiceFilename = 'invoices/INV-PAY-' . $payment->reference_no . '.pdf';
+$pdf->save(storage_path('app/public/' . $invoiceFilename));
 
-        // Update payment record with PDF link
-        $payment->invoice_pdf = $invoiceFilename;
-        $payment->save();
+$payment->invoice_pdf = $invoiceFilename;
+
+// Optional: force save check
+if(!$payment->save()) {
+    Log::error("Failed to save invoice PDF path for payment ID: {$payment->id}");
+}
 
         if ($paymentStatus === 'paid') {
             $contract->last_billed_at = $now;
@@ -314,13 +326,52 @@ public function handleWebhook(Request $request)
         return view('tenant.cancel', compact('tenant'));
     }
 
-    public function downloadInvoice(Payment $payment)
+public function downloadInvoice(Payment $payment)
 {
-    $path = storage_path('app/public/' . $payment->invoice_pdf);
-    if (!file_exists($path)) {
-        abort(404, 'Invoice file not found.');
+    $disk = 'public'; // dahil dine-save natin sa storage/app/public
+
+    if (!$payment->invoice_pdf || !Storage::disk($disk)->exists($payment->invoice_pdf)) {
+        abort(404, "Invoice not found for Payment #{$payment->id}");
     }
-    return response()->download($path, $payment->invoice_no . '.pdf');
+
+    // download method
+    return torage::disk($disk)->download($payment->invoice_pdf, 'Invoice-' . $payment->invoice_no . '.pdf');
+}
+
+
+public function index()
+{
+    $payments = Payment::with(['tenant', 'contract'])->get();
+    $archivedPayments = Payment::onlyTrashed()->with(['tenant', 'contract'])->get();
+
+    return view('admin.payments', compact('payments', 'archivedPayments'));
+}
+
+
+
+public function archive($id)
+{
+    $payment = Payment::findOrFail($id);
+    $payment->delete(); // assuming you're using SoftDeletes
+    return redirect()->route('admin.payments')->with('success', 'Payment archived successfully.');
+}
+
+public function viewArchive()
+{
+    $archived = Payment::onlyTrashed()->with('tenant')->get();
+    return response()->json($archived);
+}
+
+public function restore($id)
+{
+    $payment = Payment::withTrashed()->findOrFail($id);
+    $payment->restore();
+
+    if (request()->ajax()) {
+        return response()->json(['message' => 'Payment restored successfully.']);
+    }
+
+    return redirect()->route('admin.payments')->with('success', 'Payment restored successfully.');
 }
 
 

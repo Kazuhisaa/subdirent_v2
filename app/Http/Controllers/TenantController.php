@@ -330,4 +330,16 @@ public function payments()
 
         return response()->json($archived);
     }
+
+    public function restore($id)
+{
+    $tenant = Tenant::onlyTrashed()->findOrFail($id);
+    $tenant->restore();
+
+    return response()->json([
+        'message' => 'Tenant restored successfully',
+        'tenant' => $tenant,
+    ]);
+}
+
 }

@@ -7,7 +7,7 @@
 
     {{-- ✅ Page Header --}}
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-blue-900 mb-0">🏠 Room Listings</h2>
+        <h2 class="fw-bold text-blue-900 mb-0">Room Listings</h2>
 
         {{-- ✅ Search + Add --}}
         <div class="d-flex align-items-center gap-2">
