@@ -172,7 +172,9 @@ public function handleWebhook(Request $request)
             'remarks' => $remarks,
         ]);
 
-       
+        // Generate PDF invoice
+// --- Bago (Mas Maganda) ---
+// Generate PDF invoice
 $invoiceFilename = 'invoices/' . $payment->invoice_no . '.pdf';
 
 // Siguraduhin na yung 'invoices' folder ay nage-exist
@@ -198,6 +200,7 @@ $payment->invoice_pdf = $invoiceFilename;
 if(!$payment->save()) {
     Log::error("Failed to save invoice PDF path for payment ID: {$payment->id}");
 }
+
 
         if ($paymentStatus === 'paid') {
             $contract->last_billed_at = $now;
@@ -333,7 +336,7 @@ public function downloadInvoice(Payment $payment)
     }
 
     // download method
-    return torage::disk($disk)->download($payment->invoice_pdf, 'Invoice-' . $payment->invoice_no . '.pdf');
+    return Storage::disk($disk)->download($payment->invoice_pdf, 'Invoice-' . $payment->invoice_no . '.pdf');
 }
 
 
