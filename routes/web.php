@@ -120,11 +120,11 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
     Route::get('/admin/bookings', [BookingController::class, 'indexPage'])
     ->name('admin.bookings');
     // Application Controller
-    Route::get('/applications', [ApplicationController::class, 'indexView'])->name('applications');
+    Route::get('/applications', [ApplicationController::class, 'ind exView'])->name('applications');
         Route::post('/applications/{id}/approve', [ApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{id}/reject', [ApplicationController::class, 'reject'])->name('applications.reject');
         Route::post('/applications/{id}/archive', [ApplicationController::class, 'archive'])->name('applications.archive');
-
+ 
 });
 
 
@@ -151,8 +151,13 @@ Route::get('/tenant/{tenant}/ledger', [TenantController::class, 'ledger'])
     
 Route::get('tenant/payment/invoice/{payment}', [PaymentController::class,'downloadInvoice'])
     ->name('tenant.payment.invoice.download');
-
 });
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('payments/{payment}/download', [PaymentController::class,'downloadInvoice'])
+         ->name('payments.download');
+});
+
 
 
 Route::post('payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');

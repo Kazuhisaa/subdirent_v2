@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Services\RevenueService;
 use Carbon\Carbon;
 use App\Models\Tenant;
 use App\Models\Payment;
@@ -11,12 +11,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-  
+
 class PaymentController extends Controller
 {
     /**
      * CREATE PAYMENT — PayMongo Checkout
      */
+    
+    protected $service;
+
+    public function __construct(RevenueService $service){
+         $this->service = $service;
+    }
+
     public function createPayment(Request $request, $tenantId)
     {
         try {
@@ -83,6 +90,11 @@ public function handleWebhook(Request $request)
 
         $tenantId = $metadata['tenant_id'] ?? null;
         $amount = ($attributes['amount'] ?? 0) / 100;
+      
+
+          $fromDate = Carbon::now()->startOfMonth()->toDateString(); 
+           $this->service->incrementRevenueFromDate($fromDate,$amount);
+        
         $reference = $attributes['reference_number'] ?? uniqid('PAY-');
 
         $tenant = $tenantId ? Tenant::find($tenantId) : null;
@@ -183,7 +195,7 @@ if (!file_exists($invoiceDirectory)) {
     // Gumawa ng folder kung wala pa
     mkdir($invoiceDirectory, 0775, true);
 }
-
+    
 $pdf = PDF::loadView('tenant.invoice', [
     'payment' => $payment,
     'tenant' => $tenant,
@@ -191,11 +203,16 @@ $pdf = PDF::loadView('tenant.invoice', [
 ])
 ->setOptions(['isRemoteEnabled' => true]);
 
-// Ngayon, i-save ang PDF
+$invoiceFilename = 'invoices/INV-PAY-' . $payment->reference_no . '.pdf';
 $pdf->save(storage_path('app/public/' . $invoiceFilename));
-        // Update payment record with PDF link
-        $payment->invoice_pdf = $invoiceFilename;
-        $payment->save();
+
+$payment->invoice_pdf = $invoiceFilename;
+
+// Optional: force save check
+if(!$payment->save()) {
+    Log::error("Failed to save invoice PDF path for payment ID: {$payment->id}");
+}
+
 
         if ($paymentStatus === 'paid') {
             $contract->last_billed_at = $now;
@@ -322,14 +339,18 @@ $pdf->save(storage_path('app/public/' . $invoiceFilename));
         return view('tenant.cancel', compact('tenant'));
     }
 
-    public function downloadInvoice(Payment $payment)
+public function downloadInvoice(Payment $payment)
 {
-    $path = storage_path('app/public/' . $payment->invoice_pdf);
-    if (!file_exists($path)) {
-        abort(404, 'Invoice file not found.');
+    $disk = 'public'; // dahil dine-save natin sa storage/app/public
+
+    if (!$payment->invoice_pdf || !Storage::disk($disk)->exists($payment->invoice_pdf)) {
+        abort(404, "Invoice not found for Payment #{$payment->id}");
     }
-    return response()->download($path, $payment->invoice_no . '.pdf');
+
+    // download method
+    return Storage::disk($disk)->download($payment->invoice_pdf, 'Invoice-' . $payment->invoice_no . '.pdf');
 }
+
 
 public function index()
 {

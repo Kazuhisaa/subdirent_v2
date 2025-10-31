@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Unit;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Http; 
 class UnitsController extends Controller
 {
+
+    public function __construct(){
+
+    }
             public function store(Request $request)
             {   
                                 $user = $request->user();
@@ -212,6 +215,23 @@ class UnitsController extends Controller
         return response()->json($units);
     }
 
+ 
+ public function predict(Request $request)
+    {
+        $flaskUrl = 'http://127.0.0.1:5000/predict'; // your Flask API endpoint
+
+        // send POST request with JSON
+        $response = Http::post($flaskUrl, [
+            'bathroom'   => $request->bathroom,
+            'bedroom'    => $request->bedroom,
+            'floor_area' => $request->floor_area,
+            'lot_size'   => $request->lot_size,
+            'year'       => $request->year,
+            'n_years'    => $request->n_years ?? 5
+        ]);
+
+        return $response->json();
+    }
 
 }
 

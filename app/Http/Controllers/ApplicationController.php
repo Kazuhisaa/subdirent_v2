@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\{
     Unit,
     User,
@@ -14,12 +15,20 @@ use App\Mail\TenantMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\{Hash, Mail};
-
+use App\Services\RevenueService;
 class ApplicationController extends Controller
 {
     /**
      * List all applications (API)
      */
+
+     //pang connect sa service
+    protected $service;
+
+    public function __construct(RevenueService $service){
+         $this->service = $service;
+    }
+
     public function index()
     {
         $applications = Application::with('unit')->get();
@@ -66,12 +75,13 @@ class ApplicationController extends Controller
                 $validated['unit_price'] = $unit->unit_price;
             }
         }
-
+     $fromDate = Carbon::now()->startOfMonth()->toDateString();
         $application = Application::create($validated);
-
+       $updatedCount = $this->revenueservice->addnewContract($fromDate,1);
         return response()->json([
             'message' => 'Application successfully created',
-            'data'    => $application
+            'data'    => $application,
+        'updatedCount' => $updatedCount
         ], 201);
     }
 
