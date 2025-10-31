@@ -79,7 +79,15 @@
 
             {{-- ITO YUNG MAHALAGANG DAGDAG --}}
             <label for="booking_time" class="form-label">Preferred Time</label>
-            <input type="time" id="booking_time" name="booking_time" required class="form-control mb-3">
+<input 
+    type="time" 
+    id="booking_time" 
+    name="booking_time" 
+    required 
+    class="form-control mb-3"
+    min="08:00" 
+    max="17:00">
+</form>
         </form>
     </div>
     <div class="custom-modal-footer">

@@ -50,7 +50,7 @@
     /* === PROPERTIES SECTION (Second Code) === */
     .properties-section {
         padding: 80px 0;
-        background-color: #EAF8FF; /* Solid light blue */
+        background-color: transparent;
         overflow: hidden;
     }
     .property-card {
