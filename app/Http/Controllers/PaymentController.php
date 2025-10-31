@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Services\RevenueService;
 use Carbon\Carbon;
 use App\Models\Tenant;
 use App\Models\Payment;
@@ -11,12 +11,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-  
+
 class PaymentController extends Controller
 {
     /**
      * CREATE PAYMENT — PayMongo Checkout
      */
+    
+    protected $service;
+
+    public function __construct(RevenueService $service){
+         $this->service = $service;
+    }
+
     public function createPayment(Request $request, $tenantId)
     {
         try {
@@ -83,7 +90,10 @@ public function handleWebhook(Request $request)
 
         $tenantId = $metadata['tenant_id'] ?? null;
         $amount = ($attributes['amount'] ?? 0) / 100;
+      
 
+          $fromDate = Carbon::now()->startOfMonth()->toDateString(); 
+           $this->service->incrementRevenueFromDate($fromDate,$amount);
         
         $reference = $attributes['reference_number'] ?? uniqid('PAY-');
 

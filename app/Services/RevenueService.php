@@ -31,7 +31,7 @@ class RevenueService {
         return $retrievefeatureData;
     }
     public function incrementRevenueFromDate($date,$amount){
-         return RevenuePrediction::where('year_month', '>=', $date)
+         RevenuePrediction::where('year_month', '>=', $date)
             ->increment('monthly_revenue', $amount);
     }
 
