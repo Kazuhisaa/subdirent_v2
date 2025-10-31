@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         units.forEach((unit, index) => {
             const imageUrl = unit.files?.length ? `/${unit.files[0]}` : '/uploads/default-room.jpg';
-            const unitPrice = unit.price ? unit.price.toLocaleString() : (unit.monthly_rent ? unit.monthly_rent.toLocaleString() : 'N/A');
+            const unitPrice = unit.price ? unit.price.toLocaleString() : (unit.unit_price ? unit.unit_price.toLocaleString() : 'N/A');
             const code = unit.unit_code || 'N/A';
             const floorArea = unit.floor_area ? `${unit.floor_area} sqm` : 'N/A';
             const bedrooms = unit.bedroom || 'N/A';

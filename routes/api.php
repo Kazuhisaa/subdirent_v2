@@ -156,17 +156,6 @@ Route::post('/login', [AuthController::class, 'apiLogin']);
 
 Route::post('/bookings', [BookingController::class, 'store']);
 
-Route::get('/applications', [ApplicationController::class, 'index']);
-Route::get('/applications/{id}', [ApplicationController::class, 'show']);
-Route::post('/applications', [ApplicationController::class, 'store']);
-Route::put('/applications/{id}', [ApplicationController::class, 'update']);
-Route::post('/applications/{id}/approve', [ApplicationController::class, 'approve']);
-Route::post('/applications/{id}/reject', [ApplicationController::class, 'reject']);
-Route::post('/applications/{id}/archive', [ApplicationController::class, 'archive']);
-Route::get('/applications/archived', [ApplicationController::class, 'viewArchive']);
-
-
-
 Route::middleware('auth:sanctum')->group(function () {
     // 📄 Get all contracts (list)
     Route::get('/contracts', [ContractController::class, 'index']);

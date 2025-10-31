@@ -23,10 +23,11 @@ class ApplicationController extends Controller
      */
 
      //pang connect sa service
-    protected $service;
+    protected $revenueservice;
 
-    public function __construct(RevenueService $service){
-         $this->service = $service;
+    public function __construct(RevenueService $revenueservice){
+         $this->revenueservice = $revenueservice;
+         
     }
 
     public function index()
@@ -39,12 +40,14 @@ class ApplicationController extends Controller
     /**
      * Show a specific application
      */
-    public function show($id)
-    {
-        $application = Application::with('unit')->findOrFail($id);
+  public function show($id)
+{
+    $application = Application::with('unit')->findOrFail($id);
 
-        return response()->json($application);
-    }
+    return response()->json([
+        'application' => $application->toArray()
+    ]);
+}
 
     /**
      * Store new application
@@ -81,7 +84,7 @@ class ApplicationController extends Controller
         return response()->json([
             'message' => 'Application successfully created',
             'data'    => $application,
-        'updatedCount' => $updatedCount
+              //  'updatedCount' => $updatedCount
         ], 201);
     }
 
@@ -246,7 +249,7 @@ class ApplicationController extends Controller
         return response()->json($archived);
     }
 
-    /**
+    /** z`
      * Reject application
      */
     public function reject($id)
@@ -263,7 +266,9 @@ class ApplicationController extends Controller
     public function indexView()
     {
         $applications = Application::with('unit')->get();
+        $units = Unit::all(); 
 
-        return view('admin.applications', compact('applications'));
+
+        return view('admin.applications', compact('applications', 'units'));
     }
 }
