@@ -3,103 +3,137 @@
 @section('content')
 <div class="container-fluid py-4">
 
-    {{-- PAGE HEADER --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+{{-- PAGE HEADER --}}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
         <h2 class="fw-bold text-blue-900">Tenant Management</h2>
-    </div>
 
-    {{-- ACTIVE TENANTS --}}
-    <div class="card border-0 shadow-sm mb-5">
-        <div class="card-header fw-bold text-white"
-            style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem;">
-            ACTIVE TENANTS
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table align-middle text-center mb-0" id="tenant-table">
-                    <thead class="table-light text-uppercase small text-secondary">
-                        <tr>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Contact</th>
-                            <th>Unit</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tenant-table-body">
-                        <tr><td colspan="5" class="py-4 text-muted">Loading tenants...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <button class="btn btn-action rounded-pill fw-bold px-4" data-bs-toggle="modal" data-bs-target="#archivedTenantModal">
+            <i class="bi bi-archive-fill me-1"></i> Archived Tenants
+        </button>
     </div>
+</div>
 
-    {{-- ARCHIVED TENANTS --}}
-    <div class="card border-0 shadow-sm">
-        <div class="card-header fw-bold text-white"
-            style="background: linear-gradient(90deg, #6c757d, #343a40); border-radius: .5rem;">
-            ARCHIVED TENANTS
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table align-middle text-center mb-0" id="archived-table">
-                    <thead class="table-light text-uppercase small text-secondary">
-                        <tr>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Contact</th>
-                            <th>Unit</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="archived-table-body">
-                        <tr><td colspan="5" class="py-4 text-muted">Loading archived tenants...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+
+{{-- ACTIVE TENANTS --}}
+<div class="card border-0 shadow-sm mb-5">
+    <div class="card-header fw-bold text-white d-flex justify-content-between align-items-center"
+        style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem;">
+        <span>ACTIVE TENANTS</span>
+        <input type="text" id="searchTenants" class="form-control form-control-sm w-25" placeholder="Search tenants...">
+        <tbody id="tenant-table-body"></tbody>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle text-center mb-0" id="tenant-table">
+                <thead class="table-light text-uppercase small text-secondary">
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>Unit</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tenant-table-body">
+                    <tr><td colspan="5" class="py-4 text-muted">Loading tenants...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-{{-- ✅ EDIT TENANT MODAL --}}
-<div class="modal fade" id="editTenantModal" tabindex="-1" aria-labelledby="editTenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="editTenantModalLabel">Edit Tenant</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="editTenantForm">
-                <div class="modal-body">
-                    <input type="hidden" id="tenantId">
-                    <div class="mb-3">
-                        <label>First Name</label>
-                        <input type="text" id="editFirstName" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Middle Name</label>
-                        <input type="text" id="editMiddleName" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label>Last Name</label>
-                        <input type="text" id="editLastName" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Email</label>
-                        <input type="email" id="editEmail" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Contact</label>
-                        <input type="text" id="editContact" class="form-control" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
+{{-- ✅ ARCHIVED TENANTS MODAL --}}
+<div class="modal fade" id="archivedTenantModal" tabindex="-1" aria-labelledby="archivedTenantModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
+      {{-- Header --}}
+      <div class="modal-header text-white border-0"
+           style="background: linear-gradient(90deg, #007BFF, #0A2540);">
+        <h5 class="modal-title fw-bold" id="archivedTenantModalLabel">
+          <i class="bi bi-archive me-2"></i> Archived Tenants
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      {{-- Body --}}
+      <div class="modal-body bg-light p-0">
+        <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
+          <input type="text" id="searchArchived" class="form-control form-control-sm w-50"
+                 placeholder="Search archived tenants...">
+                 <tbody id="archived-table-body"></tbody>
         </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle text-center mb-0">
+            <thead class="table-light text-uppercase small text-secondary">
+              <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Unit</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="archived-table-body">
+              <tr><td colspan="5" class="py-4 text-muted">Loading archived tenants...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {{-- Footer --}}
+      <div class="modal-footer bg-white border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+
     </div>
+  </div>
+</div>
+
+{{-- ✅ VIEW SINGLE ARCHIVED TENANT MODAL --}}
+<div class="modal fade" id="viewArchivedModal" tabindex="-1" aria-labelledby="viewArchivedModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
+      <div class="modal-header text-white border-0"
+           style="background: linear-gradient(90deg, #007BFF, #0A2540);">
+        <h5 class="modal-title fw-bold" id="viewArchivedModalLabel">
+          <i class="bi bi-person-lines-fill me-2"></i> Archived Tenant Details
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body bg-light">
+        <div class="row g-3">
+          <div class="col-md-12">
+            <label class="fw-semibold">Full Name</label>
+            <input type="text" id="archivedFullName" class="form-control" readonly>
+          </div>
+          <div class="col-md-12">
+            <label class="fw-semibold">Email</label>
+            <input type="text" id="archivedEmail" class="form-control" readonly>
+          </div>
+          <div class="col-md-12">
+            <label class="fw-semibold">Contact</label>
+            <input type="text" id="archivedContact" class="form-control" readonly>
+          </div>
+          <div class="col-md-12">
+            <label class="fw-semibold">Unit</label>
+            <input type="text" id="archivedUnit" class="form-control" readonly>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer bg-white border-0">
+        <button type="button" id="restoreTenantBtn" class="btn btn-success">
+          <i class="bi bi-arrow-counterclockwise me-1"></i> Restore Tenant
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 @vite(['resources/css/admin.css','resources/css/admin_tenant.css', 'resources/js/admin_tenant.js'])

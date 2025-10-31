@@ -69,13 +69,18 @@ Route::prefix('bookings')->group(function () {
     Route::get('/find/{id}', [BookingController::class, 'show']);
     Route::get('/unit/{unit_id}', [BookingController::class, 'showByUnitId']);
     Route::post('/confirm/{id}', [BookingController::class, 'confirm']);
+    Route::post('/', [BookingController::class, 'store']);       
+    Route::delete('/{id}', [BookingController::class, 'archive']);
+    Route::get('/archived', [BookingController::class, 'viewArchive']);
+    Route::post('/restore/{id}', [BookingController::class, 'restore']);
 });
 });
 Route::prefix('bookings')->group(function () {
     Route::post('/', [BookingController::class, 'store']);              // POST /bookings
     Route::get('/getOccupiedTime/{unit_id}/{date}',[BookingController::class,'showAllOccupiedTime']);
 });
-    
+
+
 Route::prefix('applications')->group(function () {
     Route::post('/addApplicants',[ApplicationController::class,'store']);
 });
@@ -157,7 +162,6 @@ Route::post('/applications/{id}/approve', [ApplicationController::class, 'approv
 Route::post('/applications/{id}/reject', [ApplicationController::class, 'reject']);
 Route::post('/applications/{id}/archive', [ApplicationController::class, 'archive']);
 Route::get('/applications/archived', [ApplicationController::class, 'viewArchive']);
-
 
 
 

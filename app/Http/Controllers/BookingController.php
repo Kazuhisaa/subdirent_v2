@@ -133,6 +133,16 @@ public function confirm($id)
         return response()->json($archived);
     }
 
+        public function restore($id)
+    {
+        $booking = Booking::onlyTrashed()->findOrFail($id);
+        $booking->restore();
+
+        return response()->json([
+            'message' => 'Booking restored successfully!',
+            'data' => $booking
+        ]);
+    }
 
 
 

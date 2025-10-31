@@ -326,9 +326,9 @@ public function payments()
 
     public function viewArchive()
     {
-        $archived = Tenant::onlyTrashed()->get();
+        $tenants = Tenant::onlyTrashed()->with('unit')->get();
 
-        return response()->json($archived);
+        return response()->json($tenants);    
     }
 
     public function restore($id)
