@@ -214,15 +214,12 @@ class ApplicationController extends Controller
         ]);
 
         // Send email credentials
-        Mail::to($user->email)->send(new TenantMail($user->email, $password));
+        Mail::to($user->email)->queue(new TenantMail($user->email, $password));
 
-        return response()->json([
-            'message'  => 'Application approved successfully! Tenant, contract, and payment created.',
-            'tenant'   => $tenant,
-            'contract' => $contract,
-            'payment'  => $payment,
-            'user'     => $user,
-        ]);
+       return redirect()->route('admin.applications')
+    ->with('success', 'Application approved successfully!');
+
+
     }
 
     /**
