@@ -86,23 +86,6 @@
 
 
 
-/* Tenant Table */
-.tenant-table thead th {
-  background-color: var(--blue-100);
-  color: var(--blue-800);
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  border-bottom: 2px solid var(--blue-200);
-}
-.tenant-table tbody td {
-  color: var(--blue-900);
-  vertical-align: middle;
-}
-.tenant-table tbody tr:hover {
-  background-color: var(--blue-100);
-  transition: background 0.2s ease;
-}
 
 
 /* Booking Cards */
