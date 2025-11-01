@@ -43,7 +43,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         units.forEach((unit, index) => {
-            const imageUrl = unit.files?.length ? `/${unit.files[0]}` : '/uploads/default-room.jpg';
+          const imageUrl = unit.files?.length && unit.files[0]
+    ? unit.files[0].replace(/^uploads\/?/, 'uploads/') // keep relative to public
+    : 'uploads/units/default.jpg';
+
+            console.log(unit.files, imageUrl);
+
+
             const unitPrice = unit.price ? unit.price.toLocaleString() : (unit.unit_price ? unit.unit_price.toLocaleString() : 'N/A');
             const code = unit.unit_code || 'N/A';
             const floorArea = unit.floor_area ? `${unit.floor_area} sqm` : 'N/A';

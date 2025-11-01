@@ -137,6 +137,9 @@
 {{-- ==== Overlay (KINUHA SA FIRST CODE) ==== --}}
 <div id="modalOverlay" class="modal-overlay" onclick="closeAllModals()"></div>
 
-<script src="{{ asset('js/units.js') }}"></script>
+<script src="{{ asset('js/units.js') }}">
+    
+</script>
+
 
 @endsection

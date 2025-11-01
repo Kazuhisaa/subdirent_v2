@@ -22,11 +22,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>`;
             return;
         }
+units.forEach(unit => {
+   const imagePath = (unit.files && unit.files.length > 0)
+    ? unit.files[0].startsWith('http') 
+        ? unit.files[0] 
+        : `/${unit.files[0].replace(/\\/g, '/')}` // siguraduhin forward slash
+    : '/uploads/units/default.jpg';
 
-        units.forEach(unit => {
-            const imagePath = (unit.files && unit.files.length > 0)
-                ? `/${unit.files[0]}`
-                : `/uploads/default.jpg`;
 
             const cleanPrice = Number((unit.unit_price || '0').toString().replace(/[^0-9.]/g, ''));
 
