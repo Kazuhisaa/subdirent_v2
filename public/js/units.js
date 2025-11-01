@@ -198,7 +198,6 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("✅ Application submitted successfully!");
             applyForm.reset();
             closeAllModals();
-            window.location.href = "/admin/applications";
 
         } catch (err) {
             console.error('Fetch Error:', err);

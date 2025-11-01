@@ -40,6 +40,14 @@ Route::middleware(['auth:sanctum'])->group(function() {
     });
 });
 
+Route::get('/allUnits',[UnitsController::class, 'index']);
+Route::prefix('applications')->group(function () {
+    Route::get('/find/{id}',[ApplicationController::class,'show']);
+    Route::put('/editApplications/{id}',[ApplicationController::class,'update']);
+    Route::patch('/archive/{id}', [ApplicationController::class, 'archive']);
+    Route::post('/approve/{id}',[ApplicationController::class,'approve']);
+});
+
 
 Route::middleware(['auth:sanctum'])->group(function() {
     Route::get('/admin/dashboard',function (Request $request) {
@@ -48,23 +56,17 @@ Route::middleware(['auth:sanctum'])->group(function() {
         }
         return response()->json(['message'=>'Welcome Admin']);
     });
-
+    
 Route::middleware(['auth'])->group(function () {
     Route::get('/units', [UnitsController::class, 'index'])->name('units.index');
 });
-    Route::get('/allUnits',[UnitsController::class, 'index']);
+
     Route::post('/addUnits', [UnitsController::class, 'store']);
     Route::get('/findUnits/{id}',[UnitsController::class, 'show']);
     Route::post('/editUnits/{unit}',[UnitsController::class, 'update']);  
     Route::delete('/deleteUnits/{unit}',[UnitsController::class, 'delete']);
     Route::get('/units/search', [UnitsController::class, 'search'])->name('units.search');
 
-Route::prefix('applications')->group(function () {
-    Route::get('/find/{id}',[ApplicationController::class,'show']);
-    Route::put('/editApplications/{id}',[ApplicationController::class,'update']);
-    Route::patch('/archive/{id}', [ApplicationController::class, 'archive']);
-    Route::post('/approve/{id}',[ApplicationController::class,'approve']);
-});
 Route::prefix('bookings')->group(function () {
     Route::get('/', [BookingController::class, 'index']);
     Route::get('/find/{id}', [BookingController::class, 'show']);
