@@ -104,7 +104,7 @@
 @endsection
 
 @section('scripts')
-@section('scripts')
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', fetchBookings);
 
@@ -305,4 +305,4 @@ document.getElementById('searchInput').addEventListener('keyup', () => {
     });
 });
 </script>
-@endsection
+@endpush
