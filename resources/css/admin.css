@@ -292,3 +292,11 @@ header .h6 {
 }
 
 
+.swal2-popup {
+    border-radius: 1rem !important;
+    font-family: 'Poppins', sans-serif;
+}
+.swal2-confirm {
+    border-radius: 50px !important;
+    padding: 0.5rem 1.5rem !important;
+}

@@ -1,5 +1,5 @@
 // admin_tenant.js
-// This version replaces the "View" button in the archive modal with a direct "Restore" button.
+// Uses SweetAlert2 for all alerts
 
 async function ensureSanctumSession() {
   try {
@@ -17,19 +17,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   console.log("admin token present?", !!token);
 
   if (!token) {
-    console.error("Admin API token not found. App cannot function.");
+    showError("Admin API token not found. App cannot function.");
     return;
   }
 
-  // Attach search handlers
   safeAttach("#searchTenants", "input", filterTenants);
   safeAttach("#searchArchived", "input", filterArchivedTenants);
 
-  // Load tables
   await loadTenants(token);
   await loadArchivedTenants(token);
 
-  // Edit form submit
   const editForm = document.querySelector("#editTenantForm");
   if (editForm) {
     editForm.addEventListener("submit", async (e) => {
@@ -45,23 +42,51 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function safeAttach(selector, evt, handler) {
   const el = document.querySelector(selector);
-  if (el) {
-    el.addEventListener(evt, handler);
-  } else {
-    console.warn(`Selector ${selector} not found for safeAttach.`);
-  }
+  if (el) el.addEventListener(evt, handler);
+  else console.warn(`Selector ${selector} not found for safeAttach.`);
 }
 
 function apiHeaders(token) {
   return {
-    "Accept": "application/json",
-    "Authorization": `Bearer ${token}`,
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
   };
 }
 
-/* ---------- API paths ---------- */
 const TENANTS_BASE = "/api/admin/api/tenants";
+
+/* ---------- SweetAlert Helpers ---------- */
+
+function showSuccess(message) {
+  Swal.fire({
+    icon: "success",
+    title: "Success!",
+    text: message,
+    confirmButtonColor: "#198754",
+  });
+}
+
+function showError(message) {
+  Swal.fire({
+    icon: "error",
+    title: "Error!",
+    text: message,
+    confirmButtonColor: "#dc3545",
+  });
+}
+
+function showConfirm(message) {
+  return Swal.fire({
+    icon: "warning",
+    title: "Are you sure?",
+    text: message,
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#0d6efd",
+  });
+}
 
 /* ---------- Loaders ---------- */
 
@@ -74,7 +99,7 @@ async function loadTenants(token) {
     const res = await fetch(TENANTS_BASE, { headers: apiHeaders(token) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    body.innerHTML = ""; // Clear loader
+    body.innerHTML = "";
 
     if (!Array.isArray(data) || data.length === 0) {
       body.innerHTML = `<tr><td colspan="5" class="text-muted py-3">No tenants found.</td></tr>`;
@@ -84,7 +109,7 @@ async function loadTenants(token) {
     data.forEach((t) => {
       const name = [t.first_name, t.middle_name, t.last_name].filter(Boolean).join(" ");
       const unitTitle = (t.unit && (t.unit.title || t.unit.unit_name)) ? (t.unit.title || t.unit.unit_name) : "N/A";
-      const row = `
+      body.insertAdjacentHTML("beforeend", `
         <tr data-id="${t.id}">
           <td>${escapeHtml(name)}</td>
           <td>${escapeHtml(t.email || "")}</td>
@@ -94,8 +119,7 @@ async function loadTenants(token) {
             <button class="btn btn-sm btn-outline-blue edit-btn" title="Edit"><i class="bi bi-pencil-square"></i></button>
             <button class="btn btn-sm btn-outline-warning archive-btn" title="Archive"><i class="bi bi-archive"></i></button>
           </td>
-        </tr>`;
-      body.insertAdjacentHTML("beforeend", row);
+        </tr>`);
     });
 
     attachEditArchiveListeners(token);
@@ -114,7 +138,7 @@ async function loadArchivedTenants(token) {
     const res = await fetch(`${TENANTS_BASE}/archived`, { headers: apiHeaders(token) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    body.innerHTML = ""; // Clear loader
+    body.innerHTML = "";
 
     if (!Array.isArray(data) || data.length === 0) {
       body.innerHTML = `<tr><td colspan="5" class="text-muted py-3">No archived tenants found.</td></tr>`;
@@ -124,79 +148,58 @@ async function loadArchivedTenants(token) {
     data.forEach((t) => {
       const name = [t.first_name, t.middle_name, t.last_name].filter(Boolean).join(" ");
       const unitTitle = (t.unit && (t.unit.title || t.unit.unit_name)) ? (t.unit.title || t.unit.unit_name) : "N/A";
-      const row = `
+      body.insertAdjacentHTML("beforeend", `
         <tr data-id="${t.id}">
           <td>${escapeHtml(name)}</td>
           <td>${escapeHtml(t.email || "")}</td>
           <td>${escapeHtml(t.contact_num || "")}</td>
           <td>${escapeHtml(unitTitle)}</td>
           <td class="text-center">
-            <button class="btn btn-sm btn-outline-success restore-btn" data-id="${t.id}" title="Restore">
+            <button class="btn btn-sm btn-outline-success restore-btn" data-id="${t.id}">
               <i class="bi bi-arrow-counterclockwise"></i> Restore
             </button>
           </td>
-        </tr>`;
-      body.insertAdjacentHTML("beforeend", row);
+        </tr>`);
     });
 
-    attachRestoreListeners(token); // Attaches restore listeners
+    attachRestoreListeners(token);
   } catch (err) {
     console.error("loadArchivedTenants error:", err);
     body.innerHTML = `<tr><td colspan="5" class="text-danger py-3">Error loading archived tenants.</td></tr>`;
   }
 }
 
-/* ---------- Attach listeners ---------- */
+/* ---------- Listeners ---------- */
 
 function attachEditArchiveListeners(token) {
-  // edit
   document.querySelectorAll("#tenant-table-body .edit-btn").forEach((btn) =>
     btn.addEventListener("click", async (e) => {
-      const button = e.currentTarget;
-      const tr = button.closest("tr");
-      if (!tr) return;
-      const id = tr.dataset.id;
-      button.disabled = true; // Prevent double clicks
+      const id = e.currentTarget.closest("tr").dataset.id;
       try {
         const res = await fetch(`${TENANTS_BASE}/${id}`, { headers: apiHeaders(token) });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        const tenant = Array.isArray(json) ? json[0] : json;
-        fillEditModal(tenant);
+        fillEditModal(Array.isArray(json) ? json[0] : json);
         new bootstrap.Modal(document.getElementById("editTenantModal")).show();
-      } catch (err) {
-        console.error("fetch tenant for edit failed:", err);
-        alert("Failed to fetch tenant details.");
-      } finally {
-        button.disabled = false;
+      } catch {
+        showError("Failed to fetch tenant details.");
       }
     })
   );
 
-  // archive
   document.querySelectorAll("#tenant-table-body .archive-btn").forEach((btn) =>
     btn.addEventListener("click", async (e) => {
-      const button = e.currentTarget;
-      const tr = button.closest("tr");
-      if (!tr) return;
-      const id = tr.dataset.id;
-      if (!confirm("Are you sure you want to archive this tenant?")) return;
+      const id = e.currentTarget.closest("tr").dataset.id;
+      const result = await showConfirm("Archive this tenant?");
+      if (!result.isConfirmed) return;
 
-      button.disabled = true;
       try {
-        const res = await fetch(`${TENANTS_BASE}/${id}`, {
-          method: "DELETE",
-          headers: apiHeaders(token),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        alert("Tenant archived successfully.");
-        // reload both tables
+        const res = await fetch(`${TENANTS_BASE}/${id}`, { method: "DELETE", headers: apiHeaders(token) });
+        if (!res.ok) throw new Error();
+        showSuccess("Tenant archived successfully.");
         await loadTenants(token);
         await loadArchivedTenants(token);
-      } catch (err) {
-        console.error("archive failed:", err);
-        alert("Failed to archive tenant.");
-        button.disabled = false;
+      } catch {
+        showError("Failed to archive tenant.");
       }
     })
   );
@@ -205,46 +208,31 @@ function attachEditArchiveListeners(token) {
 function attachRestoreListeners(token) {
   document.querySelectorAll("#archived-table-body .restore-btn").forEach((btn) =>
     btn.addEventListener("click", async (e) => {
-      const button = e.currentTarget;
-      const id = button.dataset.id;
-
-      if (!id) return;
-      if (!confirm("Do you want to restore this tenant?")) return;
-
-      button.disabled = true;
-      button.innerHTML = '<i class="bi bi-arrow-repeat"></i> Restoring...';
+      const id = e.currentTarget.dataset.id;
+      const result = await showConfirm("Restore this tenant?");
+      if (!result.isConfirmed) return;
 
       try {
         const res = await fetch(`${TENANTS_BASE}/${id}/restore`, {
           method: "PUT",
           headers: apiHeaders(token),
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        
-        alert("Tenant restored successfully.");
-
-        // reload both tables
+        if (!res.ok) throw new Error();
+        showSuccess("Tenant restored successfully.");
         await loadTenants(token);
         await loadArchivedTenants(token);
-
-      } catch (err) {
-        console.error("restore failed:", err);
-        alert("Failed to restore tenant.");
-        button.disabled = false;
-        button.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Restore';
+      } catch {
+        showError("Failed to restore tenant.");
       }
     })
   );
 }
 
-/* ---------- Edit submit handler ---------- */
+/* ---------- Edit Form ---------- */
 
 async function handleEditSubmit(token) {
   const id = document.querySelector("#tenantId").value;
-  if (!id) {
-    alert("Tenant ID is missing. Cannot update.");
-    return;
-  }
+  if (!id) return showError("Tenant ID is missing.");
 
   const payload = {
     first_name: document.querySelector("#editFirstName").value,
@@ -252,17 +240,12 @@ async function handleEditSubmit(token) {
     last_name: document.querySelector("#editLastName").value,
     email: document.querySelector("#editEmail").value,
     contact_num: document.querySelector("#editContact").value,
-    unit_id: document.querySelector("#editUnitId").value
+    unit_id: document.querySelector("#editUnitId").value,
   };
 
-  if (!payload.first_name || !payload.last_name || !payload.email) {
-    alert("First Name, Last Name, and Email are required.");
-    return;
-  }
-
-  const submitButton = document.querySelector("#editTenantSubmitButton");
-  submitButton.disabled = true;
-  submitButton.innerHTML = '<i class="bi bi-arrow-repeat"></i> Saving...';
+  const submitBtn = document.querySelector("#editTenantSubmitButton");
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Saving...';
 
   try {
     const res = await fetch(`${TENANTS_BASE}/${id}`, {
@@ -270,31 +253,21 @@ async function handleEditSubmit(token) {
       headers: apiHeaders(token),
       body: JSON.stringify(payload),
     });
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(`HTTP ${res.status}: ${errorData.message || 'Update failed'}`);
-    }
-
-    alert("Tenant updated successfully.");
+    if (!res.ok) throw new Error();
+    showSuccess("Tenant updated successfully.");
     bootstrap.Modal.getInstance(document.getElementById("editTenantModal")).hide();
     await loadTenants(token);
-
-  } catch (err) {
-    console.error("update tenant failed:", err);
-    alert(`Failed to update tenant. ${err.message}`);
+  } catch {
+    showError("Failed to update tenant.");
   } finally {
-    submitButton.disabled = false;
-    submitButton.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Save Changes';
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Save Changes';
   }
 }
 
 /* ---------- Utilities ---------- */
 
 function fillEditModal(tenant) {
-  if (!tenant) {
-    console.error("fillEditModal received null or undefined tenant");
-    return;
-  }
   document.getElementById("tenantId").value = tenant.id ?? "";
   document.getElementById("editFirstName").value = tenant.first_name ?? "";
   document.getElementById("editMiddleName").value = tenant.middle_name ?? "";
@@ -305,34 +278,26 @@ function fillEditModal(tenant) {
 }
 
 function filterTenants() {
-  const inputEl = document.getElementById("searchTenants");
-  if (!inputEl) return;
-  const q = inputEl.value.trim().toLowerCase();
+  const q = document.getElementById("searchTenants")?.value.trim().toLowerCase() || "";
   document.querySelectorAll("#tenant-table-body tr").forEach((r) => {
     if (r.querySelector('td[colspan="5"]')) return;
-    const text = r.textContent.toLowerCase();
-    r.style.display = text.includes(q) ? "" : "none";
+    r.style.display = r.textContent.toLowerCase().includes(q) ? "" : "none";
   });
 }
 
 function filterArchivedTenants() {
-  const inputEl = document.getElementById("searchArchived");
-  if (!inputEl) return;
-  const q = inputEl.value.trim().toLowerCase();
+  const q = document.getElementById("searchArchived")?.value.trim().toLowerCase() || "";
   document.querySelectorAll("#archived-table-body tr").forEach((r) => {
     if (r.querySelector('td[colspan="5"]')) return;
-    const text = r.textContent.toLowerCase();
-    r.style.display = text.includes(q) ? "" : "none";
+    r.style.display = r.textContent.toLowerCase().includes(q) ? "" : "none";
   });
 }
 
 function escapeHtml(str) {
-  if (!str) return "";
-  return String(str)
+  return String(str || "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-function escapeAttr(s) { return escapeHtml(s).replace(/"/g, "&quot;"); }

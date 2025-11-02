@@ -5,12 +5,9 @@
 @section('content')
 <div class="container-fluid py-4">
 
-    {{-- Alert Messages --}}
-    <div id="alert-container"></div>
-
     <div class="card border-0 shadow-sm">
         <div class="card-header fw-bold text-white"
-             style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem;">
+             style="background: linear-gradient(90deg, var(--blue-700), var(--blue-900)); border-radius: .5rem;">
             EDIT ROOM DETAILS
         </div>
 
@@ -95,7 +92,7 @@
                 {{-- Buttons --}}
                 <div class="text-center">
                     <button type="submit" class="btn text-white fw-semibold px-5 py-2"
-                            style="background: linear-gradient(90deg, #2A9DF4, #0A2540); border-radius: 6px;">
+                            style="background: var(--action-gradient); border-radius: 6px;">
                         Save Changes
                     </button>
                     <a href="/admin/rooms" class="btn btn-secondary fw-semibold px-4 py-2 ms-2">
@@ -107,17 +104,15 @@
     </div>
 </div>
 
+{{-- ✅ SweetAlert2 Integration --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('updateUnitForm');
-    const alertContainer = document.getElementById('alert-container');
     const token = sessionStorage.getItem('admin_api_token');
     const unitId = form.dataset.id;
 
-    // Handle update form submission
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        alertContainer.innerHTML = '';
 
         const formData = new FormData(form);
 
@@ -142,22 +137,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!res.ok) throw new Error(data.message || 'Update failed');
 
-            alertContainer.innerHTML = `
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    ✅ ${data.message || 'Room updated successfully!'}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
+            // ✅ SweetAlert2 success alert
+            showSuccess(data.message || 'Room updated successfully!');
             setTimeout(() => window.location.href = '/admin/rooms', 1500);
 
         } catch (err) {
             console.error(err);
-            alertContainer.innerHTML = `
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    ⚠ Failed to update: ${err.message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
+            // ❌ SweetAlert2 error alert
+            showError(`Failed to update: ${err.message}`);
         }
     });
 });

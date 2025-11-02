@@ -98,7 +98,6 @@
                                         @csrf
                                         <button type="submit" 
                                                 class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('Archive this payment record?')" 
                                                 title="Archive">
                                             <i class="bi bi-archive"></i>
                                         </button>
@@ -191,43 +190,151 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const restoreForms = document.querySelectorAll('.restoreForm');
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('✅ SweetAlert2 loaded:', typeof Swal !== 'undefined');
 
-    restoreForms.forEach(form => {
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
 
-            if (!confirm('Restore this archived payment?')) return;
-
-            const formData = new FormData(form);
-            const action = form.getAttribute('action');
-
-            try {
-                const response = await fetch(action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                });
-
-                if (!response.ok) throw new Error('Network error');
-
-                const result = await response.json();
-
-                alert(result.message || 'Payment restored successfully!');
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('archivedPaymentsModal'));
-                modal.hide();
-
-                setTimeout(() => window.location.reload(), 500);
-
-            } catch (error) {
-                console.error(error);
-                alert('An error occurred while restoring the payment.');
+    // ✅ Full modal version of confirmAction
+    function confirmAction(title, confirmText, cancelText, onConfirm) {
+        Swal.fire({
+            title: title,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: confirmText,
+            cancelButtonText: cancelText,
+            reverseButtons: true,
+            background: '#f9f9f9',
+            color: '#1a1a1a',
+            confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--blue-700'),
+            cancelButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--blue-300'),
+            customClass: {
+                popup: 'rounded-4 shadow-lg p-4',
+                confirmButton: 'px-4 py-2 rounded-3',
+                cancelButton: 'px-4 py-2 rounded-3'
             }
+        }).then(result => {
+            if (result.isConfirmed && typeof onConfirm === 'function') {
+                onConfirm();
+            }
+        });
+    }
+
+    // ✅ Full modal version of success alert
+    function showSuccess(message) {
+        Swal.fire({
+            title: 'Success!',
+            text: message,
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--blue-700'),
+            background: '#f9f9f9',
+            color: '#1a1a1a',
+            customClass: {
+                popup: 'rounded-4 shadow-lg p-4'
+            }
+        });
+    }
+
+    // ✅ Full modal version of error alert
+    function showError(message) {
+        Swal.fire({
+            title: 'Error!',
+            text: message,
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#e3342f',
+            background: '#f9f9f9',
+            color: '#1a1a1a',
+            customClass: {
+                popup: 'rounded-4 shadow-lg p-4'
+            }
+        });
+    }
+
+    // 🗃️ ARCHIVE BUTTON
+    document.querySelectorAll('form[action$="/archive"]').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            confirmAction(
+                "Are you sure you want to archive this payment record?",
+                "Yes, archive it",
+                "Cancel",
+                async () => {
+                    const formData = new FormData(form);
+                    const action = form.getAttribute('action');
+
+                    try {
+                        const response = await fetch(action, {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest",
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                            },
+                        });
+                        if (!response.ok) throw new Error("Network error");
+                        const result = await response.json();
+
+                        await showSuccess(result.message || "Payment archived successfully!");
+                        window.location.reload();
+                    } catch (error) {
+                        console.error(error);
+                        showError("An error occurred while archiving the payment.");
+                    }
+                }
+            );
+        });
+    });
+
+    // 🔁 RESTORE BUTTON
+    document.querySelectorAll(".restoreForm").forEach(form => {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            confirmAction(
+                "Do you want to restore this archived payment?",
+                "Yes, restore it",
+                "Cancel",
+                async () => {
+                    const formData = new FormData(form);
+                    const action = form.getAttribute("action");
+
+                    try {
+                        const response = await fetch(action, {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest",
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                            },
+                        });
+                        if (!response.ok) throw new Error("Network error");
+                        const result = await response.json();
+
+                        await showSuccess(result.message || "Payment restored successfully!");
+                        const modal = bootstrap.Modal.getInstance(document.getElementById("archivedPaymentsModal"));
+                        modal.hide();
+                        window.location.reload();
+                    } catch (error) {
+                        console.error(error);
+                        showError("An error occurred while restoring the payment.");
+                    }
+                }
+            );
+        });
+    });
+
+    // 📄 DOWNLOAD BUTTON
+    document.querySelectorAll('a[href*="download"]').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            confirmAction(
+                "Do you want to download this payment invoice?",
+                "Yes, download it",
+                "Cancel",
+                () => {
+                    window.location.href = link.href;
+                }
+            );
         });
     });
 });

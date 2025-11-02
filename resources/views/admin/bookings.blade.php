@@ -104,6 +104,7 @@
 @endsection
 
 @section('scripts')
+@section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', fetchBookings);
 
@@ -147,55 +148,68 @@ async function fetchBookings() {
         `).join('') : '<tr><td colspan="8" class="py-4 text-muted">No bookings found.</td></tr>';
     } catch (err) {
         console.error(err);
+        showError('Failed to load bookings. Please try again later.');
         tableBody.innerHTML = `<tr><td colspan="8" class="py-4 text-danger text-center">Error loading bookings.</td></tr>`;
     }
 }
 
 async function updateBookingStatus(id, action) {
     const token = sessionStorage.getItem('admin_api_token');
-    if (!token) return alert('Missing token.');
+    if (!token) return showError('Missing authorization token.');
 
-    try {
-        const response = await fetch(`/api/bookings/${action}/${id}`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
+    confirmAction(
+        'Do you want to confirm this booking?',
+        'Yes, confirm it',
+        'Cancel',
+        async () => {
+            try {
+                const response = await fetch(`/api/bookings/${action}/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Failed to update booking.');
+
+                showSuccess(result.message || 'Booking confirmed!');
+                fetchBookings();
+            } catch (err) {
+                console.error(err);
+                showError('Error updating booking: ' + err.message);
             }
-        });
-
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || 'Failed to update booking.');
-
-        alert(result.message);
-        fetchBookings();
-    } catch (err) {
-        console.error(err);
-        alert('Error: ' + err.message);
-    }
+        }
+    );
 }
 
 async function archiveBooking(id) {
     const token = sessionStorage.getItem('admin_api_token');
-    if (!token) return alert('Missing token.');
+    if (!token) return showError('Missing authorization token.');
 
-    if (!confirm('Are you sure you want to archive this booking?')) return;
+    confirmAction(
+        'Are you sure you want to archive this booking?',
+        'Yes, archive it',
+        'Cancel',
+        async () => {
+            try {
+                const response = await fetch(`/api/bookings/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
 
-    try {
-        const response = await fetch(`/api/bookings/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Failed to archive booking.');
 
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || 'Failed to archive booking.');
-
-        alert('Booking archived successfully!');
-        fetchBookings();
-    } catch (err) {
-        console.error(err);
-        alert('Error: ' + err.message);
-    }
+                showSuccess('Booking archived successfully!');
+                fetchBookings();
+            } catch (err) {
+                console.error(err);
+                showError('Error archiving booking: ' + err.message);
+            }
+        }
+    );
 }
 
 async function fetchArchivedBookings() {
@@ -207,6 +221,7 @@ async function fetchArchivedBookings() {
     tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Loading archived bookings...</td></tr>';
 
     if (!token) {
+        showError('Missing authorization token.');
         tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Missing authorization token.</td></tr>';
         modal.show();
         return;
@@ -245,35 +260,42 @@ async function fetchArchivedBookings() {
         modal.show();
     } catch (err) {
         console.error(err);
-        tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">Error loading archived data: ${err.message}</td></tr>`;
+        showError('Error loading archived bookings: ' + err.message);
+        tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">Error loading archived data.</td></tr>`;
         modal.show();
     }
 }
 
 async function restoreBooking(id) {
     const token = sessionStorage.getItem('admin_api_token');
-    if (!token) return alert('Missing token.');
+    if (!token) return showError('Missing authorization token.');
 
-    if (!confirm('Restore this booking?')) return;
+    confirmAction(
+        'Do you want to restore this booking?',
+        'Yes, restore it',
+        'Cancel',
+        async () => {
+            try {
+                const res = await fetch(`/api/bookings/restore/${id}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                });
 
-    try {
-        const res = await fetch(`/api/bookings/restore/${id}`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
-        });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || `Failed (${res.status})`);
 
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.message || `Failed (${res.status})`);
-
-        alert('Booking restored successfully!');
-        bootstrap.Modal.getInstance(document.getElementById('archivedModal')).hide();
-        fetchBookings();
-    } catch (err) {
-        console.error(err);
-        alert('Error restoring booking: ' + err.message);
-    }
+                showSuccess('Booking restored successfully!');
+                bootstrap.Modal.getInstance(document.getElementById('archivedModal')).hide();
+                fetchBookings();
+            } catch (err) {
+                console.error(err);
+                showError('Error restoring booking: ' + err.message);
+            }
+        }
+    );
 }
 
+// 🔍 Search functionality
 document.getElementById('searchInput').addEventListener('keyup', () => {
     const input = document.getElementById('searchInput').value.toLowerCase();
     const rows = document.querySelectorAll('#bookingsTable tr');

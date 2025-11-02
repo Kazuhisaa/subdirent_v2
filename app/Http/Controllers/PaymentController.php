@@ -365,7 +365,12 @@ public function index()
 public function archive($id)
 {
     $payment = Payment::findOrFail($id);
-    $payment->delete(); // assuming you're using SoftDeletes
+    $payment->delete(); // assuming SoftDeletes is used
+
+    if (request()->ajax()) {
+        return response()->json(['message' => 'Payment archived successfully.']);
+    }
+
     return redirect()->route('admin.payments')->with('success', 'Payment archived successfully.');
 }
 

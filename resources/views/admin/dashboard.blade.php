@@ -11,6 +11,7 @@
     @endif
 
     <title>@yield('title', 'SubdiRent Admin')</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     @vite([
         'resources/bootstrap/css/bootstrap.css',
@@ -147,6 +148,13 @@
     });
     </script>
 
-     @yield('scripts')
+            <!-- SweetAlert2 CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <!-- Your custom alerts file -->
+        @vite('resources/js/alerts.js')
+
+
+     @stack('scripts')
 </body>
 </html>
