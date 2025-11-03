@@ -337,7 +337,7 @@
 
 
         // ===========================================
-        // 3. ITO YUNG BAGONG SCRIPT PARA SA VIEW MODAL
+        // 3. ITO YUNG SCRIPT PARA SA VIEW MODAL
         // ===========================================
         const viewModalEl = document.getElementById('viewApplicationModal');
         if(viewModalEl) {
@@ -370,9 +370,11 @@
                     if (!dateString) return '—';
                     try {
                         const date = new Date(dateString);
-                        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                         // Fix para sa potential timezone issue, ituring as UTC
+                        const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+                        return utcDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
                     } catch (e) {
-                        return '—';
+                        return dateString; // Fallback
                     }
                 };
 
@@ -407,6 +409,7 @@
 
     /**
      * Ito 'yung function na magpupuno ng modal
+     * (DITO 'YUNG MAY BINAGO)
      */
     function populateEditModal(application) {
         // Ilagay ang basic info
@@ -419,6 +422,11 @@
         document.getElementById('downpayment').value = application.downpayment || '';
         document.getElementById('contract_years').value = application.contract_years || '';
 
+        // === START NG PAGBABAGO ===
+        // TINANGGAL KO 'YUNG LINYA NA 'TO DAHIL ITO 'YUNG CAUSE NG ERROR:
+        // document.getElementById('contract_start').value = application.contract_start || '';
+        // === END NG PAGBABAGO ===
+
         const phaseSelect = document.getElementById('phase_select');
         const unitSelect = document.getElementById('unit_select');
 
@@ -427,6 +435,7 @@
         unitSelect.innerHTML = '<option value="">-- Select Phase First --</option>';
 
         // 4. FIX: Kunin ang data mula sa /api/allUnits
+        // Dahil tinanggal na 'yung error, aandar na ulit 'yung code na 'to
         axios.get('/api/allUnits')
             .then(response => {
                 allUnits = response.data; // I-save sa global variable
@@ -499,8 +508,16 @@
     });
 
 
-    // 9. 'Save' button listener
+    // 9. 'Save' button listener (WALA TAYONG BINAGO DITO, TAMA NA 'TO)
     document.getElementById('saveChangesBtn').addEventListener('click', async () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // +1 kasi 0-indexed (Jan=0)
+        const day = String(today.getDate()).padStart(2, '0');
+        
+        // 2. I-format natin as YYYY-MM-DD
+        // Ito 'yung pinaka-safe na format ipadala sa backend (Laravel)
+        const contractStartDate = `${year}-${month}-${day}`;
         const id = document.getElementById('application_id').value;
         const data = {
             first_name: document.getElementById('first_name').value,
@@ -508,9 +525,10 @@
             last_name: document.getElementById('last_name').value,
             email: document.getElementById('email').value,
             contact_num: document.getElementById('contact_num').value,
-            unit_id: document.getElementById('unit_select').value,
+            unit_id: document.getElementById('unit_select').value, 
             downpayment: document.getElementById('downpayment').value,
             contract_years: document.getElementById('contract_years').value,
+            contract_start: contractStartDate,
         };
 
         try {
