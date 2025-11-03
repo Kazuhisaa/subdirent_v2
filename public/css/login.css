@@ -19,6 +19,10 @@
     border: none;
     padding: 0;
 }
+.forgot-password-link{
+    text-decoration: none;
+    padding-top: 50px;
+}
 
 /* =========================================
    GLOBAL 'X' CLOSE BUTTON (Gaya sa image)

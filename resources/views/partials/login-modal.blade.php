@@ -33,6 +33,9 @@
                     </div>
                     
                     <button type="submit" class="btn btn-login-v4 w-100">LOG IN</button>
+                    <div class="text-center mt-3">
+   <a href="{{ route('password.request') }}" class="forgot-password-link">Forgot Password?</a>
+</div>
                 
                 </form>
             </div>
@@ -57,12 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBtn.addEventListener('click', () => {
       if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
-        icon.classList.remove('bi-eye');
-        icon.classList.add('bi-eye-slash');
-      } else {
-        passwordInput.type = 'password';
         icon.classList.remove('bi-eye-slash');
         icon.classList.add('bi-eye');
+      } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
       }
     });
   }

@@ -137,6 +137,54 @@
 {{-- ==== Overlay (KINUHA SA FIRST CODE) ==== --}}
 <div id="modalOverlay" class="modal-overlay" onclick="closeAllModals()"></div>
 
+{{-- ==== View Details Modal ==== --}}
+<div id="viewDetailsModal" class="custom-modal">
+    <div class="custom-modal-header">
+        <span id="modalUnitNameHeader">Unit Details</span>
+        <span style="float: right; cursor: pointer;" onclick="closeModal('viewDetailsModal')">&times;</span>
+    </div>
+    <div class="custom-modal-body">
+        
+        <img src="" id="modalUnitImage" alt="Unit Image" class="modal-unit-image">
+
+        <div class="modal-details-grid">
+            <div class="modal-detail-item">
+                <strong>Phase:</strong>
+                <span id="modalUnitPhase"></span>
+            </div>
+            <div class="modal-detail-item">
+                <strong>Code:</strong>
+                <span id="modalUnitCode"></span>
+            </div>
+            <div class="modal-detail-item">
+                <strong>Floor Area:</strong>
+                <span id="modalUnitFloorArea"></span>
+            </div>
+            <div class="modal-detail-item">
+                <strong>Bedroom:</strong>
+                <span id="modalUnitBedroom"></span>
+            </div>
+            <div class="modal-detail-item">
+                <strong>Bathroom:</strong>
+                <span id="modalUnitBathroom"></span>
+            </div>
+            <div class="modal-detail-item">
+                <strong>Price:</strong>
+                <span id="modalUnitPrice"></span>
+            </div>
+        </div>
+
+        <div class="modal-description">
+            <strong>Description:</strong>
+            <p id="modalUnitDescription"></p>
+        </div>
+
+    </div>
+    <div class="custom-modal-footer">
+        <button type="button" class="btn btn-outline-danger" onclick="closeModal('viewDetailsModal')">Close</button>
+    </div>
+</div>
+
 <script src="{{ asset('js/units.js') }}">
     
 </script>

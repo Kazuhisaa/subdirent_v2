@@ -1,3 +1,16 @@
+// ----> BARONG DAGDAG: Helper function para i-encode ang data <----
+// Para maiwasan ang error kung may single quote (') sa data ng unit mo
+function escapeHTML(str) {
+    // Check muna kung string talaga
+    if (typeof str !== 'string') {
+        // Kung hindi (e.g., null, undefined, number), ibalik lang
+        return str;
+    }
+    // Pinalitan ko ng mas simpleng replace
+    return str.replace(/'/g, '&apos;').replace(/"/g, '&quot;');
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const observer = new IntersectionObserver((entries) => {
@@ -43,21 +56,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         units.forEach((unit, index) => {
-          const imageUrl = unit.files?.length && unit.files[0]
-    ? unit.files[0].replace(/^uploads\/?/, 'uploads/') // keep relative to public
-    : 'uploads/units/default.jpg';
+            const imageUrl = unit.files?.length && unit.files[0]
+                ? unit.files[0].replace(/^uploads\/?/, 'uploads/') // keep relative to public
+                : 'uploads/units/default.jpg';
 
-            console.log(unit.files, imageUrl);
+            // console.log(unit.files, imageUrl); // Pwede mo 'to i-comment out kung 'di na kailangan
 
-
-            const unitPrice = unit.price ? unit.price.toLocaleString() : (unit.unit_price ? unit.unit_price.toLocaleString() : 'N/A');
+            const unitPrice = unit.price ? Number(unit.price).toLocaleString() : (unit.unit_price ? Number(unit.unit_price).toLocaleString() : 'N/A');
             const code = unit.unit_code || 'N/A';
             const floorArea = unit.floor_area ? `${unit.floor_area} sqm` : 'N/A';
             const bedrooms = unit.bedroom || 'N/A';
             const bathrooms = unit.bathroom || 'N/A';
+
+            // ----> BARONG DAGDAG: I-convert ang unit data para sa data-attribute <----
+            // Gagamitin natin ang helper function para safe i-encode
+            const unitDataString = escapeHTML(JSON.stringify(unit));
+
             container.innerHTML += `
                 <div class="col-lg-4 col-md-6 animate-on-scroll" data-delay="${index + 1}">
-                    <div class="property-card">
+                    
+            
+                    <div class="property-card property-card-clickable" data-unit-details='${unitDataString}'>
                         <img src="${imageUrl}" alt="${unit.title || 'Property Image'}">
                         <div class="info text-start">
                             <h6>${unit.title || 'Untitled Property'}</h6>
@@ -105,25 +124,91 @@ document.addEventListener("DOMContentLoaded", () => {
             const normalize = str => str?.toLowerCase().replace(/phase\s+/i, "").replace(/\bi\b/g, "1").replace(/\bii\b/g, "2").replace(/\biii\b/g, "3").replace(/\biv\b/g, "4").replace(/\bv\b/g, "5").trim();
             const unitPhase = normalize(unit.location || "");
             const filterPhase = normalize(currentPhase);
-            const matchesPhase = currentPhase === "all" || unitPhase === filterPhase || (unit.location || '').toLowerCase().includes(currentPhase.toLowerCase());
+            // Inayos ko 'yung logic dito para mas tama ang pag-filter sa phase
+            const matchesPhase = currentPhase === "all" || unitPhase.includes(filterPhase);
             return matchesSearch && matchesPhase;
         });
         renderUnits(filtered);
     }
+
+
+    // ----> BARONG DAGDAG: Event listener para sa "View Details" <----
+    // Gagamit tayo ng 'event delegation' sa 'container'
+    container.addEventListener('click', function(event) {
+        
+        // 1. Hanapin ang card na pinindot
+        const card = event.target.closest('.property-card-clickable');
+
+        // 2. Kung hindi card (o nasa labas ng card), huwag ituloy
+        if (!card) {
+            return;
+        }
+
+        // 3. (MAHALAGA) Tignan kung button ang pinindot
+        if (event.target.closest('.btn-details') || event.target.closest('.btn-outline-details')) {
+            // Button ito (Reserve or Apply), kaya hayaan ang inline 'onclick' na gumana
+            return; 
+        }
+
+        // 4. Kung umabot dito, card ang pinindot (at hindi button)
+        // Kunin ang data na tinago natin
+        try {
+            // Kailangan nating i-decode 'yung quotes na in-escape natin kanina
+            const decodedString = card.dataset.unitDetails
+                                     .replace(/&apos;/g, "'")
+                                     .replace(/&quot;/g, '"');
+            const unitData = JSON.parse(decodedString);
+            
+            // 5. Kunin ulit 'yung details gamit ang data
+            const imageUrl = unitData.files?.length && unitData.files[0]
+                ? unitData.files[0].replace(/^uploads\/?/, 'uploads/')
+                : 'uploads/units/default.jpg';
+            
+            const unitPrice = unitData.price ? Number(unitData.price).toLocaleString() : (unitData.unit_price ? Number(unitData.unit_price).toLocaleString() : 'N/A');
+            const code = unitData.unit_code || 'N/A';
+            const floorArea = unitData.floor_area ? `${unitData.floor_area} sqm` : 'N/A';
+            const bedrooms = unitData.bedroom || 'N/A';
+            const bathrooms = unitData.bathroom || 'N/A';
+
+            // 6. Ilagay ang data sa "View Details" modal
+            // (Ito 'yung mga ID galing sa HTML na binigay ko sa'yo kanina)
+            document.getElementById('modalUnitNameHeader').textContent = unitData.title || 'Unit Details';
+            document.getElementById('modalUnitImage').src = imageUrl;
+            document.getElementById('modalUnitPhase').textContent = unitData.location || 'N/A'; // Ginamit ko 'location' bilang Phase
+            document.getElementById('modalUnitCode').textContent = code;
+            document.getElementById('modalUnitFloorArea').textContent = floorArea;
+            document.getElementById('modalUnitBedroom').textContent = bedrooms;
+            document.getElementById('modalUnitBathroom').textContent = bathrooms;
+            document.getElementById('modalUnitPrice').textContent = `₱${unitPrice}`;
+            document.getElementById('modalUnitDescription').textContent = unitData.description || 'No description available.';
+
+            // 7. Buksan ang "View Details" modal
+            openModal('viewDetailsModal'); 
+
+        } catch (e) {
+            console.error('Error parsing unit data:', e, card.dataset.unitDetails);
+            alert('Could not load unit details.');
+        }
+    });
+    // ----> WAKAS NG BARONG DAGDAG <----
+
 
     window.openModal = function(id, unitId = null, unitName = '') {
         document.getElementById('modalOverlay').classList.add('show');
         const modal = document.getElementById(id);
         modal.classList.add('show');
 
+        // ----> BINAGO KO RITO <----
+        // Ginamit ko ang 'if...else if' para sigurado
         if (id === 'reserveModal') {
             document.getElementById('reserveUnitId').value = unitId;
             document.getElementById('reserveUnitName').value = unitName;
-        }
-        if (id === 'applyModal') {
+        } else if (id === 'applyModal') {
             document.getElementById('applyUnitId').value = unitId;
             document.getElementById('applyUnitName').value = unitName;
         }
+        // Para sa 'viewDetailsModal', wala tayong gagawin dito
+        // dahil sa labas na (sa event listener) ang pag-populate
     }
 
     window.closeModal = function(id) {

@@ -92,6 +92,4 @@ public function apiLogin(Request $request)
     ]);
 }
 
-
-
 }
