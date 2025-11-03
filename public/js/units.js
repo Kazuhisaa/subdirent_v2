@@ -193,23 +193,43 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----> WAKAS NG BARONG DAGDAG <----
 
 
-    window.openModal = function(id, unitId = null, unitName = '') {
-        document.getElementById('modalOverlay').classList.add('show');
-        const modal = document.getElementById(id);
-        modal.classList.add('show');
+    window.openModal = function (id, unitId = null, unitName = '', event = null) {
+    const overlay = document.getElementById('modalOverlay');
+    const modal = document.getElementById(id);
 
-        // ----> BINAGO KO RITO <----
-        // Ginamit ko ang 'if...else if' para sigurado
-        if (id === 'reserveModal') {
-            document.getElementById('reserveUnitId').value = unitId;
-            document.getElementById('reserveUnitName').value = unitName;
-        } else if (id === 'applyModal') {
-            document.getElementById('applyUnitId').value = unitId;
-            document.getElementById('applyUnitName').value = unitName;
+    overlay.classList.add('show');
+    modal.classList.add('show');
+
+    // Optional: position the modal near where the button was clicked
+    if (event && event.target) {
+        const rect = event.target.getBoundingClientRect();
+        const modalHeight = modal.offsetHeight || 300;
+        const viewportHeight = window.innerHeight;
+
+        let topPosition = rect.bottom + window.scrollY + 20;
+
+        // If not enough space below, position above
+        if (topPosition + modalHeight > window.scrollY + viewportHeight) {
+            topPosition = rect.top + window.scrollY - modalHeight - 20;
         }
-        // Para sa 'viewDetailsModal', wala tayong gagawin dito
-        // dahil sa labas na (sa event listener) ang pag-populate
+
+        modal.style.top = `${topPosition}px`;
+        modal.style.left = `50%`;
+        modal.style.transform = 'translateX(-50%)';
+    } else {
+        // fallback center if no event provided
+        modal.style.top = `${window.scrollY + window.innerHeight / 2 - modal.offsetHeight / 2}px`;
     }
+
+    // Fill in form data
+    if (id === 'reserveModal') {
+        document.getElementById('reserveUnitId').value = unitId;
+        document.getElementById('reserveUnitName').value = unitName;
+    } else if (id === 'applyModal') {
+        document.getElementById('applyUnitId').value = unitId;
+        document.getElementById('applyUnitName').value = unitName;
+    }
+};
 
     window.closeModal = function(id) {
         document.getElementById(id).classList.remove('show');
