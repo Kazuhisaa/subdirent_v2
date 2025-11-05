@@ -22,6 +22,7 @@ return new class extends Migration
              $table->enum('status', ['Pending','Confirmed' , 'Approved', 'Rejected', 'Archived'])->default('Pending');
              $table->timestamps();
              $table->softDeletes();
+             $table->date('contract_start')->nullable()->after('contract_years');
 
         });
     }
@@ -32,5 +33,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('applications');
+        Schema::table('applications', function (Blueprint $table) {
+            $table->dropColumn('contract_start');
+        });
+
     }
+
+        
+    
 };
