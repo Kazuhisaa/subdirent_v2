@@ -23,25 +23,88 @@ class TenantController extends Controller
             abort(404, 'Tenant record not found.');
         }
 
-        $activeContract = $user->tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
-        $payments = $user->tenant->payments->sortByDesc('payment_date')->take(3);
-        $nextDueDate = null;
+        $tenant = $user->tenant;
+        $activeContract = $tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+        $payments = $tenant->payments;
+
+        $nextUnpaidDueDate = null;
+        $calendarEvents = [];
+        $recentPayments = $payments->sortByDesc('payment_date')->take(5);
 
         if ($activeContract) {
-            $today = Carbon::now();
-            $dueDate = $activeContract->payment_due_date;
-            if ($today->day > $dueDate) {
-                $nextDueDate = $today->addMonth()->day($dueDate)->format('M d, Y');
-            } else {
-                $nextDueDate = $today->day($dueDate)->format('M d, Y');
+            $monthlyRent = $activeContract->monthly_payment ?? 0;
+            $billingDay = $activeContract->payment_due_date ?? 1;
+            $contractEnd = Carbon::parse($activeContract->contract_end);
+
+            // Fetch all payments for this contract/tenant
+            $rentPayments = Payment::where('tenant_id', $tenant->id)
+                ->where('contract_id', $activeContract->id)
+                ->whereIn('payment_status', ['paid', 'partial'])
+                ->orderBy('for_month', 'asc')
+                ->get();
+
+            $paymentsByMonth = $rentPayments->groupBy(function($payment) {
+                return Carbon::parse($payment->for_month)->format('Y-m');
+            });
+
+            // 1. Determine Next Unpaid Due Date & Build Events
+            $currentDate = Carbon::parse($activeContract->contract_start)->day($billingDay);
+            $foundUnpaid = false;
+
+            while ($currentDate->lessThanOrEqualTo($contractEnd)) {
+                $monthKey = $currentDate->format('Y-m');
+                $totalPaid = $paymentsByMonth->get($monthKey, collect())->sum('amount');
+                $isPaid = $totalPaid >= $monthlyRent;
+
+                // Calendar Event Creation
+                $eventStatus = '';
+                $eventColor = '';
+
+                if ($isPaid) {
+                    $eventStatus = 'Paid';
+                    $eventColor = '#1B5F99'; // Blue-600 from tenant.css
+                } elseif ($totalPaid > 0 && $totalPaid < $monthlyRent) {
+                    $eventStatus = 'Partial';
+                    $eventColor = '#ff7043'; // Orange for Partial
+                } else {
+                    $eventStatus = 'Due';
+                    $eventColor = '#dc3545'; // Red for Unpaid/Due
+                }
+
+                $calendarEvents[] = [
+                    'title' => $eventStatus . ' - ₱' . number_format($monthlyRent, 2),
+                    'start' => $currentDate->format('Y-m-d'),
+                    'color' => $eventColor,
+                ];
+
+                // Find Next Unpaid Date
+                if (!$foundUnpaid && $currentDate->greaterThanOrEqualTo(Carbon::now()->subDay()) && $totalPaid < $monthlyRent) {
+                    $nextUnpaidDueDate = $currentDate->copy()->format('M d, Y');
+                    $foundUnpaid = true;
+                }
+                
+                // If it's fully paid or the month is far in the past, move to the next month
+                $currentDate->addMonth();
             }
+
+            // If $nextUnpaidDueDate is still null, set it to the next official due date for the current month or next month
+            if (!$nextUnpaidDueDate) {
+                $today = Carbon::now();
+                if ($today->day > $billingDay) {
+                    $nextUnpaidDueDate = $today->addMonth()->day($billingDay)->format('M d, Y');
+                } else {
+                    $nextUnpaidDueDate = $today->day($billingDay)->format('M d, Y');
+                }
+            }
+
         }
 
         return view('tenant.home', [
             'tenant' => $user,
             'activeContract' => $activeContract,
-            'payments' => $payments,
-            'nextDueDate' => $nextDueDate,
+            'recentPayments' => $recentPayments,
+            'nextUnpaidDueDate' => $nextUnpaidDueDate,
+            'calendarEvents' => json_encode($calendarEvents),
         ]);
     }
 

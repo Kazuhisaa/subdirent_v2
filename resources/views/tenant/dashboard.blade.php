@@ -16,6 +16,8 @@
       'resources/bootstrapjs/js/bootstrap.bundle.js',
       'resources/js/app.js'
   ])
+  {{-- This stack is for any styles pushed from child pages --}}
+  @stack('styles')
 </head>
 
 <body>

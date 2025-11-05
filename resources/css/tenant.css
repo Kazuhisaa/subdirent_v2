@@ -11,6 +11,11 @@
   --blue-200: #B9E0FA;
   --blue-100: #E8F4FF;
 
+  /* Tenant Home Colors */
+  --tenant-home-header: linear-gradient(90deg, #1B5F99, #10365A); /* Darker Blue/Teal gradient */
+  --tenant-home-light: #E8FBF9; /* Light Teal/Cyan for table header background */
+  --tenant-home-accent: #26A69A; /* Teal accent color for status badges */
+  
   /* Gradient for Buttons & Highlights */
   --tenant-gradient: linear-gradient(135deg, var(--blue-700), var(--blue-600), var(--blue-500));
 }
@@ -193,6 +198,35 @@ header .h6 {
 .tenant-table tbody tr:hover {
   background-color: var(--blue-100);
   transition: background 0.2s ease;
+}
+
+/* ======================================================= */
+/* HOME DASHBOARD TABLE (Based on Bookings Table Style but Teal/Blue) */
+/* ======================================================= */
+.home-table thead th {
+    background-color: var(--tenant-home-light); /* Light Teal/Cyan */
+    color: var(--blue-800); /* Dark Blue text */
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    border-bottom: 2px solid var(--blue-200);
+}
+.home-table tbody tr:hover {
+    background-color: var(--tenant-home-light);
+}
+
+/* Custom Status Badges for Payments Table */
+.badge-paid {
+    background-color: var(--tenant-home-accent) !important; /* Teal */
+    color: #fff;
+}
+.badge-partial {
+    background-color: #ffc107 !important; /* Yellow/Warning */
+    color: var(--blue-900);
+}
+.badge-due {
+    background-color: #dc3545 !important; /* Red/Danger */
+    color: #fff;
 }
 
 /* Stretch calendar card */

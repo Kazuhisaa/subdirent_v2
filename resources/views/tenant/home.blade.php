@@ -27,7 +27,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div>
             <small class="text-muted d-block">PROPERTY DETAILS</small>
-               @if($tenant->tenant && $tenant->tenant->unit)
+            @if($tenant->tenant && $tenant->tenant->unit)
               <strong>{{ $tenant->tenant->unit->title }}</strong>
               <p class="small text-muted mb-0">
                 {{ $tenant->tenant->unit->location }}
@@ -39,7 +39,7 @@
           <i class="bi bi-house-door-fill text-primary fs-4"></i>
         </div>
 
-        @if($tenant && $tenant->unit)
+        @if($tenant->tenant && $tenant->tenant->unit)
           <a href="{{ route('tenant.property') }}" class="btn btn-outline-tenant w-100 mt-2">
             <i class="bi bi-building me-1"></i> View My Property
           </a>
@@ -62,12 +62,19 @@
     </div>
 
     <div class="col-lg-4">
-      <div class="card border-0 shadow-sm p-4">
-        <h6 class="fw-bold mb-3">Alerts</h6>
-        <div class="alert alert-warning small">
-          <i class="bi bi-exclamation-circle me-2"></i>
-          Payment due on Oct 17.
+      <div class="card border-0 shadow-sm p-4 h-100">
+        <h6 class="fw-bold mb-3">Payment Alert</h6>
+        <div class="alert {{ $nextUnpaidDueDate ? 'alert-danger' : 'alert-success' }} small mb-0">
+          <i class="bi bi-{{ $nextUnpaidDueDate ? 'exclamation-triangle' : 'check-circle' }} me-2"></i>
+          @if($nextUnpaidDueDate)
+            **Next Rent Due:** **{{ $nextUnpaidDueDate }}**. Please settle immediately.
+          @else
+            **You are up to date!** No immediate payments pending.
+          @endif
         </div>
+        @if($activeContract)
+        <small class="text-muted mt-2">Monthly Amount: ₱{{ number_format($activeContract->monthly_payment, 2) }}</small>
+        @endif
       </div>
     </div>
   </div>
@@ -76,97 +83,76 @@
   <div class="row mb-5">
     <div class="col-12">
       <div class="card border-0 shadow-sm p-4 w-100">
-        <h6 class="fw-bold mb-3">Payment Schedule</h6>
-        <div id="tenant-calendar" class="tenant-calendar w-100"></div>
+        <h6 class="fw-bold mb-3">Payment Schedule (Current Contract)</h6>
+        {{-- JSON data is passed here for the script --}}
+        <div id="tenant-calendar" class="tenant-calendar w-100" data-events="{{ $calendarEvents }}"></div>
       </div>
     </div>
   </div>
 
-  <!-- Invoices Table -->
-  <div class="card border-0 shadow-sm p-4">
-    <h6 class="fw-bold mb-3">Recent Invoices</h6>
-    <table class="table table-hover align-middle">
-      <thead class="table-light">
-        <tr>
-          <th>#</th>
-          <th>Description</th>
-          <th>Amount</th>
-          <th>Due Date</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>INV-001</td>
-          <td>Monthly Rent (October)</td>
-          <td>₱19,220</td>
-          <td>Oct 17, 2025</td>
-          <td><span class="badge bg-warning text-dark">Pending</span></td>
-        </tr>
-        <tr>
-          <td>INV-002</td>
-          <td>Plumbing Maintenance</td>
-          <td>₱1,500</td>
-          <td>Sept 22, 2025</td>
-          <td><span class="badge bg-danger">Overdue</span></td>
-        </tr>
-        <tr>
-          <td>INV-003</td>
-          <td>Monthly Rent (September)</td>
-          <td>₱19,220</td>
-          <td>Sept 17, 2025</td>
-          <td><span class="badge bg-success">Paid</span></td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Dynamic Payments Table -->
+  <div class="card border-0 shadow-sm p-0">
+    <div class="card-header bg-light border-0 py-3">
+      <h6 class="fw-bold text-primary mb-0">Recent Payments & Invoices</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table home-table align-middle text-center mb-0">
+                <thead class="text-uppercase small">
+                    <tr>
+                        <th class="text-start ps-4">Description</th>
+                        <th>Amount</th>
+                        <th>Date Paid</th>
+                        <th>For Month</th>
+                        <th>Status</th>
+                        <th>Invoice</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($recentPayments as $payment)
+                    <tr>
+                        <td class="text-start ps-4">
+                            <strong class="text-blue-900">{{ $payment->remarks }}</strong><br>
+                            <small class="text-muted">Ref No: {{ $payment->reference_no }}</small>
+                        </td>
+                        <td class="fw-bold text-success">₱{{ number_format($payment->amount, 2) }}</td>
+                        <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}</td>
+                        <td>{{ $payment->for_month ? \Carbon\Carbon::parse($payment->for_month)->format('M Y') : 'N/A' }}</td>
+                        <td>
+                            @php
+                                $statusClass = '';
+                                switch ($payment->payment_status) {
+                                    case 'paid': $statusClass = 'badge-paid'; break;
+                                    case 'partial': $statusClass = 'badge-partial'; break;
+                                    default: $statusClass = 'badge-due'; break;
+                                }
+                            @endphp
+                            <span class="badge {{ $statusClass }} text-uppercase">
+                                {{ $payment->payment_status }}
+                            </span>
+                        </td>
+                        <td>
+                            @if($payment->invoice_pdf)
+                                <a href="{{ route('tenant.payment.invoice.download', $payment->id) }}" class="btn btn-sm btn-outline-tenant">
+                                    <i class="bi bi-file-earmark-arrow-down"></i>
+                                </a>
+                            @else
+                                <span class="text-muted small">N/A</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-4 text-muted text-center">No recent payments recorded.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
   </div>
 </div>
 
-<!-- Calendar Script -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const calendarEl = document.getElementById('tenant-calendar');
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('toggleSidebar');
-
-    // Create the calendar
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-      height: 'auto',
-      initialView: 'dayGridMonth',
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: ''
-      },
-      events: [
-        { title: 'Rent Due ₱19,220', start: '2025-10-17', color: '#2478C2' },
-        { title: 'Maintenance - Water Leak', start: '2025-10-10', color: '#ff7043' },
-        { title: 'Electric Bill ₱2,800', start: '2025-10-20', color: '#26a69a' }
-      ]
-    });
-    calendar.render();
-
-    // Animate calendar resize when sidebar toggles
-    if (toggleBtn && sidebar) {
-      toggleBtn.addEventListener('click', () => {
-        // Add a short opacity transition for smoothness
-        calendarEl.style.transition = 'opacity 0.3s ease';
-        calendarEl.style.opacity = '0.4';
-
-        // Wait for sidebar animation to finish
-        setTimeout(() => {
-          calendar.updateSize();
-          calendarEl.style.opacity = '1';
-        }, 350);
-      });
-    }
-
-    // Re-render on window resize
-    window.addEventListener('resize', () => {
-      calendar.updateSize();
-    });
-  });
-</script>
 
 @endsection
