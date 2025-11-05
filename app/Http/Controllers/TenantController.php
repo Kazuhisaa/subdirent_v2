@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use App\Models\Maintenance;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,7 +17,7 @@ class TenantController extends Controller
     // TENANT WEB ROUTES (Para sa naka-login na tenant)
     // ===========================================================
 
-    public function home()
+   public function home()
     {
         $user = Auth::user()->load('tenant.unit', 'tenant.contracts', 'tenant.payments');
         if (! $user->tenant) {
@@ -30,6 +31,24 @@ class TenantController extends Controller
         $nextUnpaidDueDate = null;
         $calendarEvents = [];
         $recentPayments = $payments->sortByDesc('payment_date')->take(5);
+
+        // GET DYNAMIC MAINTENANCE COUNTS
+        // We use the statuses from maintenance.blade.php (Pending, In Progress, Completed)
+        $maintenanceStats = Maintenance::where('tenant_id', $tenant->id)
+            ->selectRaw("
+                SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as inprogress,
+                SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed
+            ")
+            ->first();
+        
+        // Prepare the counts for the view, defaulting to 0
+        $maintenanceCounts = [
+            'pending' => $maintenanceStats->pending ?? 0,
+            'inprogress' => $maintenanceStats->inprogress ?? 0,
+            'completed' => $maintenanceStats->completed ?? 0,
+        ];
+
 
         if ($activeContract) {
             $monthlyRent = $activeContract->monthly_payment ?? 0;
@@ -47,7 +66,7 @@ class TenantController extends Controller
                 return Carbon::parse($payment->for_month)->format('Y-m');
             });
 
-            // 1. Determine Next Unpaid Due Date & Build Events
+            // Determine Next Unpaid Due Date & Build Events
             $currentDate = Carbon::parse($activeContract->contract_start)->day($billingDay);
             $foundUnpaid = false;
 
@@ -110,6 +129,7 @@ class TenantController extends Controller
             'recentPayments' => $recentPayments,
             'nextUnpaidDueDate' => $nextUnpaidDueDate,
             'calendarEvents' => json_encode($calendarEvents),
+            'maintenanceCounts' => $maintenanceCounts,
         ]);
     }
 

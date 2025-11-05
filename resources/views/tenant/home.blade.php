@@ -54,9 +54,10 @@
       <div class="card border-0 shadow-sm p-4">
         <h6 class="fw-bold mb-3">Maintenance Tasks</h6>
         <div class="d-flex justify-content-around text-center mb-3">
-          <div><h2 class="text-tenant-accent mb-0">3</h2><small>New</small></div>
-          <div><h2 class="text-tenant-dark mb-0">5</h2><small>Assigned</small></div>
-          <div><h2 class="text-muted mb-0">10</h2><small>Closed</small></div>
+          {{-- UPDATED: Use dynamic variables --}}
+          <div><h2 class="text-tenant-accent mb-0">{{ $maintenanceCounts['pending'] }}</h2><small>Pending</small></div>
+          <div><h2 class="text-tenant-dark mb-0">{{ $maintenanceCounts['inprogress'] }}</h2><small>In Progress</small></div>
+          <div><h2 class="text-muted mb-0">{{ $maintenanceCounts['completed'] }}</h2><small></small>Completed</div>
         </div>
       </div>
     </div>
