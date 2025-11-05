@@ -39,21 +39,35 @@
         </div>
 
         <div class="card border-0 shadow-sm mb-4">
-          <div class="card-body">
-            <h6 class="fw-bold text-secondary mb-3">Documents</h6>
-            <div class="d-flex flex-wrap gap-3">
-              <a href="#" class="btn btn-outline-tenant btn-sm">
-                <i class="bi bi-file-earmark-pdf me-1"></i> Contract PDF
-              </a>
-              <a href="#" class="btn btn-outline-tenant btn-sm">
-                <i class="bi bi-receipt me-1"></i> Receipts
-              </a>
-              <a href="#" class="btn btn-outline-tenant btn-sm">
-                <i class="bi bi-clock-history me-1"></i> Transaction History
-              </a>
-            </div>
-          </div>
-        </div>
+  <div class="card-body">
+    <h6 class="fw-bold text-secondary mb-3">Documents</h6>
+
+    <div class="d-flex flex-wrap gap-3">
+
+      @if ($contract->contract_pdf)
+        <a href="{{ asset('storage/' . $contract->contract_pdf) }}" 
+           target="_blank" 
+           class="btn btn-outline-tenant btn-sm d-flex align-items-center">
+          <i class="bi bi-file-earmark-text me-1"></i> View Contract
+        </a>
+      @else
+        <button class="btn btn-outline-danger btn-sm d-flex align-items-center" disabled>
+          <i class="bi bi-x-circle me-1"></i> No Contract
+        </button>
+      @endif
+
+      <a href="#" class="btn btn-outline-tenant btn-sm d-flex align-items-center">
+        <i class="bi bi-receipt me-1"></i> Receipts
+      </a>
+
+      <a href="#" class="btn btn-outline-tenant btn-sm d-flex align-items-center">
+        <i class="bi bi-clock-history me-1"></i> Transaction History
+      </a>
+      
+    </div>
+  </div>
+</div>
+
       </div>
 
       {{-- LEFT SIDE --}}

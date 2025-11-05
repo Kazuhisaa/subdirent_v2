@@ -5,10 +5,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\TenantController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\ApplicationController;
-use App\Http\Controllers\RevenuePredictionController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ContractController;
+use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\RevenuePredictionController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 
 // use App\Http\Controllers\ResetPasswordController;
@@ -179,10 +181,17 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
     Route::get('/tenant/{tenantId}/payment-cancel', [PaymentController::class, 'cancel'])
         ->name('tenant.payment.cancel');
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/tenant/maintenance', [MaintenanceController::class, 'index'])->name('tenant.maintenance');
+    Route::post('/tenant/maintenance', [MaintenanceController::class, 'store'])->name('tenant.maintenance.store');
+});
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin/contracts/{id}', [ApplicationController::class, 'showContract'])->name('admin.contracts.show');
 
+Route::get('/tenant/contracts/{tenant_id}', [ContractController::class, 'showByTenant'])
+    ->name('tenant.contract.show');
 
     Route::get('/tenant/{tenant}/payments', [PaymentController::class, 'dashboard'])
         ->name('tenant.payments');

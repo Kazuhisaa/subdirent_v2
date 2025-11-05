@@ -21,7 +21,7 @@ class ContractController extends Controller
             ->get();
 
         return response()->json($contracts);
-    }
+    }       
 
     /**
      * 🏠 Show all contracts in admin view (Blade)
@@ -165,4 +165,20 @@ class ContractController extends Controller
 
         return response()->json(['message' => 'Contract restored successfully']);
     }
+public function showByTenant($id)
+{
+    $contract = Contract::findOrFail($id);
+
+    $filePath = 'contracts/' . $contract->contract_pdf;
+
+    if (!Storage::disk('public')->exists($filePath)) {
+        return response()->json(['message' => 'No contract uploaded.'], 404);
+    }
+
+    return response()->file(storage_path('app/public/' . $filePath));
 }
+
+
+
+}
+

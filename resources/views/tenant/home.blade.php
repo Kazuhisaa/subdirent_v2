@@ -96,39 +96,46 @@
                 <th>Invoice<th>
             </tr>
         </thead>
-        <tbody>
-            @forelse ($recentInvoices as $invoice)
-                <tr>
-                    <td>{{ $invoice->invoice_no ?? 'INV-' . str_pad($invoice->id, 3, '0', STR_PAD_LEFT) }}</td>
-                    <td>{{ $invoice->remarks ?? 'No description' }}</td>
-                    <td>₱{{ number_format($invoice->amount, 2) }}</td>
-                    <td>{{ \Carbon\Carbon::parse($invoice->created_at)->format('M d, Y') }}</td>
+       <tbody>
+@php
+  $recentInvoices = $recentInvoices->filter(function($invoice) {
+      return str_starts_with($invoice->remarks, 'Rent Payment');
+  });
+@endphp
 
-                    <td>
-                        @if ($invoice->status === 'Pending')
-                            <span class="badge bg-warning text-dark">Pending</span>
-                        @elseif ($invoice->status === 'Paid')
-                            <span class="badge bg-success">Paid</span>
-                        @elseif ($invoice->status === 'Overdue')
-                            <span class="badge bg-danger">Overdue</span>
-                        @else
-                            <span class="badge bg-secondary">{{ ucfirst($invoice->payment_status) }}</span>
-                        @endif
-                    </td>
-<td>
-                <a href="{{ route('tenant.payment.invoice.download', $invoice->id) }}" 
-                   class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-download"></i> Download
-                </a>
-            </td>
+@forelse ($recentInvoices as $invoice)
+<tr>
+  <td>{{ $invoice->invoice_no ?? 'INV-' . str_pad($invoice->id, 3, '0', STR_PAD_LEFT) }}</td>
+  <td>{{ $invoice->remarks ?? 'No description' }}</td>
+  <td>₱{{ number_format($invoice->amount, 2) }}</td>
+  <td>{{ \Carbon\Carbon::parse($invoice->created_at)->format('M d, Y') }}</td>
 
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="5" class="text-center text-muted">No recent invoices found.</td>
-                </tr>
-            @endforelse
-        </tbody>
+  <td>
+    @if ($invoice->status === 'Pending')
+      <span class="badge bg-warning text-dark">Pending</span>
+    @elseif ($invoice->status === 'Paid')
+      <span class="badge bg-success">Paid</span>
+    @elseif ($invoice->status === 'Overdue')
+      <span class="badge bg-danger">Overdue</span>
+    @else
+      <span class="badge bg-secondary">{{ ucfirst($invoice->payment_status) }}</span>
+    @endif
+  </td>
+
+  <td>
+    <a href="{{ route('tenant.payment.invoice.download', $invoice->id) }}" 
+       class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-download"></i> Download
+    </a>
+  </td>
+</tr>
+@empty
+<tr>
+  <td colspan="6" class="text-center text-muted">No recent rent payments found.</td>
+</tr>
+@endforelse
+</tbody>
+
     </table>
 </div>
 

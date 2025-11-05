@@ -70,4 +70,5 @@ class Contract extends Model
             ->whereRaw("DATE_FORMAT(payment_date, '%Y-%m') = ?", [$month])
             ->exists();
     }
+    
 }
