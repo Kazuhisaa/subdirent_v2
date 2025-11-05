@@ -14,6 +14,7 @@ export default defineConfig({
                 'resources/css/admin_tenant.css',
                 'resources/js/admin_tenant.js',
                 'resources/js/showUnit.js',
+                'resources/js/alerts.js',
             ],
             refresh: true,
         }),

@@ -43,7 +43,7 @@
                     </div>
                 </div>
 
-                {{-- Floor, Rent, Price, Status --}}
+                {{-- Floor, Price, Bedrooms, Bathrooms --}}
                 <div class="row g-3 mb-4">
                     <div class="col-md-3">
                         <label class="form-label fw-semibold text-dark">Floor Area</label>
@@ -52,23 +52,24 @@
 
                     <div class="col-md-3">
                         <label class="form-label fw-semibold text-dark">Unit Price</label>
-                        <input type="number" step="0.01" name="unit_price" class="form-control" placeholder="₱"required>
+                        <input type="number" step="0.01" name="unit_price" class="form-control" placeholder="₱" required>
                     </div>
 
-                    {{-- Contract Years --}}
                     <div class="col-md-3">
-                        <label class="form-label fw-semibold text-dark">Contract Years</label>
-                        <input type="number" name="contract_years" class="form-control" min="1" value="1"required>
-                </div>
-                   
-                </div>
+                        <label class="form-label fw-semibold text-dark">Bedrooms</label>
+                        <input type="number" name="bedroom" class="form-control" min="0" placeholder="e.g. 2" required>
+                    </div>
 
-                
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold text-dark">Bathrooms</label>
+                        <input type="number" name="bathroom" class="form-control" min="0" placeholder="e.g. 1" required>
+                    </div>
+                </div>
 
                 {{-- Description --}}
                 <div class="mb-4">
                     <label class="form-label fw-semibold text-dark">Description</label>
-                    <textarea name="description" class="form-control" rows="4" placeholder="Enter description..."required></textarea>
+                    <textarea name="description" class="form-control" rows="4" placeholder="Enter description..." required></textarea>
                 </div>
 
                 {{-- Upload Images --}}

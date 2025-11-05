@@ -1,29 +1,54 @@
-/* resources/css/tenants.css */
+/* =========================================
+   NEW TENANT TABLE STYLE (From User)
+   ========================================= */
 
-.table {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+/* 1. Table Header (thead)
+   We keep this simple since you have a .card-header
+*/
+#tenant-table thead th,
+#archivedTenantModal .table thead th {
+    background-color: #fff !important; /* Keeps it white */
+    border-bottom: 2px solid #f1f5fb; /* Adds a light blue underline */
+    color: var(--blue-800);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    text-align: left;
 }
 
-.table thead {
-  background-color: #f1f5fb;
-  color: #0d6efd;
-  font-weight: 600;
+/* 2. Table Body (tbody)
+   Applies your new styles
+*/
+#tenant-table tbody td,
+#archivedTenantModal .table tbody td {
+    color: var(--blue-900);
+    vertical-align: middle;
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5fb; /* Use your new light blue for separators */
+    text-align: left;
 }
 
-.btn-action {
-  background-color: #0d6efd;
-  color: #fff;
-  border-radius: 8px;
-  padding: 8px 16px;
-  transition: background 0.2s ease;
+/* 3. Last Row */
+#tenant-table tbody tr:last-child td,
+#archivedTenantModal .table tbody tr:last-child td {
+    border-bottom: none;
 }
 
-.btn-action:hover {
-  background-color: #0b5ed7;
+/* 4. Actions Column (Center Align) */
+#tenant-table th:last-child,
+#tenant-table td:last-child,
+#archivedTenantModal .table th:last-child,
+#archivedTenantModal .table td:last-child {
+    text-align: center;
 }
 
-.text-blue-900 {
-  color: #0d47a1;
+/* 5. Hover State
+   Uses the light blue from your new CSS
+*/
+#tenant-table tbody tr:hover,
+#archivedTenantModal .table tbody tr:hover {
+    background-color: #f1f5fb; /* This is the hover color you wanted */
+    transition: background-color 0.2s ease;
 }
