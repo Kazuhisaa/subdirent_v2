@@ -270,7 +270,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            alert("✅ Reservation successful!");
+            Swal.fire({
+    icon: 'success',
+    title: '<b>Success!</b>',
+    text: 'Reservation Successful',
+    background: 'transparent',
+    showConfirmButton: true,
+    confirmButtonText: '<b>OK</b>',
+    allowOutsideClick: false,
+    customClass: {
+        popup: 'swal2-no-backdrop'
+    }
+});
             reserveForm.reset();
             closeAllModals();
 

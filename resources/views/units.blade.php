@@ -113,7 +113,7 @@
             <input type="text" id="apply_first_name" name="first_name" required class="form-control mb-3">
 
             <label for="apply_first_name" class="form-label">Middle Name</label>
-            <input type="text" name="middle_name" required class="form-control mb-3">
+            <input type="text" name="middle_name" class="form-control mb-3">
 
             <label for="apply_last_name" class="form-label">Last Name</label>
             <input type="text" id="apply_last_name" name="last_name" required class="form-control mb-3">
@@ -188,6 +188,6 @@
 <script src="{{ asset('js/units.js') }}">
     
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 @endsection

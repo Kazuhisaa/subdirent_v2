@@ -352,3 +352,18 @@
         .custom-modal-body { padding: 20px; }
         .custom-modal-footer { padding: 15px 20px; flex-direction: column; }
     }
+    .swal2-popup {
+    background: whitesmoke !important;
+    box-shadow: none !important;
+}
+.swal2-title, .swal2-html-container {
+    color: #1e3a8a !important; /* dark blue text */
+    font-family: 'Poppins', sans-serif;
+}
+.swal2-confirm {
+    border-radius: 25px !important;
+    font-weight: bold;
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ccc !important;
+}
