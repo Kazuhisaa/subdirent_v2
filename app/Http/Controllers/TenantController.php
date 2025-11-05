@@ -37,11 +37,18 @@ class TenantController extends Controller
             }
         }
 
+         $recentInvoices = Payment::where('tenant_id', $user->tenant->id)
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
+
         return view('tenant.home', [
             'tenant' => $user,
             'activeContract' => $activeContract,
             'payments' => $payments,
             'nextDueDate' => $nextDueDate,
+            'recentInvoices' => $recentInvoices
+
         ]);
     }
 

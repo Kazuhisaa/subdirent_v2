@@ -82,45 +82,56 @@
     </div>
   </div>
 
-  <!-- Invoices Table -->
-  <div class="card border-0 shadow-sm p-4">
+  <!-- Recent Invoices Table -->
+<div class="card border-0 shadow-sm p-4 mt-4">
     <h6 class="fw-bold mb-3">Recent Invoices</h6>
     <table class="table table-hover align-middle">
-      <thead class="table-light">
-        <tr>
-          <th>#</th>
-          <th>Description</th>
-          <th>Amount</th>
-          <th>Due Date</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>INV-001</td>
-          <td>Monthly Rent (October)</td>
-          <td>₱19,220</td>
-          <td>Oct 17, 2025</td>
-          <td><span class="badge bg-warning text-dark">Pending</span></td>
-        </tr>
-        <tr>
-          <td>INV-002</td>
-          <td>Plumbing Maintenance</td>
-          <td>₱1,500</td>
-          <td>Sept 22, 2025</td>
-          <td><span class="badge bg-danger">Overdue</span></td>
-        </tr>
-        <tr>
-          <td>INV-003</td>
-          <td>Monthly Rent (September)</td>
-          <td>₱19,220</td>
-          <td>Sept 17, 2025</td>
-          <td><span class="badge bg-success">Paid</span></td>
-        </tr>
-      </tbody>
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Invoice<th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($recentInvoices as $invoice)
+                <tr>
+                    <td>{{ $invoice->invoice_no ?? 'INV-' . str_pad($invoice->id, 3, '0', STR_PAD_LEFT) }}</td>
+                    <td>{{ $invoice->remarks ?? 'No description' }}</td>
+                    <td>₱{{ number_format($invoice->amount, 2) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($invoice->created_at)->format('M d, Y') }}</td>
+
+                    <td>
+                        @if ($invoice->status === 'Pending')
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        @elseif ($invoice->status === 'Paid')
+                            <span class="badge bg-success">Paid</span>
+                        @elseif ($invoice->status === 'Overdue')
+                            <span class="badge bg-danger">Overdue</span>
+                        @else
+                            <span class="badge bg-secondary">{{ ucfirst($invoice->payment_status) }}</span>
+                        @endif
+                    </td>
+<td>
+                <a href="{{ route('tenant.payment.invoice.download', $invoice->id) }}" 
+                   class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-download"></i> Download
+                </a>
+            </td>
+
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No recent invoices found.</td>
+                </tr>
+            @endforelse
+        </tbody>
     </table>
-  </div>
 </div>
+
 
 <!-- Calendar Script -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>

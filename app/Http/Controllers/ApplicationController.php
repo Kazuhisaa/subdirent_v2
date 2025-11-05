@@ -15,7 +15,12 @@ use App\Mail\TenantMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\{Hash, Mail};
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\RevenueService;
+use Illuminate\Support\Facades\Storage;
+
+
+
 class ApplicationController extends Controller
 {
     /**
@@ -216,9 +221,23 @@ class ApplicationController extends Controller
         // Send email credentials
         Mail::to($user->email)->queue(new TenantMail($user->email, $password));
 
-       return redirect()->route('admin.applications')
-    ->with('success', 'Application approved successfully!');
+// ✅ Generate contract PDF (AFTER all data is ready)
+$pdf = Pdf::loadView('tenant.contract', [
+    'contract' => $contract,
+    'tenant'   => $contract->tenant,
+    'unit'     => $contract->unit,
+]);
 
+$fileName = 'contract_' . $contract->tenant->last_name . '_' . now()->format('YmdHis') . '.pdf';
+$filePath = 'contracts/' . $fileName;
+Storage::disk('public')->put($filePath, $pdf->output());
+
+// ✅ Update DB with PDF path
+$contract->update(['contract_pdf' => $filePath]);
+
+return redirect()
+    ->route('admin.applications')
+    ->with('success', 'Application approved, user created, and contract PDF generated successfully!');
 
     }
 
@@ -268,4 +287,14 @@ class ApplicationController extends Controller
 
         return view('admin.applications', compact('applications', 'units'));
     }
+    
+    public function showContract($id)
+{
+    $contract = Contract::findOrFail($id);
+    if (!$contract->contract_pdf || !Storage::disk('public')->exists($contract->contract_pdf)) {
+        abort(404, 'Contract PDF not found.');
+    }
+    return response()->file(storage_path('app/public/' . $contract->contract_pdf));
+}
+
 }

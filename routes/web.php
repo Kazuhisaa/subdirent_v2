@@ -181,6 +181,8 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
 
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/contracts/{id}', [ApplicationController::class, 'showContract'])->name('admin.contracts.show');
+
 
     Route::get('/tenant/{tenant}/payments', [PaymentController::class, 'dashboard'])
         ->name('tenant.payments');

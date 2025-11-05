@@ -26,6 +26,8 @@ class Contract extends Model
         'remarks',
         'last_billed_at',
         'next_due_date',
+        'contract_pdf'
+
     ];
 
     // Relationships

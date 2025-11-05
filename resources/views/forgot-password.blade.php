@@ -25,7 +25,6 @@
             justify-content: center;
 
             
-            /* === KEY FIX #2: GINAMIT ANG ASSET() HELPER === */
             font-family: 'Poppins', 'Segoe UI', sans-serif;
         background-image: url('../uploads/bg1.jpg');
         background-size: cover;
