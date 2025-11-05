@@ -67,12 +67,12 @@ function showRandomFeatured(units) {
         }
 
         units.forEach((unit, index) => {
-            const imageUrl = unit.files?.length 
-                ? `/${unit.files[0]}` 
-                : 'https://via.placeholder.com/300x220.png?text=No+Image';
+            const imageUrl = unit.files?.length && unit.files[0]
+                ? unit.files[0].replace(/^uploads\/?/, 'uploads/') // keep relative to public
+                : 'uploads/units/default.jpg';
 
-            const monthlyRent = unit.monthly_rent 
-                ? `₱${parseFloat(unit.monthly_rent).toLocaleString()}` 
+            const monthlyRent = unit.unit_price 
+                ? `₱${parseFloat(unit.unit_price).toLocaleString()}` 
                 : 'Price not available';
 
             const floorArea = unit.floor_area ? `${unit.floor_area} sqm` : 'N/A';

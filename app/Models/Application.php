@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Application extends Model
 {
     use SoftDeletes;
+
   
     protected $fillable = [
         'first_name',
@@ -24,7 +25,9 @@ class Application extends Model
         'unit_price',
         'payment_due_date',
         'contract_years',
-        'remarks'
+        'remarks',
+          'contract_start'
+        
     ];
 
     protected $dates = ['deleted_at'];

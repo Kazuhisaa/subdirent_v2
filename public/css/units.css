@@ -8,6 +8,54 @@
         background-attachment: fixed;
         overflow-x: hidden;
     }
+    /* Ilagay ito kasama ng iba mong CSS */
+
+/* Ginagawang "kamay" ang cursor kapag tinapat sa card */
+.property-card {
+    cursor: pointer; 
+}
+
+/* Styles para sa bagong "View Details" Modal */
+.modal-unit-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+}
+
+.modal-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns */
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.modal-detail-item {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.modal-detail-item strong {
+    display: block;
+    color: var(--blue-700);
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.modal-detail-item span {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--blue-900);
+}
+
+.modal-description p {
+    margin-top: 5px;
+    line-height: 1.6;
+}
     .animate-on-scroll {
         opacity: 0;
         transform: translateY(30px);
@@ -177,11 +225,10 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
-        background: rgba(255, 255, 255, 0.7);
+
         backdrop-filter: blur(5px);
         padding: 20px;
         border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
     }
     .search-box {
         border-radius: 100px;
@@ -244,8 +291,10 @@
     .custom-modal {
         display: none;
         position: fixed;
-        top: 10%;
+
         left: 50%;
+          max-height: 90vh; /* important */
+  overflow-y: auto; /* scroll if too tall */
         transform: translateX(-50%) scale(0.95);
         background: white;
         width: 600px; /* Mula sa Code 2 */
@@ -303,3 +352,18 @@
         .custom-modal-body { padding: 20px; }
         .custom-modal-footer { padding: 15px 20px; flex-direction: column; }
     }
+    .swal2-popup {
+    background: whitesmoke !important;
+    box-shadow: none !important;
+}
+.swal2-title, .swal2-html-container {
+    color: #1e3a8a !important; /* dark blue text */
+    font-family: 'Poppins', sans-serif;
+}
+.swal2-confirm {
+    border-radius: 25px !important;
+    font-weight: bold;
+    background: white !important;
+    color: black !important;
+    border: 1px solid #ccc !important;
+}

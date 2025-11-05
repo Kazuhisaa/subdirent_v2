@@ -26,6 +26,8 @@ class Contract extends Model
         'remarks',
         'last_billed_at',
         'next_due_date',
+        'contract_pdf'
+
     ];
 
     // Relationships
@@ -68,4 +70,5 @@ class Contract extends Model
             ->whereRaw("DATE_FORMAT(payment_date, '%Y-%m') = ?", [$month])
             ->exists();
     }
+    
 }

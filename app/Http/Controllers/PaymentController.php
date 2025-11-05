@@ -360,7 +360,19 @@ public function index()
     return view('admin.payments', compact('payments', 'archivedPayments'));
 }
 
+public function showInvoice($id)
+{
+    $payment = Payment::findOrFail($id);
 
+    // Fetch the 5 most recent invoices of the same tenant
+    $recentInvoices = Payment::where('tenant_id', $payment->tenant_id)
+        ->where('remarks', 'like', 'Rent Payment%')
+        ->latest()
+        ->take(5)
+        ->get();
+
+    return view('tenant.invoice', compact('payment', 'recentInvoices'));
+}
 
 public function archive($id)
 {
