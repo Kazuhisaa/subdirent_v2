@@ -135,12 +135,22 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
     Route::get('/predictionAnnual', [RevenuePredictionController::class, 'showPredictionAnnual']);
     Route::get('/train', [RevenuePredictionController::class, 'trainModel']);
 
+    // Maintenance Routes
+    // This route MUST point to the 'adminIndex' method
+     Route::get('/maintenance', [\App\Http\Controllers\MaintenanceController::class, 'adminIndex'])
+         ->name('maintenance'); 
+         
+    Route::put('/maintenance/{maintenance}', [\App\Http\Controllers\MaintenanceController::class, 'update'])
+         ->name('maintenance.update'); 
+         
+    Route::delete('/maintenance/{maintenance}', [\App\Http\Controllers\MaintenanceController::class, 'archive'])
+         ->name('maintenance.archive'); 
     // Static admin pages
     Route::get('/rooms', [UnitsController::class, 'rooms'])->name('rooms');
     Route::view('/addroom', 'admin.addroom')->name('addroom');
     Route::view('/tenants', 'admin.tenants')->name('tenants');
     Route::view('/bookings', 'admin.bookings')->name('bookings');
-    Route::view('/maintenance', 'admin.maintenance')->name('maintenance');
+    //Route::view('/maintenance', 'admin.maintenance')->name('maintenance');
     Route::view('/contracts', 'admin.contracts')->name('contracts');
     Route::view('/reports', 'admin.reports')->name('reports');
 

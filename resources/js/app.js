@@ -54,6 +54,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (info.event.title.includes('Due')) {
                     info.el.style.backgroundColor = '#dc3545'; // Red
                     info.el.style.borderColor = '#dc3545';
+                } else if (info.event.title.includes('Partial')) {
+                    info.el.style.backgroundColor = '#ffc107'; // Yellow
+                    info.el.style.borderColor = '#ffc107';
+                } else if (info.event.title.includes('Due')) {
+                    info.el.style.backgroundColor = '#dc3545'; // Red
+                    info.el.style.borderColor = '#dc3545';
+                }
+                // === NEW: Style for Maintenance Events ===
+                else if (info.event.title.includes('Service:')) {
+                    info.el.style.backgroundColor = '#6f42c1'; // Bootstrap Purple
+                    info.el.style.borderColor = '#6f42c1';
+                    info.el.style.color = '#ffffff'; // White text
                 }
             }
         });

@@ -157,6 +157,64 @@
     </div>
     
   </div>
+
+  <!-- === NEW: Maintenance Requests Table === -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm p-0">
+        <div class="card-header bg-light border-0 py-3">
+          <h6 class="fw-bold text-primary mb-0">My Maintenance Requests</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table home-table align-middle text-center mb-0">
+                    <thead class="text-uppercase small">
+                        <tr>
+                            <th class="text-start ps-4">Category</th>
+                            <th>Description</th>
+                            <th>Notes</th>
+                            <th>Date Submitted</th>
+                            <th>Status</th>
+                            <th class="pe-4">Scheduled Service</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($maintenanceRequests as $request)
+                        <tr>
+                            <td class="text-start ps-4 fw-bold text-blue-900">{{ $request->category }}</td>
+                            <td class="text-start" style="max-width: 300px;">
+                                <small class="d-block text-truncate" title="{{ $request->description }}">{{ $request->description }}</small>
+                            </td>
+                            {{-- === ADDED: This cell displays the admin's notes === --}}
+                            <td class="text-start" style="max-width: 200px;">
+                                <small class="d-block text-truncate" title="{{ $request->notes }}">{{ $request->notes ?? 'N/A' }}</small>
+                            </td>
+                            <td>{{ $request->created_at->format('M d, Y') }}</td>
+                            <td>
+                                @php
+                                    $badgeClass = 'bg-secondary'; // Default for Pending
+                                    if ($request->status == 'Completed') $badgeClass = 'bg-success';
+                                    if ($request->status == 'In Progress') $badgeClass = 'bg-primary';
+                                @endphp
+                                <span class="badge {{ $badgeClass }}">{{ $request->status }}</span>
+                            </td>
+                            <td class="fw-bold pe-4">
+                                {{ $request->scheduled_date ? \Carbon\Carbon::parse($request->scheduled_date)->format('M d, Y') : 'N/A' }}
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            {{-- === CHANGED: Updated colspan from 5 to 6 === --}}
+                            <td colspan="6" class="py-4 text-muted text-center">You have not submitted any maintenance requests.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 

@@ -30,7 +30,7 @@ class TenantController extends Controller
         $payments = $tenant->payments;
 
         $nextUnpaidDueDate = null;
-        $calendarEvents = [];
+        $calendarEvents = []; // This will hold payment events
         $recentPayments = $payments->sortByDesc('payment_date')->take(5);
 
         // GET DYNAMIC MAINTENANCE COUNTS
@@ -49,6 +49,26 @@ class TenantController extends Controller
             'inprogress' => $maintenanceStats->inprogress ?? 0,
             'completed' => $maintenanceStats->completed ?? 0,
         ];
+
+        // === START NEW SECTION ===
+        // Get all maintenance requests for calendar and new table
+        $maintenanceRequests = Maintenance::where('tenant_id', $tenant->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $maintenanceEvents = [];
+        foreach ($maintenanceRequests as $request) {
+            // Add to calendar only if In Progress and has a scheduled date
+            if ($request->status == 'In Progress' && $request->scheduled_date) {
+                $maintenanceEvents[] = [
+                    'title' => 'Service: ' . $request->category,
+                    'start' => Carbon::parse($request->scheduled_date)->format('Y-m-d'),
+                    'color' => '#6f42c1', // Bootstrap Purple
+                    'description' => $request->description
+                ];
+            }
+        }
+        // === END NEW SECTION ===
 
 
         if ($activeContract) {
@@ -124,14 +144,20 @@ class TenantController extends Controller
         ->take(5)
         ->get();
 
+        // === START MODIFIED SECTION ===
+        // Merge payment and maintenance events for the calendar
+        $allCalendarEvents = array_merge($calendarEvents, $maintenanceEvents);
+
         return view('tenant.home', [
             'tenant' => $user,
             'activeContract' => $activeContract,
             'recentPayments' => $recentPayments,
             'nextUnpaidDueDate' => $nextUnpaidDueDate,
-            'calendarEvents' => json_encode($calendarEvents),
+            'calendarEvents' => json_encode($allCalendarEvents), // Pass all events
             'maintenanceCounts' => $maintenanceCounts,
+            'maintenanceRequests' => $maintenanceRequests, // Pass full list for new table
         ]);
+        // === END MODIFIED SECTION ===
     }
 
     public function property()
