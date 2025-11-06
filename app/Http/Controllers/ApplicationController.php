@@ -249,11 +249,9 @@ return redirect()
         $application = Application::findOrFail($id);
         $application->delete();
 
-        return response()->json([
-            'message' => 'Application archived successfully',
-            'data'    => $application
-        ]);
-    }
+       return redirect()->route('admin.applications')
+                     ->with('success', 'Application archived successfully');
+}
 
     /**
      * View archived applications

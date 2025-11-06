@@ -46,6 +46,8 @@ Route::prefix('applications')->group(function () {
     Route::put('/editApplications/{id}',[ApplicationController::class,'update']);
     Route::patch('/archive/{id}', [ApplicationController::class, 'archive']);
     Route::post('/approve/{id}',[ApplicationController::class,'approve']);
+    Route::get('/archived', [ApplicationController::class, 'ViewArchive']);
+
 });
 
 
