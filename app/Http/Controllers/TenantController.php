@@ -537,6 +537,8 @@ public function autopaySetup(Request $request)
     return back()->with('autopay_status', 'Autopay has been activated successfully!');
 }
 
+
+
 public function showPayments($tenantId)
 {
     $tenant = Tenant::with('autopay')->findOrFail($tenantId);
