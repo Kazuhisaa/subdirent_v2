@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             ? items.slice(0, 5).map(r => `<tr>${cols.map(c => `<td>${r[c] ?? 'N/A'}</td>`).join('')}</tr>`).join('')
             : `<tr><td colspan="${cols.length}" class="text-muted py-3">No records found.</td></tr>`;
     };
-    renderTable('bookingsTable', data.bookings, ['id', 'name', 'status']);
+    renderTable('bookingsTable', data.bookings, ['id', '', 'status']);
     renderTable('contractsTable', data.contracts, ['id', 'tenant_name', 'status']);
     renderTable('applicationsTable', data.applications, ['id', 'applicant', 'status']);
     renderTable('paymentsTable', data.payments, ['id', 'tenant_name', 'amount']);

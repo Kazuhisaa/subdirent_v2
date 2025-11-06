@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Payment;
 use App\Models\Tenant;
+use App\Models\Payment;
+use App\Models\Contract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -186,7 +187,7 @@ public function payments()
         'outstanding',
         'penalty',
         'amountToPay',
-        'paymentStatus'
+        'paymentStatus',
     ));
 }
 
@@ -347,6 +348,33 @@ public function payments()
         'message' => 'Tenant restored successfully',
         'tenant' => $tenant,
     ]);
+}
+
+
+public function autopaySetup(Request $request)
+{
+    $request->validate([
+        'payment_method' => 'required|string|max:255',
+    ]);
+
+    // Example: store payment method setup for tenant
+    $tenant = auth()->user()->tenant;
+
+    // You can later integrate Stripe API here
+    $tenant->update([
+        'autopay_method' => $request->payment_method,
+        'autopay_active' => true,
+    ]);
+
+    return back()->with('autopay_status', 'Autopay has been activated successfully!');
+}
+
+public function showPayments($tenantId)
+{
+    $tenant = Tenant::with('autopay')->findOrFail($tenantId);
+    $contract = Contract::where('tenant_id', $tenantId)->first();
+
+    return view('tenant.payments', compact('tenant', 'contract'));
 }
 
 }
