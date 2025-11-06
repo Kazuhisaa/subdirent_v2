@@ -12,6 +12,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RevenuePredictionController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use App\Http\Controllers\ReportPdfController;
 
 // use App\Http\Controllers\ResetPasswordController;
 
@@ -232,3 +233,5 @@ Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook'])
 
 Route::post('/applications', [ApplicationController::class, 'store'])->name('applications.store');
 
+Route::post('/generate-report-pdf', [ReportPdfController::class, 'generatePdf'])
+     ->name('admin.reports.pdf');
