@@ -7,7 +7,9 @@ use App\Models\Payment;
 use App\Models\Contract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 // Wala na 'yung PayMongo at Payment model dito
 
@@ -53,20 +55,45 @@ class TenantController extends Controller
         ]);
     }
 
-    public function property()
-    {
-        $user = Auth::user()->load('tenant.unit', 'tenant.contracts');
-        if (! $user->tenant) {
-            abort(404, 'Tenant record not found.');
-        }
-        $activeContract = $user->tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+public function property()
+{
+    $user = Auth::user()->load('tenant.unit', 'tenant.contracts');
 
-        return view('tenant.property', [
-            'tenant' => $user,
-            'contract' => $activeContract,
-            'unit' => $user->tenant->unit,
-        ]);
+    if (! $user->tenant) {
+        abort(404, 'Tenant record not found.');
     }
+
+    $activeContract = $user->tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+
+    $unit = $user->tenant->unit;
+    $predictions = [];
+
+    if ($unit) {
+        $data = [
+            'bathroom' => $unit->bathroom,
+            'bedroom' => $unit->bedroom,
+            'floor_area' => $unit->floor_area,
+            'lot_size' => $unit->lot_size,
+            'year' => date('Y'),
+            'n_years' => 5
+        ];
+
+        $response = Http::post('http://127.0.0.1:5000/predict', $data);
+
+        if ($response->successful()) {
+            $predictions = $response->json();
+        } else {
+            Log::error('Prediction API error: ' . $response->body());
+        }
+    }
+
+    return view('tenant.property', [
+        'tenant' => $user,
+        'contract' => $activeContract,
+        'unit' => $unit,
+        'predictions' => $predictions, // ✅ pass predictions to Blade
+    ]);
+}
 
 public function payments()
 {

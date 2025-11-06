@@ -147,4 +147,56 @@
   @endif
 
 </div>
+
+{{-- UNIT PRICE PREDICTION --}}
+<div class="card border-0 shadow-sm mt-4">
+  <div class="card-body">
+    <h6 class="fw-bold text-secondary mb-3">Unit Price Prediction</h6>
+
+    <canvas id="unitPriceChart" width="200" height="50"></canvas>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+    const predictions = @json($predictions ?? []);
+
+    if (predictions.length > 0) {
+        const labels = predictions.map(p => p.year);
+        const data = predictions.map(p => p.predicted_price);
+
+        const ctx = document.getElementById('unitPriceChart').getContext('2d');
+        const unitPriceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Predicted Unit Price (₱)',
+                    data: data,
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgb(75, 192, 192)',
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    } else {
+        document.getElementById('unitPriceChart').insertAdjacentHTML('afterend', '<p class="text-muted mt-2">No prediction data available.</p>');
+    }
+</script>
+
 @endsection
