@@ -261,14 +261,31 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
 
             if (!res.ok) {
-                let errorMessage = "❌ Failed to reserve unit.";
-                if (data.errors) {
-                    const errors = Object.values(data.errors).map(err => `• ${err[0]}`).join('\n');
-                    errorMessage += "\n\n" + errors;
-                }
-                alert(errorMessage);
-                return;
+                // --- GINAWANG SWEETALERT ---
+                let errorTitle = '<b style="color: red;">Failed to reserve unit.</b>';
+                let errorDetails = '';
+                
+                
+if (data.errors) {
+                // Tinanggal ang bullet (•) at ginawang red ang text
+                errorDetails = Object.values(data.errors)
+                                   .map(err => `<p style="color: #D32F2F; margin: 0; font-weight: 500;">${err[0]}</p>`)
+                                   .join('');
             }
+                Swal.fire({
+                    icon: 'error',
+                    title: errorTitle,
+                    html: errorDetails,
+                    background: 'transparent',
+                    showConfirmButton: true,
+                    confirmButtonText: '<b style="color: #D32F2F; " >OK</b>',
+                     allowOutsideClick: false,
+                    customClass: {
+                        popup: 'swal2-no-backdrop'
+                    }
+                });
+                return;
+            }
 
             Swal.fire({
     icon: 'success',
@@ -286,10 +303,22 @@ document.addEventListener("DOMContentLoaded", () => {
             closeAllModals();
 
         } catch (err) {
-            console.error('Fetch Error:', err);
-            alert("❌ Network or server error. Please try again.");
-        }
-    });
+            console.error('Fetch Error:', err);
+            // Inayos ko na rin 'to
+            Swal.fire({
+                icon: 'error',
+                title: '<b>Network Error</b>',
+                text: 'Please try again later.',
+                background: 'transparent',
+                showConfirmButton: true,
+                confirmButtonText: '<b>OK</b>',
+                allowOutsideClick: false,
+                customClass: {
+                    popup: 'swal2-no-backdrop'
+                }
+            });
+        }
+    });
 
     applyForm.addEventListener("submit", async e => {
         e.preventDefault();
@@ -308,18 +337,44 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
 
             if (!res.ok) {
-                let errorMessage = "❌ Failed to submit application.";
-                if (data.errors) {
-                    const errors = Object.values(data.errors).map(err => `• ${err[0]}`).join('\n');
-                    errorMessage += "\n\n" + errors;
-                }
-                alert(errorMessage);
-                return;
+                // --- GINAWANG SWEETALERT ---
+                let errorTitle = '<b style="color: red;">Failed to reserve unit.</b>';
+                let errorDetails = '';
+                
+                
+if (data.errors) {
+                // Tinanggal ang bullet (•) at ginawang red ang text
+                errorDetails = Object.values(data.errors)
+                                   .map(err => `<p style="color: #D32F2F; margin: 0; font-weight: 500;">${err[0]}</p>`)
+                                   .join('');
             }
+                Swal.fire({
+                    icon: 'error',
+                    title: errorTitle,
+                    html: errorDetails,
+                    background: 'transparent',
+                    showConfirmButton: true,
+                    confirmButtonText: '<b style="color: #D32F2F; " >OK</b>',
+                     allowOutsideClick: false,
+                    customClass: {
+                        popup: 'swal2-no-backdrop'
+                    }
+                });
+                return;
+            }
 
-            alert("✅ Application submitted successfully!");
-            applyForm.reset();
-            closeAllModals();
+            Swal.fire({
+    icon: 'success',
+    title: '<b>Success!</b>',
+    text: 'Application Successful',
+    background: 'transparent',
+    showConfirmButton: true,
+    confirmButtonText: '<b>OK</b>',
+    allowOutsideClick: false,
+    customClass: {
+        popup: 'swal2-no-backdrop'
+    }
+});
 
         } catch (err) {
             console.error('Fetch Error:', err);
