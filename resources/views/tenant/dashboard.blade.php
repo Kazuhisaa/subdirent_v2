@@ -136,6 +136,9 @@
 
 <script>
   window.apiToken = "{{ auth()->user()->createToken('tenant-token')->plainTextToken ?? '' }}";
+
 </script>
+@stack('scripts')
+
 </body>
 </html>

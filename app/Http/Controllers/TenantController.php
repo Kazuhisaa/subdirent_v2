@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Payment;
 use App\Models\Tenant;
+use App\Models\Payment;
+use App\Models\Contract;
 use Illuminate\Http\Request;
 use App\Models\Maintenance;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 
 // Wala na 'yung PayMongo at Payment model dito
 
@@ -160,20 +163,45 @@ class TenantController extends Controller
         // === END MODIFIED SECTION ===
     }
 
-    public function property()
-    {
-        $user = Auth::user()->load('tenant.unit', 'tenant.contracts');
-        if (! $user->tenant) {
-            abort(404, 'Tenant record not found.');
-        }
-        $activeContract = $user->tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+public function property()
+{
+    $user = Auth::user()->load('tenant.unit', 'tenant.contracts');
 
-        return view('tenant.property', [
-            'tenant' => $user,
-            'contract' => $activeContract,
-            'unit' => $user->tenant->unit,
-        ]);
+    if (! $user->tenant) {
+        abort(404, 'Tenant record not found.');
     }
+
+    $activeContract = $user->tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+
+    $unit = $user->tenant->unit;
+    $predictions = [];
+
+    if ($unit) {
+        $data = [
+            'bathroom' => $unit->bathroom,
+            'bedroom' => $unit->bedroom,
+            'floor_area' => $unit->floor_area,
+            'lot_size' => $unit->lot_size,
+            'year' => date('Y'),
+            'n_years' => 5
+        ];
+
+        $response = Http::post('http://127.0.0.1:5000/predict', $data);
+
+        if ($response->successful()) {
+            $predictions = $response->json();
+        } else {
+            Log::error('Prediction API error: ' . $response->body());
+        }
+    }
+
+    return view('tenant.property', [
+        'tenant' => $user,
+        'contract' => $activeContract,
+        'unit' => $unit,
+        'predictions' => $predictions, // ✅ pass predictions to Blade
+    ]);
+}
 
 public function payments()
 {
@@ -294,7 +322,7 @@ public function payments()
         'outstanding',
         'penalty',
         'amountToPay',
-        'paymentStatus'
+        'paymentStatus',
     ));
 }
 
@@ -488,6 +516,33 @@ public function payments()
         'message' => 'Tenant restored successfully',
         'tenant' => $tenant,
     ]);
+}
+
+
+public function autopaySetup(Request $request)
+{
+    $request->validate([
+        'payment_method' => 'required|string|max:255',
+    ]);
+
+    // Example: store payment method setup for tenant
+    $tenant = auth()->user()->tenant;
+
+    // You can later integrate Stripe API here
+    $tenant->update([
+        'autopay_method' => $request->payment_method,
+        'autopay_active' => true,
+    ]);
+
+    return back()->with('autopay_status', 'Autopay has been activated successfully!');
+}
+
+public function showPayments($tenantId)
+{
+    $tenant = Tenant::with('autopay')->findOrFail($tenantId);
+    $contract = Contract::where('tenant_id', $tenantId)->first();
+
+    return view('tenant.payments', compact('tenant', 'contract'));
 }
 
 }

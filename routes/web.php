@@ -5,13 +5,17 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\AutopayController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\RevenuePredictionController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Stripe\Stripe;
 
 // use App\Http\Controllers\ResetPasswordController;
 
@@ -228,6 +232,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 Route::post('payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');
+
+
 Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook'])
     ->withoutMiddleware([ValidateCsrfToken::class]);
 
@@ -242,3 +248,27 @@ Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook'])
 
 Route::post('/applications', [ApplicationController::class, 'store'])->name('applications.store');
 
+// ✅ STRIPE WEBHOOK — must be outside auth middleware
+Route::post('stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
+    ->withoutMiddleware([VerifyCsrfToken::class]);
+
+// ✅ Protected routes (with auth)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/tenant/{tenant}/autopay/dashboard', [AutopayController::class, 'dashboard'])->name('tenant.dashboard');
+    Route::post('/autopay/cancel/{autopay_id}', [AutopayController::class, 'cancel']);
+    Route::get('/autopay/invoice/{autopay_id}', [AutopayController::class, 'downloadInvoice']);
+    Route::get('/admin/autopay', [AutopayController::class, 'index'])->name('admin.autopay');
+    Route::post('/tenant/{tenantId}/contract/{contractId}/autopay', [AutopayController::class, 'setupAutopay']);
+     Route::post('/tenant/{tenantId}/contract/{contractId}/autopay', [AutopayController::class, 'setupAutopay'])
+        ->name('autopay.setup');
+   Route::delete('/autopay/{autopayId}/cancel', [AutopayController::class, 'cancel'])->name('autopay.cancel');
+Route::patch('autopay/{autopay}/pause', [AutopayController::class, 'pause'])->name('autopay.pause');
+Route::patch('autopay/{autopay}/activate', [AutopayController::class, 'activate'])->name('autopay.activate');
+
+
+});
+
+
+Route::post('/tenant/autopay/setup', [TenantController::class, 'autopaySetup'])
+    ->name('tenant.autopay.setup')
+    ->middleware('auth');

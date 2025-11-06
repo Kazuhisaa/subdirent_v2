@@ -1,10 +1,11 @@
 <?php
 
+use App\Jobs\TrainModel;
+use App\Jobs\NewHistoricalRevenue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
-use App\Jobs\TrainModel;
-use App\Jobs\NewHistoricalRevenue;
 
 // Sample command
 Artisan::command('inspire', function () {

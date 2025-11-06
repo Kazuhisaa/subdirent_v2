@@ -19,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
     'admin' => \App\Http\Middleware\AdminMiddleware::class, // ✅ add this
 ];
 
+ $middleware->validateCsrfTokens(except: [
+        'stripe/webhook',
+        'tenant/*/contract/*/autopay',
+    ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

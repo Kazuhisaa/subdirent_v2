@@ -67,22 +67,17 @@
           </form>
           @endif
 
-          {{-- Autopay --}}
-          <a href="#" class="btn btn-outline-secondary w-100 fw-semibold mb-3">
-            <i class="bi bi-clock-history me-1"></i> Set Up Autopay
-          </a>
-
           {{-- Dynamic Payment Status Notification --}}
           <div class="payment-status text-center mt-3">
             @if($paymentStatus['currentMonthPaid'] && $paymentStatus['nextMonthPaid'])
               <div class="alert alert-success py-2 small shadow-sm mb-0">
                 <i class="bi bi-check-circle-fill me-1"></i>
-                You’re fully paid for <strong>{{ $paymentStatus['currentMonth'] }}</strong> and <strong>{{ $paymentStatus['nextMonth'] }}</strong>! 🎉
+                You're fully paid for <strong>{{ $paymentStatus['currentMonth'] }}</strong> and <strong>{{ $paymentStatus['nextMonth'] }}</strong>! 🎉
               </div>
             @elseif($paymentStatus['currentMonthPaid'] && !$paymentStatus['nextMonthPaid'])
               <div class="alert alert-info py-2 small shadow-sm mb-0">
                 <i class="bi bi-check-circle-fill me-1"></i>
-                You’ve already paid for <strong>{{ $paymentStatus['currentMonth'] }}</strong>. Next rent is due soon.
+                You've already paid for <strong>{{ $paymentStatus['currentMonth'] }}</strong>. Next rent is due soon.
               </div>
             @elseif(!$paymentStatus['currentMonthPaid'])
               <div class="alert alert-warning py-2 small shadow-sm mb-0">
@@ -101,6 +96,8 @@
         </div>
       </div>
     </div>
+
+
 
     {{-- RIGHT COLUMN - Ledger / Payment History --}}
     <div class="col-lg-8">
@@ -154,6 +151,70 @@
             </div>
           </div>
         </div>
+<div class="card shadow-sm p-4">
+    <h5>⚙️ Autopay Settings</h5>
+
+    @if ($tenant->autopay)
+        @if ($tenant->autopay->status === 'active')
+            <div class="alert alert-success mt-3">
+                ✅ Autopay is <strong>ACTIVE</strong> for this tenant.
+            </div>
+
+            <ul class="list-unstyled mb-3">
+                <li><strong>Next Payment:</strong> 
+                    {{ \Carbon\Carbon::parse($tenant->autopay->next_due_date)->format('F d, Y') }}
+                </li>
+                <li><strong>Status:</strong> {{ ucfirst($tenant->autopay->status) }}</li>
+            </ul>
+
+            {{-- Pause Autopay --}}
+            <form action="{{ route('autopay.pause', $tenant->autopay->id) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="btn btn-warning">
+                    ⏸ Pause Autopay
+                </button>
+            </form>
+
+        @elseif($tenant->autopay->status === 'paused')
+            <div class="alert alert-warning mt-3">
+                ⚠️ Autopay is currently <strong>PAUSED</strong>.
+            </div>
+
+            {{-- Activate Autopay --}}
+            <form action="{{ route('autopay.activate', $tenant->autopay->id) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="btn btn-success">
+                    ▶️ Activate Autopay
+                </button>
+            </form>
+        @endif
+    @else
+        {{-- No autopay exists, show card setup --}}
+        <div class="alert alert-warning mt-3">
+            ⚠️ Autopay is not set up yet.
+        </div>
+
+        <form action="{{ route('autopay.setup', ['tenantId' => $tenant->id, 'contractId' => $activeContract->id]) }}" method="POST" id="autopayForm">
+            @csrf
+
+            {{-- Stripe Card Element --}}
+            <div class="mb-3">
+                <label for="card-element" class="form-label fw-semibold">Card Details</label>
+                <div id="card-element" class="form-control p-2" style="height: 2.6rem;"></div>  
+                <div id="card-errors" class="text-danger small mt-2"></div>
+            </div>
+
+            <input type="hidden" name="payment_method" id="payment_method">
+
+            <button type="submit" class="btn btn-primary">
+                🟢 Activate Autopay
+            </button>
+        </form>
+    @endif
+</div>
+
 
         {{-- Ledger Button --}}
         <div class="col-12">
@@ -176,7 +237,6 @@
   @include('partials.ledger-modal')
 @endif
 @endsection
-
 
 @push('styles')
 <style>
@@ -227,4 +287,62 @@ body {
   background-color: #fafafa;
 }
 </style>
+@endpush
+
+
+@push('scripts')
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  // Siguraduhin mong tama ang Stripe key mo sa .env file
+  const stripe = Stripe("{{ config('services.stripe.key') }}");
+  const elements = stripe.elements();
+
+  const card = elements.create("card", {
+    style: {
+      base: {
+        color: "#32325d",
+        fontFamily: '"Inter", sans-serif',
+        fontSize: "16px",
+        "::placeholder": { color: "#aab7c4" }
+      },
+      invalid: { color: "#fa755a" }
+    }
+  });
+  
+  // Imamount lang ito kung may #card-element sa page
+  if (document.getElementById("card-element")) {
+      card.mount("#card-element");
+  }
+
+  const form = document.getElementById("autopayForm");
+  
+  // Mag-attach lang ng listener kung may form sa page
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const { paymentMethod, error } = await stripe.createPaymentMethod({
+        type: "card",
+        card: card,
+        billing_details: {
+          name: "{{ $tenant->name }}",
+          email: "{{ $tenant->email }}"
+        }
+      });
+
+      if (error) {
+        document.getElementById("card-errors").textContent = error.message;
+        return;
+      }
+
+      // Ilalagay ang paymentMethod.id sa hidden input
+      document.getElementById("payment_method").value = paymentMethod.id;
+      
+      // Isusubmit na ang form kasama ang (payment_method, tenant_id, contract_id)
+      form.submit();
+    });
+  }
+});
+</script>
 @endpush
