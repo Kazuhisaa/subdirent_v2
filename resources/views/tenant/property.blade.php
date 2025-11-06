@@ -7,11 +7,31 @@
 <div class="container-fluid tenant-dashboard">
 
   @if($tenant->tenant && $tenant->tenant->unit)
+
+    @php
+        // 1. Set the default image path
+        $propertyImage = asset('uploads/default.jpg');
+
+        // 2. Check if the unit has files and the array is not empty
+        //    ($tenant->tenant->unit->files is now a PHP array because of your model cast)
+        if (!empty($tenant->tenant->unit->files) && is_array($tenant->tenant->unit->files)) {
+            
+            // 3. Get the first file and set it as the image
+            //    We use asset() to create the correct public URL
+            $propertyImage = asset($tenant->tenant->unit->files[0]);
+        }
+    @endphp
+
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body d-flex align-items-center justify-content-between flex-wrap">
         <div class="d-flex align-items-center mb-2 mb-md-0">
           <div class="me-3">
-            <img src="{{ asset('images/property-default.jpg') }}" alt="Property" class="rounded" width="80" height="80">
+            <img src="{{ $propertyImage }}" 
+                 alt="{{ $tenant->tenant->unit->title }}" 
+                 class="rounded" 
+                 width="160" 
+                 height="160" 
+                 style="object-fit: cover;">
           </div>
           <div>
             <h5 class="fw-bold mb-1 text-primary">{{ $tenant->tenant->unit->title }}</h5>
@@ -30,7 +50,7 @@
       <div class="col-lg-4 d-flex flex-column">
         <div class="card border-0 shadow-sm mb-4 flex-grow-0">
           <div class="card-body text-center">
-            <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle mb-3" width="90" height="90" alt="Tenant">
+            <img src="{{ $tenant->profile_photo_url }}"  class="rounded-circle mb-3" width="90" height="90" alt="Tenant">
             <h6 class="fw-bold text-primary mb-1">{{ $tenant->tenant->first_name }} {{ $tenant->tenant->last_name }}</h6>
             <small class="text-muted d-block mb-2">{{ $tenant->tenant->email }}</small>
             <p class="text-muted mb-1"><i class="bi bi-telephone text-danger me-1"></i>{{ $tenant->tenant->contact_num }}</p>
@@ -58,10 +78,6 @@
 
       <a href="#" class="btn btn-outline-tenant btn-sm d-flex align-items-center">
         <i class="bi bi-receipt me-1"></i> Receipts
-      </a>
-
-      <a href="#" class="btn btn-outline-tenant btn-sm d-flex align-items-center">
-        <i class="bi bi-clock-history me-1"></i> Transaction History
       </a>
       
     </div>
@@ -117,8 +133,8 @@
             <p class="mt-1 text-muted mb-0">Swimming Pool</p>
           </div>
           <div class="col-md-2 mb-3">
-            <i class="bi bi-wifi text-primary fs-3"></i>
-            <p class="mt-1 text-muted mb-0">Free Wi-Fi</p>
+            <i class="bi bi-tools text-primary fs-3"></i>
+            <p class="mt-1 text-muted mb-0">Free Maintenance</p>
           </div>
           <div class="col-md-2 mb-3">
             <i class="bi bi-bicycle text-primary fs-3"></i>

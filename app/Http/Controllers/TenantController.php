@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Maintenance;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 // Wala na 'yung PayMongo at Payment model dito
 
@@ -317,13 +318,16 @@ public function payments()
 
         $validated = $request->validate([
             'email' => 'required|email|unique:users,email,'.$user->id,
-            'password' => 'nullable|confirmed|min:8',
+            // === MODIFIED: Added max rule ===
+            'password' => 'nullable|confirmed|min:8|max:72',
         ]);
 
         $user->email = $validated['email'];
 
         if (! empty($validated['password'])) {
             $user->password = bcrypt($validated['password']);
+            // === NEW: Set default password flag to false ===
+            $user->is_password_default = false;
         }
 
         $user->save();
@@ -340,15 +344,45 @@ public function payments()
             abort(404, 'Tenant not found.');
         }
 
+        // 3. VALIDATE PERSONAL INFO + NEW AVATAR
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
+            'contact_num' => 'nullable|string|max:20',
             'birth_date' => 'nullable|date',
-            'address' => 'nullable|string|max:255',
-            'postal_code' => 'nullable|string|max:20',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Avatar validation
         ]);
 
+        // 4. HANDLE THE AVATAR UPLOAD
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $uploadPath = public_path('uploads/tenants/'); // Your requested path
+            
+            // Create directory if it doesn't exist
+            if (!File::exists($uploadPath)) {
+                File::makeDirectory($uploadPath, 0755, true);
+            }
+
+            // Create a unique filename
+            $filename = 'tenant-' . $tenant->id . '-' . time() . '.' . $file->getClientOriginalExtension();
+            $path = 'uploads/tenants/' . $filename; // Path to save in DB
+
+            // Move the new file
+            $file->move($uploadPath, $filename);
+
+            // Delete the old avatar if it exists
+            if ($user->profile_photo_path && File::exists(public_path($user->profile_photo_path))) {
+                File::delete(public_path($user->profile_photo_path));
+            }
+
+            // Update the user's photo path
+            $user->profile_photo_path = $path;
+            $user->save();
+        }
+
+        // 5. UPDATE TENANT'S PERSONAL INFO
+        // Remove 'avatar' from validated data before updating tenant
+        unset($validated['avatar']); 
         $tenant->update($validated);
 
         return redirect()->back()->with('success', 'Account updated successfully.');

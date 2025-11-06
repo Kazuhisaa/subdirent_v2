@@ -11,7 +11,11 @@
     <!-- Welcome Message -->
     <div class="col-md-8 d-flex">
       <div class="card tenant-card shadow-sm border-0 p-4 flex-fill d-flex flex-row align-items-center">
-        <img src="{{ asset('images/default-avatar.png') }}" class="rounded-circle me-3" width="60" height="60" alt="Profile">
+        {{-- === START UPDATE (Simplified) === --}}
+        <img src="{{ $tenant->profile_photo_url }}" 
+             class="rounded-circle me-3" width="60" height="60" alt="Profile" style="object-fit: cover;">
+        {{-- === END UPDATE === --}}
+        
         <div>
           <h5 class="mb-1">Hi, {{ $tenant->first_name ?? $tenant->name ?? 'Tenant' }}</h5>
           <p class="text-muted mb-2">
