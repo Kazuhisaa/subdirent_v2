@@ -333,18 +333,25 @@
         document.getElementById('applicationsCount').textContent = filteredApplications.length;
         document.getElementById('paymentsCount').textContent = filteredPayments.length;
 
-    // Populate Tables (limit to 5 rows for cleanliness)
-    const renderTable = (id, items, cols) => {
-        const tbody = document.getElementById(id);
-        tbody.innerHTML = items.length
-            ? items.slice(0, 5).map(r => `<tr>${cols.map(c => `<td>${r[c] ?? 'N/A'}</td>`).join('')}</tr>`).join('')
-            : `<tr><td colspan="${cols.length}" class="text-muted py-3">No records found.</td></tr>`;
-    };
-    renderTable('bookingsTable', data.bookings, ['id', '', 'status']);
-    renderTable('contractsTable', data.contracts, ['id', 'tenant_name', 'status']);
-    renderTable('applicationsTable', data.applications, ['id', 'applicant', 'status']);
-    renderTable('paymentsTable', data.payments, ['id', 'tenant_name', 'amount']);
-});
+        // Populate Tables
+        const renderTable = (id, items, cols) => {
+            const tbody = document.getElementById(id);
+            if (!tbody) return;
+            tbody.innerHTML = items.length
+                ? items.map(r => `<tr>${cols.map(c => `<td>${r[c] ?? 'N/A'}</td>`).join('')}</tr>`).join('')
+                : `<tr><td colspan="${cols.length}" class="text-muted py-3">No records found.</td></tr>`;
+        };
+
+        // I-render ang tables gamit ang TAMANG keys
+        // Hindi na kailangang baguhin ito dahil in-overwrite na natin ang 'name' key
+        renderTable('bookingsTable', filteredBookings, ['id', 'name', 'email', 'contact_num', 'date', 'booking_time', 'status']);
+        renderTable('contractsTable', filteredContracts, ['tenant_id', 'contract_start', 'contract_end', 'status']);
+        renderTable('applicationsTable', filteredApplications, ['id', 'first_name', 'last_name', 'email', 'contact_num', 'unit_price', 'status']);
+        renderTable('paymentsTable', filteredPayments, ['tenant_id', 'status', 'payment_date', 'payment_method', 'remarks']);
+
+        // Set the initial view to Bookings
+        showReport('bookings', 'Bookings Report', document.querySelector('.dropdown-menu a'));
+    });
 </script>
 
 {{-- 🖨 Print-Friendly Styling --}}
