@@ -46,10 +46,7 @@
                         <label class="form-label fw-semibold text-dark">Floor Area</label>
                         <input type="number" name="floor_area" class="form-control" placeholder="m²" value="{{ $unit->floor_area }}">
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label fw-semibold text-dark">Monthly Rent</label>
-                        <input type="number" step="0.01" name="monthly_rent" class="form-control" value="{{ $unit->monthly_rent }}">
-                    </div>
+                    
                     <div class="col-md-2">
                         <label class="form-label fw-semibold text-dark">Unit Price</label>
                         <input type="number" step="0.01" name="unit_price" class="form-control" value="{{ $unit->unit_price }}">
@@ -117,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
 
         // Remove blank fields for rent and price
-        if (!form.monthly_rent.value.trim()) formData.delete('monthly_rent');
         if (!form.unit_price.value.trim()) formData.delete('unit_price');
 
         try {

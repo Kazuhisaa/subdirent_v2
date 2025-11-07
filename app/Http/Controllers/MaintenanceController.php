@@ -118,11 +118,38 @@ class MaintenanceController extends Controller
     /**
      * Archive a maintenance request (Soft Delete).
      */
-    public function archive(Maintenance $maintenance)
+  public function archive($id)
     {
-        $maintenance->delete(); // This is a soft delete
+        $maintenance = Maintenance::findOrFail($id);
+        $maintenance->delete();
 
-        // === FIX: Changed route name from 'admin.maintenance.index' to 'admin.maintenance' ===
-        return redirect()->route('admin.maintenance')->with('success', 'Maintenance request archived.');
+       return response()->json([
+        'success' => true,
+        'message' => 'Maintenance request archived successfully.'
+    ]);
+}
+
+    /**
+     * Get all archived (soft-deleted) maintenance requests
+     */
+    public function archived()
+    {
+        $archivedRequests = Maintenance::onlyTrashed()
+            ->with('tenant.unit')
+            ->orderBy('deleted_at', 'desc')
+            ->get();
+
+        return response()->json($archivedRequests);
+    }
+
+    /**
+     * Restore a previously archived maintenance request
+     */
+    public function restore($id)
+    {
+        $maintenance = Maintenance::onlyTrashed()->findOrFail($id);
+        $maintenance->restore();
+
+        return response()->json(['success' => true, 'message' => 'Request restored successfully.']);
     }
 }

@@ -107,7 +107,6 @@ class UnitsController extends Controller
             'floor_area' => 'nullable|integer|min:0',
             'bathroom' => 'nullable|integer|min:0',
             'bedroom' => 'nullable|integer|min:0',
-            'monthly_rent' => 'required|numeric|min:0',
             'unit_price' => 'required|numeric|min:0',
             'status' => 'nullable|string',
             'files.*' => 'nullable|file|mimes:jpeg,jpg,pdf|max:2048',
