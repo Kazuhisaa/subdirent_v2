@@ -12,6 +12,7 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UnitsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MaintenanceController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -24,6 +25,7 @@ Route::middleware(['auth:sanctum'])->prefix('admin/api')->group(function () {
     Route::put('/tenants/{id}', [TenantController::class, 'update']);        // update tenant
     Route::delete('/tenants/{id}', [TenantController::class, 'archive']);    // soft delete
     Route::put('/tenants/{id}/restore', [TenantController::class, 'restore']); // restore
+    Route::get('/payments{id}', [PaymentController::class, 'index']);
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -37,7 +39,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::get('/allUnits', [UnitsController::class, 'index']);
+
 Route::prefix('applications')->group(function () {
+    Route::get('/', [ApplicationController::class, 'index']);
     Route::get('/find/{id}', [ApplicationController::class, 'show']);
     Route::put('/editApplications/{id}', [ApplicationController::class, 'update']);
     Route::patch('/archive/{id}', [ApplicationController::class, 'archive']);
@@ -80,7 +84,6 @@ Route::prefix('bookings')->group(function () {
     Route::post('/', [BookingController::class, 'store']);              // POST /bookings
     Route::get('/getOccupiedTime/{unit_id}/{date}', [BookingController::class, 'showAllOccupiedTime']);
 });
-
 Route::prefix('applications')->group(function () {
     Route::post('/addApplicants', [ApplicationController::class, 'store']);
 });
@@ -139,6 +142,7 @@ Route::prefix('occupancy')->group(function () {
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 
 Route::middleware('auth:sanctum')->group(function () {
+    
     Route::get('/payments/{id}', [PaymentController::class, 'show']);
     // Create a source (POST)
     Route::post('/payments/source', [PaymentController::class, 'createSource']);
@@ -162,4 +166,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/contracts/restore/{id}', [ContractController::class, 'restore']);
 });
 
-Route::get('/payments', [PaymentController::class, 'index']);
+Route::get('/payments', [PaymentController::class, 'showIndex']);
+
+Route::get('/maintenance', [MaintenanceController::class, 'showIndex']);
