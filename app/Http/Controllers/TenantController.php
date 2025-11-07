@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Payment;
 use App\Models\Tenant;
+use App\Models\Payment;
+use App\Models\Contract;
 use Illuminate\Http\Request;
+use App\Models\Maintenance;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 
 // Wala na 'yung PayMongo at Payment model dito
 
@@ -16,25 +21,125 @@ class TenantController extends Controller
     // TENANT WEB ROUTES (Para sa naka-login na tenant)
     // ===========================================================
 
-    public function home()
+   public function home()
     {
         $user = Auth::user()->load('tenant.unit', 'tenant.contracts', 'tenant.payments');
         if (! $user->tenant) {
             abort(404, 'Tenant record not found.');
         }
 
-        $activeContract = $user->tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
-        $payments = $user->tenant->payments->sortByDesc('payment_date')->take(3);
-        $nextDueDate = null;
+        $tenant = $user->tenant;
+        $activeContract = $tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+        $payments = $tenant->payments;
+
+        $nextUnpaidDueDate = null;
+        $calendarEvents = []; // This will hold payment events
+        $recentPayments = $payments->sortByDesc('payment_date')->take(5);
+
+        // GET DYNAMIC MAINTENANCE COUNTS
+        // We use the statuses from maintenance.blade.php (Pending, In Progress, Completed)
+        $maintenanceStats = Maintenance::where('tenant_id', $tenant->id)
+            ->selectRaw("
+                SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as inprogress,
+                SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed
+            ")
+            ->first();
+        
+        // Prepare the counts for the view, defaulting to 0
+        $maintenanceCounts = [
+            'pending' => $maintenanceStats->pending ?? 0,
+            'inprogress' => $maintenanceStats->inprogress ?? 0,
+            'completed' => $maintenanceStats->completed ?? 0,
+        ];
+
+        // === START NEW SECTION ===
+        // Get all maintenance requests for calendar and new table
+        $maintenanceRequests = Maintenance::where('tenant_id', $tenant->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $maintenanceEvents = [];
+        foreach ($maintenanceRequests as $request) {
+            // Add to calendar only if In Progress and has a scheduled date
+            if ($request->status == 'In Progress' && $request->scheduled_date) {
+                $maintenanceEvents[] = [
+                    'title' => 'Service: ' . $request->category,
+                    'start' => Carbon::parse($request->scheduled_date)->format('Y-m-d'),
+                    'color' => '#6f42c1', // Bootstrap Purple
+                    'description' => $request->description
+                ];
+            }
+        }
+        // === END NEW SECTION ===
+
 
         if ($activeContract) {
-            $today = Carbon::now();
-            $dueDate = $activeContract->payment_due_date;
-            if ($today->day > $dueDate) {
-                $nextDueDate = $today->addMonth()->day($dueDate)->format('M d, Y');
-            } else {
-                $nextDueDate = $today->day($dueDate)->format('M d, Y');
+            $monthlyRent = $activeContract->monthly_payment ?? 0;
+            $billingDay = $activeContract->payment_due_date ?? 1;
+            $contractEnd = Carbon::parse($activeContract->contract_end);
+
+            // Fetch all payments for this contract/tenant
+            $rentPayments = Payment::where('tenant_id', $tenant->id)
+                ->where('contract_id', $activeContract->id)
+                ->whereIn('payment_status', ['paid', 'partial'])
+                ->orderBy('for_month', 'asc')
+                ->get();
+
+            $paymentsByMonth = $rentPayments->groupBy(function($payment) {
+                return Carbon::parse($payment->for_month)->format('Y-m');
+            });
+
+            // Determine Next Unpaid Due Date & Build Events
+            $currentDate = Carbon::parse($activeContract->contract_start)->day($billingDay);
+            $foundUnpaid = false;
+
+            while ($currentDate->lessThanOrEqualTo($contractEnd)) {
+                $monthKey = $currentDate->format('Y-m');
+                $totalPaid = $paymentsByMonth->get($monthKey, collect())->sum('amount');
+                $isPaid = $totalPaid >= $monthlyRent;
+
+                // Calendar Event Creation
+                $eventStatus = '';
+                $eventColor = '';
+
+                if ($isPaid) {
+                    $eventStatus = 'Paid';
+                    $eventColor = '#1B5F99'; // Blue-600 from tenant.css
+                } elseif ($totalPaid > 0 && $totalPaid < $monthlyRent) {
+                    $eventStatus = 'Partial';
+                    $eventColor = '#ff7043'; // Orange for Partial
+                } else {
+                    $eventStatus = 'Due';
+                    $eventColor = '#dc3545'; // Red for Unpaid/Due
+                }
+
+                $calendarEvents[] = [
+                    'title' => $eventStatus . ' - ₱' . number_format($monthlyRent, 2),
+                    'start' => $currentDate->format('Y-m-d'),
+                    'color' => $eventColor,
+                ];
+
+                // Find Next Unpaid Date
+                if (!$foundUnpaid && $currentDate->greaterThanOrEqualTo(Carbon::now()->subDay()) && $totalPaid < $monthlyRent) {
+                    $nextUnpaidDueDate = $currentDate->copy()->format('M d, Y');
+                    $foundUnpaid = true;
+                }
+                
+                // If it's fully paid or the month is far in the past, move to the next month
+                $currentDate->addMonth();
             }
+
+            // If $nextUnpaidDueDate is still null, set it to the next official due date for the current month or next month
+            if (!$nextUnpaidDueDate) {
+                $today = Carbon::now();
+                if ($today->day > $billingDay) {
+                    $nextUnpaidDueDate = $today->addMonth()->day($billingDay)->format('M d, Y');
+                } else {
+                    $nextUnpaidDueDate = $today->day($billingDay)->format('M d, Y');
+                }
+            }
+
         }
 
          $recentInvoices = Payment::where('tenant_id', $user->tenant->id)
@@ -42,30 +147,61 @@ class TenantController extends Controller
         ->take(5)
         ->get();
 
+        // === START MODIFIED SECTION ===
+        // Merge payment and maintenance events for the calendar
+        $allCalendarEvents = array_merge($calendarEvents, $maintenanceEvents);
+
         return view('tenant.home', [
             'tenant' => $user,
             'activeContract' => $activeContract,
-            'payments' => $payments,
-            'nextDueDate' => $nextDueDate,
-            'recentInvoices' => $recentInvoices
-
+            'recentPayments' => $recentPayments,
+            'nextUnpaidDueDate' => $nextUnpaidDueDate,
+            'calendarEvents' => json_encode($allCalendarEvents), // Pass all events
+            'maintenanceCounts' => $maintenanceCounts,
+            'maintenanceRequests' => $maintenanceRequests, // Pass full list for new table
         ]);
+        // === END MODIFIED SECTION ===
     }
 
-    public function property()
-    {
-        $user = Auth::user()->load('tenant.unit', 'tenant.contracts');
-        if (! $user->tenant) {
-            abort(404, 'Tenant record not found.');
+public function property()
+{
+    $user = Auth::user()->load('tenant.unit', 'tenant.contracts');
+
+    if (! $user->tenant) {
+        abort(404, 'Tenant record not found.');
+    }
+
+    $activeContract = $user->tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
+
+    $unit = $user->tenant->unit;
+    $predictions = [];
+
+    if ($unit) {
+        $data = [
+            'bathroom' => $unit->bathroom,
+            'bedroom' => $unit->bedroom,
+            'floor_area' => $unit->floor_area,
+            'lot_size' => $unit->lot_size,
+            'year' => date('Y'),
+            'n_years' => 5
+        ];
+
+        $response = Http::post('http://127.0.0.1:5000/predict', $data);
+
+        if ($response->successful()) {
+            $predictions = $response->json();
+        } else {
+            Log::error('Prediction API error: ' . $response->body());
         }
-        $activeContract = $user->tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
-
-        return view('tenant.property', [
-            'tenant' => $user,
-            'contract' => $activeContract,
-            'unit' => $user->tenant->unit,
-        ]);
     }
+
+    return view('tenant.property', [
+        'tenant' => $user,
+        'contract' => $activeContract,
+        'unit' => $unit,
+        'predictions' => $predictions, // ✅ pass predictions to Blade
+    ]);
+}
 
 public function payments()
 {
@@ -186,7 +322,7 @@ public function payments()
         'outstanding',
         'penalty',
         'amountToPay',
-        'paymentStatus'
+        'paymentStatus',
     ));
 }
 
@@ -236,13 +372,16 @@ public function payments()
 
         $validated = $request->validate([
             'email' => 'required|email|unique:users,email,'.$user->id,
-            'password' => 'nullable|confirmed|min:8',
+            // === MODIFIED: Added max rule ===
+            'password' => 'nullable|confirmed|min:8|max:72',
         ]);
 
         $user->email = $validated['email'];
 
         if (! empty($validated['password'])) {
             $user->password = bcrypt($validated['password']);
+            // === NEW: Set default password flag to false ===
+            $user->is_password_default = false;
         }
 
         $user->save();
@@ -259,15 +398,45 @@ public function payments()
             abort(404, 'Tenant not found.');
         }
 
+        // 3. VALIDATE PERSONAL INFO + NEW AVATAR
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
+            'contact_num' => 'nullable|string|max:20',
             'birth_date' => 'nullable|date',
-            'address' => 'nullable|string|max:255',
-            'postal_code' => 'nullable|string|max:20',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Avatar validation
         ]);
 
+        // 4. HANDLE THE AVATAR UPLOAD
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $uploadPath = public_path('uploads/tenants/'); // Your requested path
+            
+            // Create directory if it doesn't exist
+            if (!File::exists($uploadPath)) {
+                File::makeDirectory($uploadPath, 0755, true);
+            }
+
+            // Create a unique filename
+            $filename = 'tenant-' . $tenant->id . '-' . time() . '.' . $file->getClientOriginalExtension();
+            $path = 'uploads/tenants/' . $filename; // Path to save in DB
+
+            // Move the new file
+            $file->move($uploadPath, $filename);
+
+            // Delete the old avatar if it exists
+            if ($user->profile_photo_path && File::exists(public_path($user->profile_photo_path))) {
+                File::delete(public_path($user->profile_photo_path));
+            }
+
+            // Update the user's photo path
+            $user->profile_photo_path = $path;
+            $user->save();
+        }
+
+        // 5. UPDATE TENANT'S PERSONAL INFO
+        // Remove 'avatar' from validated data before updating tenant
+        unset($validated['avatar']); 
         $tenant->update($validated);
 
         return redirect()->back()->with('success', 'Account updated successfully.');
@@ -347,6 +516,35 @@ public function payments()
         'message' => 'Tenant restored successfully',
         'tenant' => $tenant,
     ]);
+}
+
+
+public function autopaySetup(Request $request)
+{
+    $request->validate([
+        'payment_method' => 'required|string|max:255',
+    ]);
+
+    // Example: store payment method setup for tenant
+    $tenant = auth()->user()->tenant;
+
+    // You can later integrate Stripe API here
+    $tenant->update([
+        'autopay_method' => $request->payment_method,
+        'autopay_active' => true,
+    ]);
+
+    return back()->with('autopay_status', 'Autopay has been activated successfully!');
+}
+
+
+
+public function showPayments($tenantId)
+{
+    $tenant = Tenant::with('autopay')->findOrFail($tenantId);
+    $contract = Contract::where('tenant_id', $tenantId)->first();
+
+    return view('tenant.payments', compact('tenant', 'contract'));
 }
 
 }

@@ -23,6 +23,8 @@
       'resources/bootstrapjs/js/bootstrap.bundle.js',
       'resources/js/app.js'
   ])
+  {{-- This stack is for any styles pushed from child pages --}}
+  @stack('styles')
 </head>
 
 <body>
@@ -134,6 +136,9 @@
 
 <script>
   window.apiToken = "{{ auth()->user()->createToken('tenant-token')->plainTextToken ?? '' }}";
+
 </script>
+@stack('scripts')
+
 </body>
 </html>

@@ -22,7 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role'
+        'role',
+        'profile_photo_path',
         ];
 
     /**
@@ -52,6 +53,17 @@ class User extends Authenticatable
         return $this->hasOne(Tenant::class, 'email', 'email');
     }
 
-     
+     public function getProfilePhotoUrlAttribute(): string
+    {
+        // Check if the path is stored in the database and the file exists
+        if ($this->profile_photo_path && file_exists(public_path($this->profile_photo_path))) {
+            // asset() points directly to the public/ folder
+            return asset($this->profile_photo_path);
+        }
+
+        // === UPDATE ===
+        // Return the default avatar path if no photo is set or file is missing
+        return asset('uploads/default-avatar.jpg');
+    }
 
 }

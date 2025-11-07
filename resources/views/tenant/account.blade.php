@@ -5,48 +5,60 @@
 
 @section('content')
 <div class="tenant-account-page container-fluid">
-  <div class="account-card shadow-sm bg-white rounded-4 p-4">
-    <div class="row g-4 align-items-start">
-      <!-- Profile Section -->
-      <div class="col-md-3 text-center">
+  
+  {{-- === TOP ROW === --}}
+  <div class="row g-4">
+
+    <!-- ===== LEFT COLUMN (Profile, Unit) ===== -->
+    <div class="col-lg-4 d-flex flex-column">
+      <!-- Profile Card -->
+      <div class="card shadow-sm rounded-4 p-4 text-center mb-4">
+        
         <img 
-          src="{{ $tenant->profile_photo_url ?? asset('images/avatar-default.png') }}" 
+          src="{{ $tenant->profile_photo_url }}" 
           alt="Profile Photo" 
-          class="account-avatar mb-3"
+          class="account-avatar mb-3 mx-auto d-block"
+          id="avatarPreview"
         >
-        <h5 class="fw-semibold mb-1">{{ $tenant->tenant->first_name ?? $tenant->name }}</h5>
-        <p class="text-muted small mb-3">Tenant</p>
-
-        <!-- EMAIL & PASSWORD UPDATE -->
-        <form method="POST" action="{{ route('tenant.credentials.update') }}" class="text-start">
-          @csrf
-          @method('PUT')
-          
-          <div class="mb-3">
-            <label class="form-label">Email Address</label>
-            <input type="email" class="form-control rounded-pill" 
-                   name="email" value="{{ old('email', $tenant->email) }}" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">New Password</label>
-            <input type="password" class="form-control rounded-pill" name="password" placeholder="Enter new password">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Confirm Password</label>
-            <input type="password" class="form-control rounded-pill" name="password_confirmation" placeholder="Confirm new password">
-          </div>
-
-          <button type="submit" class="btn btn-outline-primary w-100 rounded-pill">Update Login Info</button>
-        </form>
+        
+        <h5 class="fw-bold text-primary mb-1">{{ $tenant->tenant->first_name ?? $tenant->name }}</h5>
+        <p class="text-muted small mb-0">Tenant</p>
       </div>
 
-      <!-- Info Section -->
-      <div class="col-md-9">
-        <form method="POST" action="{{ route('tenant.update') }}" class="account-form">
+      <!-- Linked Unit Card -->
+      @if($tenant->tenant && $tenant->tenant->unit)
+      {{-- 1. ADDED h-100 and d-flex TO THE CARD to allow inner stretching --}}
+      <div class="card shadow-sm rounded-4 p-4 flex-fill h-100 d-flex flex-column"> 
+        
+        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-house-fill me-2"></i>Current Unit</h6>
+        
+        {{-- 2. ADDED mt-auto TO THIS DIV to push content to the bottom --}}
+
+          <p class="mb-1"><strong>Unit:</strong> {{ $tenant->tenant->unit->title ?? 'N/A' }}</p>
+          <p class="mb-1"><strong>Location:</strong> {{ $tenant->tenant->unit->location ?? 'N/A' }}</p>
+          <p class="mb-0"><strong>Unit Price:</strong> ₱{{ number_format($tenant->tenant->unit->unit_price, 2) ?? 'N/A'}}</p>
+      </div>
+      @endif
+    </div>
+
+    <!-- ===== RIGHT COLUMN (Personal Info) ===== -->
+    <div class="col-lg-8">
+      <!-- Personal Info Form -->
+      <div class="card shadow-sm rounded-4 p-4 h-100"> 
+        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-person-fill me-2"></i>Personal Information</h6>
+        
+        {{-- This form handles personal info AND the avatar upload --}}
+        <form method="POST" action="{{ route('tenant.update') }}" class="account-form" enctype="multipart/form-data">
           @csrf
           @method('PUT')
+
+          <div class="row mb-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold" for="avatarUpload">Update Profile Photo</label>
+              <input type="file" class="form-control rounded-pill" name="avatar" id="avatarUpload" accept="image/*">
+              <small class="text-muted">Max file size: 2MB. Allowed types: jpg, png, webp.</small>
+            </div>
+          </div>
 
           <div class="row mb-3">
             <div class="col-md-6">
@@ -65,49 +77,104 @@
             <div class="col-md-6">
               <label class="form-label">Phone Number</label>
               <input type="text" class="form-control rounded-pill" name="phone"
-                     value="{{ old('phone', $tenant->tenant->phone ?? '') }}">
+                     value="{{ old('phone', $tenant->tenant->contact_num ?? '') }}">
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Date of Birth</label>
-              <input type="date" class="form-control rounded-pill" name="birth_date"
-                     value="{{ old('birth_date', $tenant->tenant->birth_date ?? '') }}">
-            </div>
-          </div>
 
-          <div class="row mb-3">
-            <div class="col-md-8">
-              <label class="form-label">Address</label>
-              <input type="text" class="form-control rounded-pill" name="address"
-                     value="{{ old('address', $tenant->tenant->address ?? '') }}">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Postal Code</label>
-              <input type="text" class="form-control rounded-pill" name="postal_code"
-                     value="{{ old('postal_code', $tenant->tenant->postal_code ?? '') }}">
-            </div>
-          </div>
-
-          <!-- Linked Unit Info -->
-          @if($tenant->tenant && $tenant->tenant->unit)
-          <div class="linked-unit mt-5 p-3 border rounded-4">
-            <h6 class="fw-semibold mb-2">🏠 Current Unit</h6>
-            <p class="mb-1"><strong>Unit:</strong> {{ $tenant->tenant->unit->title ?? 'N/A' }}</p>
-            <p class="mb-1"><strong>Location:</strong> {{ $tenant->tenant->unit->location ?? 'N/A' }}</p>
-            <p class="mb-1"><strong>Unit Price:</strong> ₱{{ $tenant->tenant->unit->unit_price ?? 'N/A'}}</p>
-          </div>
-          @endif
-
-          <div class="row mt-4">
-            <div class="col-md-6">
-              <button type="reset" class="btn btn-outline-secondary w-100 rounded-pill">Discard Changes</button>
-            </div>
-            <div class="col-md-6">
-              <button type="submit" class="btn btn-primary w-100 rounded-pill">Save Changes</button>
-            </div>
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="reset" class="btn btn-outline-secondary rounded-pill px-4">Discard</button>
+            <button type="submit" class="btn btn-primary rounded-pill px-4">Save Changes</button>
           </div>
         </form>
       </div>
     </div>
+  </div> {{-- === END OF TOP ROW === --}}
+
+
+  {{-- === 3. FULL-WIDTH ROW FOR SECURITY (ADDED mt-4) === --}}
+  <div class="row g-4 mt-4"> {{-- g-4 for alignment, mt-4 for top margin --}}
+    <div class="col-12">
+      <div class="card shadow-sm rounded-4 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold text-secondary mb-0"><i class="bi bi-shield-lock-fill me-2"></i>Security Settings</h6>
+          <a class="btn btn-outline-primary btn-sm rounded-pill px-3" 
+             id="toggleSecurityButton" 
+             href="#" 
+             role="button">
+            Change
+          </a>
+        </div>
+        
+        {{-- MODIFIED: Added 'show' class if there are password or email errors --}}
+        <div class="collapse {{ ($errors->has('password') || $errors->has('email')) ? 'show' : '' }}" id="securityCollapse">
+          <form method="POST" action="{{ route('tenant.credentials.update') }}" class="text-start border-top pt-3">
+            @csrf
+            @method('PUT')
+            
+            <div class="mb-3">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-control rounded-pill @error('email') is-invalid @enderror" 
+                     name="email" value="{{ old('email', $tenant->email) }}" required>
+              @error('email')
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">New Password</label>
+              <input type="password" class="form-control rounded-pill @error('password') is-invalid @enderror" name="password" placeholder="Enter new password (min 8 characters)">
+              {{-- NEW: Show password validation errors --}}
+              @error('password')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+              @enderror
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Confirm Password</label>
+              <input type="password" class="form-control rounded-pill" name="password_confirmation" placeholder="Confirm new password">
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn btn-primary rounded-pill px-4">Update Login Info</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
+
 </div>
+
+{{-- This script previews the new avatar AND handles the security form toggle --}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // --- Avatar Preview Script ---
+  const avatarUpload = document.getElementById('avatarUpload');
+  const avatarPreview = document.getElementById('avatarPreview');
+
+  if (avatarUpload) {
+    avatarUpload.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        avatarPreview.src = URL.createObjectURL(file);
+        avatarPreview.style.objectFit = 'cover'; // Ensure preview is not stretched
+      }
+    });
+  }
+
+  // --- CUSTOM TOGGLE SCRIPT ---
+  const toggleBtn = document.getElementById('toggleSecurityButton');
+  const securityForm = document.getElementById('securityCollapse');
+
+  if (toggleBtn && securityForm) {
+    toggleBtn.addEventListener('click', function(event) {
+      // Prevent the <a> tag's default behavior
+      event.preventDefault(); 
+      // Manually add or remove the 'show' class to toggle visibility
+      securityForm.classList.toggle('show');
+    });
+  }
+
+});
+</script>
 @endsection

@@ -5,14 +5,18 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\AutopayController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\RevenuePredictionController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use App\Http\Controllers\ReportPdfController;
+use Stripe\Stripe;
 
 // use App\Http\Controllers\ResetPasswordController;
 
@@ -136,12 +140,22 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
     Route::get('/predictionAnnual', [RevenuePredictionController::class, 'showPredictionAnnual']);
     Route::get('/train', [RevenuePredictionController::class, 'trainModel']);
 
+    // Maintenance Routes
+    // This route MUST point to the 'adminIndex' method
+     Route::get('/maintenance', [\App\Http\Controllers\MaintenanceController::class, 'adminIndex'])
+         ->name('maintenance'); 
+         
+    Route::put('/maintenance/{maintenance}', [\App\Http\Controllers\MaintenanceController::class, 'update'])
+         ->name('maintenance.update'); 
+         
+    Route::delete('/maintenance/{maintenance}', [\App\Http\Controllers\MaintenanceController::class, 'archive'])
+         ->name('maintenance.archive'); 
     // Static admin pages
     Route::get('/rooms', [UnitsController::class, 'rooms'])->name('rooms');
     Route::view('/addroom', 'admin.addroom')->name('addroom');
     Route::view('/tenants', 'admin.tenants')->name('tenants');
     Route::view('/bookings', 'admin.bookings')->name('bookings');
-    Route::view('/maintenance', 'admin.maintenance')->name('maintenance');
+    //Route::view('/maintenance', 'admin.maintenance')->name('maintenance');
     Route::view('/contracts', 'admin.contracts')->name('contracts');
     Route::view('/reports', 'admin.reports')->name('reports');
 
@@ -219,6 +233,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 Route::post('payments/webhook', [PaymentController::class, 'webhook'])->name('payments.webhook');
+
+
 Route::post('/paymongo/webhook', [PaymentController::class, 'handleWebhook'])
     ->withoutMiddleware([ValidateCsrfToken::class]);
 
@@ -235,3 +251,27 @@ Route::post('/applications', [ApplicationController::class, 'store'])->name('app
 
 Route::post('/generate-report-pdf', [ReportPdfController::class, 'generatePdf'])
      ->name('admin.reports.pdf');
+// ✅ STRIPE WEBHOOK — must be outside auth middleware
+Route::post('stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
+    ->withoutMiddleware([VerifyCsrfToken::class]);
+
+// ✅ Protected routes (with auth)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/tenant/{tenant}/autopay/dashboard', [AutopayController::class, 'dashboard'])->name('tenant.dashboard');
+    Route::post('/autopay/cancel/{autopay_id}', [AutopayController::class, 'cancel']);
+    Route::get('/autopay/invoice/{autopay_id}', [AutopayController::class, 'downloadInvoice']);
+    Route::get('/admin/autopay', [AutopayController::class, 'index'])->name('admin.autopay');
+    Route::post('/tenant/{tenantId}/contract/{contractId}/autopay', [AutopayController::class, 'setupAutopay']);
+     Route::post('/tenant/{tenantId}/contract/{contractId}/autopay', [AutopayController::class, 'setupAutopay'])
+        ->name('autopay.setup');
+   Route::delete('/autopay/{autopayId}/cancel', [AutopayController::class, 'cancel'])->name('autopay.cancel');
+Route::patch('autopay/{autopay}/pause', [AutopayController::class, 'pause'])->name('autopay.pause');
+Route::patch('autopay/{autopay}/activate', [AutopayController::class, 'activate'])->name('autopay.activate');
+
+
+});
+
+
+Route::post('/tenant/autopay/setup', [TenantController::class, 'autopaySetup'])
+    ->name('tenant.autopay.setup')
+    ->middleware('auth');

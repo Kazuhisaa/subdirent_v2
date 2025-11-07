@@ -6,8 +6,8 @@
 <div class="container-fluid py-4">
 
 <div class="row mb-4">
-    <div class="col-12 d-flex justify-content-between align-items-center">
-        <h2 class="fw-bold text-blue-900">Bookings Management</h2>
+    <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gy-3">
+        <h2 class="fw-bold text-blue-900 mb-0">Bookings Management</h2>
 
         <button class="btn btn-action rounded-pill fw-bold px-4" onclick="fetchArchivedBookings()">
             <i class="bi bi-archive-fill me-1"></i> Archived Bookings
@@ -15,13 +15,19 @@
     </div>
 </div>
 
+
     {{-- ✅ ACTIVE BOOKINGS --}}
     <div class="card border-0 shadow-sm mb-5 rounded-4 overflow-hidden">
-        <div class="card-header fw-bold text-white d-flex justify-content-between align-items-center"
+        
+        <div class="card-header fw-bold text-white d-flex justify-content-between align-items-center flex-wrap gy-2"
              style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem;">
+            
             <span>ACTIVE BOOKINGS</span>
-            <input type="text" id="searchInput" class="form-control form-control-sm w-25" placeholder="Search bookings...">
+            
+            <input type="text" id="searchInput" class="form-control form-control-sm" 
+                   style="flex-basis: 300px;" placeholder="Search bookings...">
         </div>
+
 
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -134,17 +140,20 @@ async function fetchBookings() {
                         ${b.status ?? 'Pending'}
                     </span>
                 </td>
+                
                 <td>
-                    ${b.status === 'Pending' ? `
-                        <button class="btn btn-success btn-sm me-1" onclick="updateBookingStatus(${b.id}, 'confirm')" title="Confirm">
-                            <i class="bi bi-check-lg"></i>
+                    <div class="d-flex justify-content-center" style="gap: .25rem;">
+                        ${b.status === 'Pending' ? `
+                            <button class="btn btn-success btn-sm" onclick="updateBookingStatus(${b.id}, 'confirm')" title="Confirm">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-outline-warning btn-sm" onclick="archiveBooking(${b.id})" title="Archive">
+                            <i class="bi bi-archive-fill"></i>
                         </button>
-                    ` : ''}
-                    <button class="btn btn-outline-warning btn-sm" onclick="archiveBooking(${b.id})" title="Archive">
-                        <i class="bi bi-archive-fill"></i>
-                    </button>
+                    </div>
                 </td>
-            </tr>
+                </tr>
         `).join('') : '<tr><td colspan="8" class="py-4 text-muted">No bookings found.</td></tr>';
     } catch (err) {
         console.error(err);

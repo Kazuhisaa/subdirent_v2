@@ -301,6 +301,32 @@
     </div>
 </div>
 
+<div class="modal fade" id="archivedModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">Archived Applicants</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table text-center">
+          <thead>
+            <tr>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Contact</th>
+              <th>Unit</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="archivedApplicationsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <script>
     // Global variable para sa all units
@@ -550,8 +576,61 @@
             alert(errorMessage);
         }
     });
+    
+document.querySelector('[data-bs-target="#archivedModal"]').addEventListener('click', async () => {
+    try {
+        const res = await fetch('/api/applications/archived');
+        const data = await res.json();
+
+        const tbody = document.getElementById('archivedApplicationsBody');
+        tbody.innerHTML = '';
+
+        data.forEach(app => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${app.first_name} ${app.middle_name} ${app.last_name}</td>
+                <td>${app.email}</td>
+                <td>${app.contact_num}</td>
+                <td>${app.status}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error(err);
+        alert('Failed to load archived applications');
+    }
+});
+
+
 
 </script>
 
+<script>
+    
+
+async function archiveApplication(id) {
+    const token = sessionStorage.getItem('admin_api_token');
+    if (!token) return alert('Missing token');
+
+    if (!confirm('Archive this application?')) return;
+
+    try {
+        const res = await fetch(`/api/applications/archive/${id}`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed');
+
+        alert('Application archived!');
+        // refresh UI here
+    } catch (err) {
+        console.error(err);
+        alert('Error: ' + err.message);
+    }
+}
+</script>
 
 @endsection
