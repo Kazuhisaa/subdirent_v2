@@ -133,9 +133,9 @@ function renderContractsDisplay(page = 1) {
                         <a href="/admin/contracts/${c.id}" class="btn btn-sm btn-outline-primary" title="View Contract">
                             <i class="bi bi-eye"></i>
                         </a>
-                        <a href="/admin/contracts/${c.id}/edit" class="btn btn-sm btn-outline-success" title="Edit Contract">
-                            <i class="bi bi-pencil"></i>
-                        </a>
+                        <a href="/admin/contracts/${c.id}/edit" class="btn btn-sm btn-outline-blue edit-btn" title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>                    
                     </div>
                 </td>
             </tr>
