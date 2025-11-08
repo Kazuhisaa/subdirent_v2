@@ -41,7 +41,10 @@
             </table>
         </div>
     </div>
-</div>
+            <div class="card-footer bg-white border-0 d-flex justify-content-center pt-3" id="tenant-pagination-container">
+          </div>
+
+  </div>
 
 
 
@@ -85,10 +88,11 @@
       </div>
 
       {{-- Footer --}}
-      <div class="modal-footer bg-white border-0">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-
+      <div class="modal-footer bg-white border-0 d-flex justify-content-between align-items-center">
+              <div id="archived-pagination-container">
+                  </div>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
     </div>
   </div>
 </div>

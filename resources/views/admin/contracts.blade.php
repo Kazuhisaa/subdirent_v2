@@ -1,4 +1,3 @@
-{{-- resources/views/admin/contracts.blade.php --}}
 @extends('admin.dashboard')
 
 @section('content')
@@ -41,9 +40,12 @@
 
     {{-- Contracts List Card --}}
     <div class="card border-0 shadow-sm">
-        <div class="card-header fw-bold text-white"
-             style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem;">
-            ONGOING CONTRACTS
+        {{-- ✅ MODIFIED: Card header now includes a search bar --}}
+        <div class="card-header fw-bold text-white d-flex justify-content-between align-items-center flex-wrap gy-2"
+             style="background: linear-gradient(90deg, #007BFF, #0A2540);">
+            <span>ONGOING CONTRACTS</span>
+            <input type="text" id="searchContracts" class="form-control form-control-sm" 
+                   style="flex-basis: 300px;" placeholder="Search active contracts...">
         </div>
 
         <div class="card-body p-0">
@@ -67,21 +69,124 @@
                 </table>
             </div>
         </div>
+
+        {{-- ✅ ADDED: Pagination container --}}
+        <div class="card-footer bg-white border-0 d-flex justify-content-center pt-3" id="contracts-pagination-container">
+            </div>
     </div>
 </div>
 
-{{-- JavaScript Fetch Logic --}}
+{{-- ✅ REPLACED: Entire JavaScript block is updated for pagination --}}
 <script>
+// --- Global State ---
+let allActiveContracts = [];
+const ROWS_PER_PAGE = 10;
+let currentToken = "";
+
+/**
+ * Renders the paginated display for active contracts
+ */
+function renderContractsDisplay(page = 1) {
+    const tableBody = document.getElementById('contractsTableBody');
+    const paginationContainer = document.getElementById('contracts-pagination-container');
+    const query = document.getElementById('searchContracts').value.toLowerCase();
+
+    // 1. Filter data
+    const filteredData = allActiveContracts.filter(c => {
+        const tenantName = `${c.tenant?.first_name ?? ''} ${c.tenant?.last_name ?? ''}`.trim();
+        const unitName = c.unit?.title ?? 'N/A';
+        const start = c.contract_start ?? '—';
+        const end = c.contract_end ?? '—';
+        const searchableText = [tenantName, unitName, start, end].join(' ').toLowerCase();
+        return searchableText.includes(query);
+    });
+
+    // 2. Paginate data
+    const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
+    const startIdx = (page - 1) * ROWS_PER_PAGE;
+    const endIdx = startIdx + ROWS_PER_PAGE;
+    const pageData = filteredData.slice(startIdx, endIdx);
+
+    // 3. Render table
+    tableBody.innerHTML = ''; // Clear old rows
+    if (pageData.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No ongoing contracts found.</td></tr>`;
+        paginationContainer.innerHTML = ''; // Clear pagination
+        return;
+    }
+
+    pageData.forEach(c => {
+        const tenantName = `${c.tenant?.first_name ?? ''} ${c.tenant?.last_name ?? ''}`.trim();
+        const unitName = c.unit?.title ?? 'N/A';
+        const start = c.contract_start ?? '—';
+        const end = c.contract_end ?? '—';
+
+        const row = `
+            <tr>
+                <td>${tenantName || 'N/A'}</td>
+                <td>${unitName}</td>
+                <td>${start}</td>
+                <td>${end}</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td>
+                    <div class="d-flex justify-content-center align-items-center gap-2">
+                        <a href="/admin/contracts/${c.id}" class="btn btn-sm btn-outline-primary" title="View Contract">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="/admin/contracts/${c.id}/edit" class="btn btn-sm btn-outline-success" title="Edit Contract">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        `;
+        tableBody.insertAdjacentHTML('beforeend', row);
+    });
+
+    // 4. Render pagination UI
+    paginationContainer.innerHTML = buildPaginationUI(totalPages, page, 'renderContractsDisplay');
+}
+
+/**
+ * Builds the Bootstrap pagination HTML
+ */
+function buildPaginationUI(totalPages, currentPage, renderFunction) {
+    if (totalPages <= 1) return "";
+    let html = `<nav><ul class="pagination pagination-sm mb-0">`;
+    
+    // Previous
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunction}(${currentPage - 1})">&laquo;</a>
+    </li>`;
+
+    // Numbers
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+            <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunction}(${i})">${i}</a>
+        </li>`;
+    }
+
+    // Next
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunction}(${currentPage + 1})">&raquo;</a>
+    </li>`;
+    
+    html += `</ul></nav>`;
+    return html;
+}
+
+// --- Main execution ---
 document.addEventListener("DOMContentLoaded", async () => {
     const tableBody = document.getElementById('contractsTableBody');
     const activeEl = document.getElementById('activeContracts');
     const completedEl = document.getElementById('completedContracts');
     const terminatedEl = document.getElementById('terminatedContracts');
-    const token = sessionStorage.getItem('admin_api_token'); 
+    
+    currentToken = sessionStorage.getItem('admin_api_token'); 
 
     tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">Loading...</td></tr>`;
 
-    if (!token) {
+    if (!currentToken) {
         console.error("Authorization token not found.");
         tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">⚠ Missing admin token. Please login again.</td></tr>`;
         return;
@@ -90,7 +195,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         const response = await fetch('/api/contracts', {
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${currentToken}`,
                 'Accept': 'application/json'
             }
         });
@@ -99,7 +204,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const contracts = await response.json();
 
-        // Filter and update summary
+        // Filter and update summary (this logic was correct)
         const activeContracts = contracts.filter(c => c.status === 'ongoing');
         const completedContracts = contracts.filter(c => c.status === 'completed');
         const terminatedContracts = contracts.filter(c => c.status === 'Terminated');
@@ -108,40 +213,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         completedEl.textContent = completedContracts.length;
         terminatedEl.textContent = terminatedContracts.length;
 
-        tableBody.innerHTML = '';
+        // --- NEW PAGINATION LOGIC ---
+        // 1. Sort latest first (by ID)
+        activeContracts.sort((a, b) => b.id - a.id);
 
-        if (activeContracts.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No ongoing (active) contracts found.</td></tr>`;
-            return;
-        }
+        // 2. Store in global state
+        allActiveContracts = activeContracts;
 
-        // Display only Active Contracts
-        activeContracts.forEach(c => {
-            const tenantName = `${c.tenant?.first_name ?? ''} ${c.tenant?.last_name ?? ''}`.trim();
-            const unitName = c.unit?.title ?? 'N/A';
-            const start = c.contract_start ?? '—';
-            const end = c.contract_end ?? '—';
+        // 3. Initial Render
+        renderContractsDisplay(1);
 
-            const row = `
-                <tr>
-                    <td>${tenantName || 'N/A'}</td>
-                    <td>${unitName}</td>
-                    <td>${start}</td>
-                    <td>${end}</td>
-                    <td><span class="badge bg-success">Active</span></td>
-                    <td>
-                        <div class="d-flex justify-content-center align-items-center gap-2">
-                            <a href="/admin/contracts/${c.id}" class="btn btn-sm btn-outline-primary" title="View Contract">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            <a href="/admin/contracts/${c.id}/edit" class="btn btn-sm btn-outline-success" title="Edit Contract">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            tableBody.insertAdjacentHTML('beforeend', row);
+        // 4. Attach search listener
+        document.getElementById('searchContracts').addEventListener('keyup', () => {
+            renderContractsDisplay(1); // Reset to page 1 on search
         });
 
     } catch (error) {
@@ -149,5 +233,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">⚠ Failed to load contracts: ${error.message}</td></tr>`;
     }
 });
+
+// Make render function global for pagination links
+window.renderContractsDisplay = renderContractsDisplay;
 </script>
 @endsection
