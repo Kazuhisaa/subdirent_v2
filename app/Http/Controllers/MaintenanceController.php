@@ -45,12 +45,26 @@ public function showIndex()
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'category' => 'required|string|max:255',
+        // === MODIFIED VALIDATION LOGIC ===
+        $rules = [
             'urgency' => 'required|string',
-            'description' => 'required|string',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        ];
+
+        // Conditional requirement for Category and Description
+        if ($request->urgency === 'Others') {
+            // If Urgency is 'Others': Category is nullable (since dropdown is disabled), Description is required.
+            $rules['category'] = 'nullable|string|max:255';
+            $rules['description'] = 'required|string'; 
+        } else {
+            // If Urgency is Low, Medium, or High: Category is required, Description is optional/nullable.
+            $rules['category'] = 'required|string|max:255';
+            $rules['description'] = 'nullable|string';
+        }
+        
+        $request->validate($rules);
+        // === END MODIFIED VALIDATION LOGIC ===
+
 
         $user = Auth::user();
         if (!$user || !$user->tenant) {
@@ -62,9 +76,15 @@ public function showIndex()
             $path = $request->file('photo')->store('maintenance_photos', 'public');
         }
 
+        // Handle the category value when 'Others' is selected and the dropdown is disabled.
+        $category = $request->category;
+        if ($request->urgency === 'Others' || empty($category)) {
+             $category = 'N/A - See Description'; 
+        }
+
         Maintenance::create([
             'tenant_id' => $user->tenant->id,
-            'category' => $request->category,
+            'category' => $category, // Saves the selected or default category
             'urgency' => $request->urgency,
             'description' => $request->description,
             'photo' => $path,
@@ -82,7 +102,7 @@ public function showIndex()
      * Display all maintenance requests for the admin.
      * This is the method that provides the $requests variable.
      */
-public function adminIndex()
+    public function adminIndex()
     {
         // 1. Fetch active requests
         $requests = Maintenance::with('tenant.unit') 

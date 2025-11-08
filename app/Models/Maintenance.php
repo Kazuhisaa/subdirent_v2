@@ -12,13 +12,13 @@ class Maintenance extends Model
 
     protected $fillable = [
         'tenant_id',
-        'category',
-        'urgency',
-        'description',
+        'category', // Already correctly included
+        'urgency',  // Already correctly included
+        'description', // Already correctly included
         'photo',
         'status',
-        'scheduled_date', // Added
-        'notes',          // Added
+        'scheduled_date', 
+        'notes',          
     ];
 
     /**

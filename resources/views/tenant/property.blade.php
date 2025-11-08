@@ -105,8 +105,8 @@
                 <small class="text-muted">Bathrooms</small>
               </div>
               <div class="col-md-3">
-                <h4 class="text-primary">₱{{ $tenant->tenant->unit->unit_price }}</h4>
-                <small class="text-muted">Unit Price</small>
+                  <h4 class="text-primary">₱{{ number_format($tenant->tenant->unit->unit_price, 2) }}</h4>
+                  <small class="text-muted">Unit Price</small>
               </div>
             </div>
 
