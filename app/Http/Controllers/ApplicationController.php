@@ -93,43 +93,47 @@ class ApplicationController extends Controller
         ], 201);
     }
 
-    /**
-     * Update an existing application
-     */
-    public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'unit_id'           => 'required|exists:units,id',
-            'first_name'        => 'required|string|max:50',
-            'middle_name'       => 'nullable|string|max:50',
-            'last_name'         => 'required|string|max:50',
-            'email'             => 'required|email|unique:applications,email,' . $id,
-            'contact_num'       => 'required|string|max:15',
-            'monthly_rent'      => 'nullable|numeric',
-            'unit_price'        => 'nullable|numeric',
-            'downpayment'       => 'nullable|numeric',
-            'payment_due_date'  => 'nullable|integer|min:1|max:31',
-            'contract_years'    => 'nullable|integer|min:1',
-            'contract_duration' => 'nullable|numeric|max:20',
-            'contract_start'    => 'nullable|date',
-            'remarks'           => 'nullable|string',
-        ]);
+   public function update(Request $request, $id)
+{
+    $validated = $request->validate([
+        'unit_id'           => 'required|exists:units,id',
+        'first_name'        => 'required|string|max:50',
+        'middle_name'       => 'nullable|string|max:50',
+        'last_name'         => 'required|string|max:50',
+        'email'             => 'required|email|unique:applications,email,' . $id,
+        'contact_num'       => 'required|string|max:15',
+        'monthly_rent'      => 'nullable|numeric',
+        'unit_price'        => 'nullable|numeric',
+        'downpayment'       => 'nullable|numeric',
+        'payment_due_date'  => 'nullable|integer|min:1|max:31',
+        'contract_years'    => 'nullable|integer|min:1',
+        'contract_duration' => 'nullable|numeric|max:20',
+        'contract_start'    => 'nullable|date',
+        'remarks'           => 'nullable|string',
+    ]);
 
-        $application = Application::findOrFail($id);
-        $unit = Unit::find($validated['unit_id']);
+    $application = Application::findOrFail($id);
+    $unit = Unit::find($validated['unit_id']);
 
-        // Auto-update the unit price if available
-        if ($unit) {
-            $validated['unit_price'] = (float) str_replace(',', '', $unit->unit_price);
-        }
-
-        $application->update($validated);
-
-        return response()->json([
-            'message'     => 'Application updated successfully',
-            'application' => $application
-        ]);
+    if ($unit) {
+        $validated['unit_price'] = (float) str_replace(',', '', $unit->unit_price);
     }
+
+    // Check that downpayment is not greater than unit_price
+    if (isset($validated['downpayment']) && $validated['downpayment'] > $validated['unit_price']) {
+        return response()->json([
+            'message' => 'Downpayment cannot be greater than unit price'
+        ], 422);
+    }
+
+    $application->update($validated);
+
+    return response()->json([
+        'message'     => 'Application updated successfully',
+        'application' => $application
+    ]);
+}
+
 
     /**
      * Approve an application → create Tenant + Contract + Payment + User
@@ -294,5 +298,19 @@ return redirect()
     }
     return response()->file(storage_path('app/public/' . $contract->contract_pdf));
 }
+
+public function restore($id)
+    {
+            // Find the trashed application by its ID
+            $application = Application::onlyTrashed()->findOrFail($id);
+            // Restore the application
+            $application->restore();
+
+            // Return a JSON response on success
+            return response()->json([
+                'message' => 'Applicant restored successfully!',
+                'data' => $application
+    ]);
+    }
 
 }

@@ -31,35 +31,34 @@
 
           <form action="{{ route('tenant.maintenance.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
-
+            
+            {{-- 1. Urgency (New Position) --}}
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Urgency</label>
+                <div class="d-flex gap-3 flex-wrap">
+                    @foreach (['Low', 'Medium', 'High', 'Others'] as $level) 
+                    <div class="form-check">
+                        {{-- Added 'urgency-radio' class for JS targeting --}}
+                        <input class="form-check-input urgency-radio" type="radio" name="urgency" value="{{ $level }}" id="{{ strtolower($level) }}" {{ $loop->first ? 'checked' : '' }}>
+                        <label class="form-check-label" for="{{ strtolower($level) }}">{{ $level }}</label>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            
+            {{-- 2. Category (Now dependent and has an ID for JS targeting) --}}
             <div class="mb-3">
               <label class="form-label fw-semibold">Category</label>
-              <select class="form-select border-primary-subtle" name="category" required>
-                <option disabled selected>Select issue category</option>
-                <option>Plumbing</option>
-                <option>Electrical</option>
-                <option>Appliance Repair</option>
-                <option>Structural Damage</option>
-                <option>Water Leakage</option>
-                <option>Others</option>
+              <select class="form-select border-primary-subtle" name="category" id="category-select" required>
+                {{-- Options populated by JavaScript --}}
+                <option disabled selected value="">Select issue category</option>
               </select>
             </div>
 
+            {{-- 3. Description (Now Optional, but required for 'Others') --}}
             <div class="mb-3">
-              <label class="form-label fw-semibold">Urgency</label>
-              <div class="d-flex gap-3 flex-wrap">
-                @foreach (['Low', 'Medium', 'High'] as $level)
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="urgency" value="{{ $level }}" id="{{ strtolower($level) }}" {{ $loop->first ? 'checked' : '' }}>
-                  <label class="form-check-label" for="{{ strtolower($level) }}">{{ $level }}</label>
-                </div>
-                @endforeach
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Describe the Issue</label>
-              <textarea class="form-control border-primary-subtle" name="description" rows="5" required placeholder="Please describe the issue in detail..."></textarea>
+              <label class="form-label fw-semibold" id="description-label">Describe the Issue (Optional)</label>
+              <textarea class="form-control border-primary-subtle" name="description" id="description-textarea" rows="5" placeholder="Please describe the issue in detail..."></textarea>
             </div>
 
             <div class="mb-4">
@@ -116,4 +115,68 @@
 
   </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urgencyRadios = document.querySelectorAll('.urgency-radio');
+        const categorySelect = document.getElementById('category-select');
+        const descriptionTextarea = document.getElementById('description-textarea');
+        const descriptionLabel = document.getElementById('description-label');
+
+        // Define categories based on urgency
+        const categories = {
+            'Low': ['Appliance is Destroyed', 'General Wear and Tear', 'Minor Paint Issue', 'Non-essential Plumbing', 'Other Minor Repair'],
+            'Medium': ['Water Heater Malfunction', 'Minor Electrical Issues (e.g., specific outlet failure)', 'Pest Control (Non-emergency)', 'Broken Window Pane', 'Leaky Faucet/Toilet'],
+            'High': ['Major Water Leakage (Flooding)', 'Total Loss of Power/HVAC', 'Gas Leak/Fumes', 'Structural Damage Threat', 'Security Issue (e.g., broken main door lock)'],
+            'Others': [], // Empty for 'Others'
+        };
+
+        function updateFormFields(urgency) {
+            // 1. Reset/Clear Category Dropdown
+            categorySelect.innerHTML = '';
+            
+            if (urgency === 'Others') {
+                // Scenario: Urgency is 'Others'
+                categorySelect.innerHTML = '<option selected value="">N/A - See Description Below</option>';
+                categorySelect.disabled = true; // Disable dropdown
+                categorySelect.removeAttribute('required');
+                
+                // Description is mandatory
+                descriptionTextarea.required = true; 
+                descriptionLabel.textContent = 'Describe the Issue (Required)';
+                descriptionTextarea.placeholder = 'Please describe the "Others" issue in detail...';
+            } else {
+                // Scenario: Urgency is Low, Medium, or High
+                const options = categories[urgency] || [];
+                categorySelect.innerHTML = '<option disabled selected value="">Select issue category</option>';
+                options.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    option.textContent = cat;
+                    categorySelect.appendChild(option);
+                });
+                categorySelect.disabled = false; // Enable dropdown
+                categorySelect.required = true; // Category is mandatory
+                
+                // Description is optional
+                descriptionTextarea.required = false; 
+                descriptionLabel.textContent = 'Describe the Issue (Optional)';
+                descriptionTextarea.placeholder = 'Please describe the issue in detail...';
+            }
+        }
+
+        // Attach event listener to all radio buttons
+        urgencyRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                updateFormFields(this.value);
+            });
+        });
+
+        // Initialize form fields on page load based on the checked radio button (default is 'Low')
+        const initialChecked = document.querySelector('.urgency-radio:checked');
+        if (initialChecked) {
+            updateFormFields(initialChecked.value);
+        }
+    });
+</script>
 @endsection

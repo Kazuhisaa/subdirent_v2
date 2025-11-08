@@ -237,7 +237,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label>Downpayment</label>
-                            <input type="number" id="downpayment" class="form-control" min="0" step="0.01" required>
+                            <input type="number" id="downpayment" class="form-control" min="1" step="0.1" required>
                         </div>
                         <div class="col-md-6">
                             <label>Contract Years</label>
@@ -301,33 +301,50 @@
     </div>
 </div>
 
-<div class="modal fade" id="archivedModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title">Archived Applicants</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <table class="table text-center">
-          <thead>
-            <tr>
-              <th>Full Name</th>
-              <th>Email</th>
-              <th>Contact</th>
-              <th>Unit</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="archivedApplicationsBody"></tbody>
-        </table>
-      </div>
+<div class="modal fade" id="archivedModal" tabindex="-1" aria-labelledby="archivedLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
+            {{-- Header --}}
+            <div class="modal-header text-white border-0"
+                 style="background: linear-gradient(90deg, #007BFF, #0A2540);">
+                <h5 class="modal-title fw-bold" id="archivedLabel">
+                    <i class="bi bi-archive me-2"></i> Archived Applicants
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            {{-- Body --}}
+            <div class="modal-body bg-light p-0">
+                
+                <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
+                    <input type="text" id="searchArchivedApplicants" class="form-control form-control-sm w-50"
+                           placeholder="Search archived applicants...">
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle text-center mb-0">
+                        <thead class="table-light text-uppercase small text-secondary">
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Contact</th>
+                                <th>Unit</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="archivedApplicationsBody">
+                            <tr>
+                                <td colspan="5" class="py-4 text-muted">Loading archived applicants...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
     </div>
-  </div>
 </div>
-
-
-
 <script>
     // Global variable para sa all units
     let allUnits = [];
@@ -592,6 +609,10 @@ document.querySelector('[data-bs-target="#archivedModal"]').addEventListener('cl
                 <td>${app.email}</td>
                 <td>${app.contact_num}</td>
                 <td>${app.status}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-success" onclick="restoreApplicant(${app.id})">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                    </button> </td>
             `;
             tbody.appendChild(tr);
         });
@@ -633,4 +654,74 @@ async function archiveApplication(id) {
 }
 </script>
 
+
+<script>
+async function restoreApplicant(id) {
+    
+    // Get CSRF token from meta tag (standard for Laravel blade)
+    const csrfToken = document.querySelector('meta[name="csrf-token"]') 
+                      ? document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                      : '';
+
+    // Check if your global SweetAlert functions exist, otherwise use fallbacks
+    // (This makes the code safer)
+    const sa_confirmAction = window.confirmAction || function(title, confirmText, cancelText, callback) {
+        // Simple browser confirm as a fallback
+        if (confirm(title)) {
+            callback();
+        }
+    };
+    const sa_showSuccess = window.showSuccess || function(message) {
+        alert(message);
+    };
+    const sa_showError = window.showError || function(message) {
+        alert(message);
+    };
+
+    // Use the SweetAlert-style confirmation
+    sa_confirmAction(
+        'Do you want to restore this applicant?', // Title
+        'Yes, restore it', // Confirm text
+        'Cancel', // Cancel text
+        async () => { // This is the callback function that runs on confirmation
+            try {
+                // Use the correct API path for applications
+                const res = await fetch(`/api/applications/restore/${id}`, {
+                    method: 'POST',
+                    headers: { 
+                        'Accept': 'application/json',
+                        // Add CSRF token for web route protection
+                        'X-CSRF-TOKEN': csrfToken 
+                    }
+                });
+
+                const result = await res.json();
+                if (!res.ok) {
+                    throw new Error(result.message || `Failed (${res.status})`);
+                }
+
+                // Use SweetAlert-style success message
+                sa_showSuccess('Applicant restored successfully!');
+                
+                // Hide the modal
+                const modalEl = document.getElementById('archivedModal');
+                if (modalEl) {
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) {
+                         modalInstance.hide();
+                    }
+                }
+       
+                // Refresh the page to show the restored applicant in the main list
+                location.reload();
+
+            } catch (err) {
+                console.error(err);
+                // Use SweetAlert-style error message
+                sa_showError('Error restoring applicant: ' + err.message);
+            }
+        }
+    );
+}
+</script>
 @endsection

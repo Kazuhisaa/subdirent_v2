@@ -19,11 +19,10 @@ class Unit extends Model
         'floor_area',
         'monthly_rent',
         'unit_price',
-        'contract_years',
         'status',
         'files',
         'bathroom',   // ✅ add this
-        'bedroom',  
+        'bedroom'
     ];
 
     protected $casts = [
@@ -32,7 +31,7 @@ class Unit extends Model
         'bedroom'      => 'integer',
         'monthly_rent' => 'integer',
         'unit_price'   => 'integer',
-        'files'        => 'array', 
+        'files'        => 'array',
     ];
 
     public function applications(): HasMany

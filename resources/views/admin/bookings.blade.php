@@ -110,7 +110,6 @@
             </div>
         </div>
     </div>
-
 </div>
 @endsection
 @push('scripts') {{-- Or @push('scripts') if you use @stack --}}

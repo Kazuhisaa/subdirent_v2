@@ -186,14 +186,14 @@ public function property()
             'n_years' => 5
         ];
 
-        $response = Http::post('http://127.0.0.1:5000/predict', $data);
+        //$response = Http::post('http://127.0.0.1:5000/predict', $data);
 
-        if ($response->successful()) {
-            $predictions = $response->json();
-        } else {
-            Log::error('Prediction API error: ' . $response->body());
-        }
-    }
+        //if ($response->successful()) {
+           // $predictions = $response->json();
+        //} else {
+            //Log::error('Prediction API error: ' . $response->body());
+        //}
+    //}
 
     return view('tenant.property', [
         'tenant' => $user,
@@ -201,6 +201,7 @@ public function property()
         'unit' => $unit,
         'predictions' => $predictions, // ✅ pass predictions to Blade
     ]);
+}
 }
 
 public function payments()

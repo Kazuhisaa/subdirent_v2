@@ -47,6 +47,7 @@ Route::prefix('applications')->group(function () {
     Route::patch('/archive/{id}', [ApplicationController::class, 'archive']);
     Route::post('/approve/{id}', [ApplicationController::class, 'approve']);
     Route::get('/archived', [ApplicationController::class, 'ViewArchive']);
+    Route::post('/restore/{id}', [ApplicationController::class, 'restore']);
 
 });
 
@@ -79,6 +80,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/archived', [BookingController::class, 'viewArchive']);
         Route::post('/restore/{id}', [BookingController::class, 'restore']);
     });
+
+    Route::get('/maintenance/archived', [MaintenanceController::class, 'archived']);
+    Route::delete('/maintenance/{id}', [MaintenanceController::class, 'archive']);
+
+    Route::post('/maintenance/restore/{id}', [MaintenanceController::class, 'restore']);
+    
 });
 Route::prefix('bookings')->group(function () {
     Route::post('/', [BookingController::class, 'store']);              // POST /bookings

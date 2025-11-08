@@ -71,3 +71,46 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+{{-- ❗️ BAGO: 1. I-load ang SweetAlert2 Library --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{{-- ❗️ BAGO: 2. I-load ang iyong custom alerts.js file --}}
+<script src="{{ asset('js/alerts.js') }}"></script> 
+
+{{-- 3. Iyong JavaScript (Pinagsama na) --}}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Iyong Password Toggle Script (Walang pagbabago) ---
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePassword');
+    
+    if (toggleBtn) {
+        const icon = toggleBtn.querySelector('i');
+        toggleBtn.addEventListener('click', () => {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            }
+        });
+    }
+
+    // --- ❗️ BAGO: SweetAlert Triggers ---
+    // Titingnan nito kung may "error" message mula sa Laravel session
+    // at ipapakita ang iyong showError() function.
+    @if(session('error'))
+        showError("{{ session('error') }}", "Login Failed");
+    @endif
+
+    // Para rin sa success messages, kung kailangan
+    @if(session('success'))
+        showSuccess("{{ session('success') }}", "Success!");
+    @endif
+
+});
+</script>
