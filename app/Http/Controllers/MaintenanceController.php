@@ -17,6 +17,13 @@ class MaintenanceController extends Controller
     /**
      * Show maintenance request page for the logged-in tenant
      */
+public function showIndex()
+{
+    $maintenance = Maintenance::with(['tenant.unit'])->get();
+    return response()->json($maintenance);
+}
+
+
     public function index()
     {
         $user = Auth::user();

@@ -20,7 +20,8 @@
                         <li><a class="dropdown-item" href="#" onclick="showReport('applications', 'Application Report', this)">APPLICATION</a></li>
                         <li><a class="dropdown-item" href="#" onclick="showReport('contracts', 'Contracts Report', this)">CONTRACTS</a></li>
                         <li><a class="dropdown-item" href="#" onclick="showReport('payments', 'Payments Report', this)">PAYMENTS</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="showReport('analytics', 'Analytics Summary', this)">ANALYTICS</a></li>
+                        {{-- BAGO: Pinalitan ang Analytics ng Maintenance --}}
+                        <li><a class="dropdown-item" href="#" onclick="showReport('maintenance', 'Maintenance Report', this)">MAINTENANCE</a></li>
                     </ul>
                 </div>
                 {{-- ITO YUNG TAMANG BUTTON: --}}
@@ -72,8 +73,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>ID</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
+                                <th>Tenant Name</th> 
                                 <th>Email</th>
                                 <th>Contact</th>
                                 <th>UnitPrice</th>
@@ -81,13 +81,14 @@
                             </tr>
                         </thead>
                         <tbody id="applicationsTable">
-                            <tr><td colspan="7" class="text-muted py-3">Loading...</td></tr>
+                            <tr><td colspan="6" class="text-muted py-3">Loading...</td></tr> 
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div id="contracts-report" class="report-section" style="display: none;">
         <div class="card border-0 shadow-sm">
@@ -100,13 +101,14 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Tenant ID</th>
+                                <th>Tenant Name</th> 
                                 <th>Contract Start</th>
                                 <th>Contract End</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody id="contractsTable">
-                            <tr><td colspan="4" class="text-muted py-3">Loading...</td></tr>
+                            <tr><td colspan="5" class="text-muted py-3">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -125,6 +127,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Tenant ID</th>
+                                <th>Tenant Name</th> 
                                 <th>Payment Status</th>
                                 <th>Payment Date</th>
                                 <th>Payment Method</th>
@@ -132,7 +135,7 @@
                             </tr>
                         </thead>
                         <tbody id="paymentsTable">
-                            <tr><td colspan="5" class="text-muted py-3">Loading...</td></tr>
+                            <tr><td colspan="6" class="text-muted py-3">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -140,27 +143,36 @@
         </div>
     </div>
 
-    <div id="analytics-report" class="report-section" style="display: none;">
-        <div class="row text-center mb-4">
-            <div class="col-md-3 mb-3"><div class="card border-0 shadow-sm small-report"><div class="card-body"><h6 class="text-muted">Total Bookings</h6><h3 id="bookingsCount" class="fw-bold text-primary">0</h3></div></div></div>
-            <div class="col-md-3 mb-3"><div class="card border-0 shadow-sm small-report"><div class="card-body"><h6 class="text-muted">Active Contracts</h6><h3 id="contractsCount" class="fw-bold text-success">0</h3></div></div></div>
-            <div class="col-md-3 mb-3"><div class="card border-0 shadow-sm small-report"><div class="card-body"><h6 class="text-muted">Applications</h6><h3 id="applicationsCount" class="fw-bold text-info">0</h3></div></div></div>
-            <div class="col-md-3 mb-3"><div class="card border-0 shadow-sm small-report"><div class="card-body"><h6 class="text-muted">Payments</h6><h3 id="paymentsCount" class="fw-bold text-warning">0</h3></div></div></div>
-        </div>
+
+    {{-- BAGO: Pinalitan ang Analytics ng Maintenance --}}
+    <div id="maintenance-report" class="report-section" style="display: none;">
         <div class="card border-0 shadow-sm">
             <div class="card-header fw-bold text-white" style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem .5rem 0 0;">
-                Analytics Details
+                Maintenance Requests
             </div>
-            <div class="card-body">
-                <p class="text-muted small mb-2">Performance Summary:</p>
-                <ul class="list-unstyled small" id="analyticsList">
-                    <li>Average Monthly Payment: ₱0.00</li>
-                    <li>Occupancy Rate: 0%</li>
-                    <li>Pending Applications: 0</li>
-                </ul>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0 small text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Tenant</th>
+                                <th>Unit</th>
+                                <th>Issue Type</th>
+                                <th>Description</th>
+                                <th>Date Submitted</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="maintenanceTable">
+                            <tr><td colspan="7" class="text-muted py-3">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
 @endsection
 
@@ -190,11 +202,7 @@
 
     // Function para i-generate ang PDF
     async function generatePDF() {
-        if (activeReportId === 'analytics') {
-            alert('PDF generation is not available for Analytics Summary.');
-            return;
-        }
-
+        
         const reportTitle = document.getElementById('reportTitle').textContent;
         const dataToSend = reportData[activeReportId];
         let headers = [];
@@ -202,21 +210,24 @@
 
         switch (activeReportId) {
             case 'bookings':
-                // BAGO: Pinalitan ang 'Tenant Name' -> 'name' para tumugma sa data
                 headers = ['ID', 'Tenant Name', 'Email', 'Contact', 'Date', 'Time', 'Status'];
                 dataKeys = ['id', 'name', 'email', 'contact_num', 'date', 'booking_time', 'status'];
                 break;
             case 'applications':
-                headers = ['ID', 'First Name', 'Last Name', 'Email', 'Contact', 'UnitPrice', 'Status'];
-                dataKeys = ['id', 'first_name', 'last_name', 'email', 'contact_num', 'unit_price', 'status'];
+                headers = ['ID', 'Tenant Name', 'Email', 'Contact', 'UnitPrice', 'Status'];
+                dataKeys = ['id', 'tenant_name', 'email', 'contact_num', 'unit_price', 'status'];
                 break;
             case 'contracts':
-                headers = ['Tenant ID', 'Contract Start', 'Contract End', 'Status'];
-                dataKeys = ['tenant_id', 'contract_start', 'contract_end', 'status'];
+                headers = ['Tenant ID', 'Tenant Name', 'Contract Start', 'Contract End', 'Status'];
+                dataKeys = ['tenant_id', 'tenant_name', 'contract_start', 'contract_end', 'status'];
                 break;
             case 'payments':
-                headers = ['Tenant ID', 'Status', 'Payment Date', 'Method', 'Remarks'];
-                dataKeys = ['tenant_id', 'status', 'payment_date', 'payment_method', 'remarks'];
+                headers = ['Tenant ID', 'Tenant Name', 'Status', 'Payment Date', 'Method', 'Remarks'];
+                dataKeys = ['tenant_id', 'tenant_name', 'payment_status', 'payment_date', 'payment_method', 'remarks'];
+                break;
+            case 'maintenance':
+                headers = ['ID', 'Tenant', 'Unit', 'Issue', 'Description', 'Date', 'Status'];
+                dataKeys = ['id', 'tenant_name', 'unit_name', 'category', 'description', 'created_at', 'status'];
                 break;
             default:
                 console.error('Unknown report type for PDF generation');
@@ -277,62 +288,136 @@
     // --- DOMContentLoaded script ---
     document.addEventListener("DOMContentLoaded", async () => {
         const token = document.querySelector('meta[name="admin-api-token"]').getAttribute('content');
-        const endpoints = ['bookings', 'contracts', 'applications', 'payments'];
+        const endpoints = ['bookings', 'contracts', 'applications', 'payments', 'maintenance'];
         const data = {};
 
-        for (const key of endpoints) {
-            try {
-                const res = await fetch(`/api/${key}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                data[key] = await res.json();
-            } catch (error) {
-                console.error(`Failed to fetch /api/${key}:`, error);
-                data[key] = []; 
-            }
+       console.log("--- DEBUG: Simula ng Pag-fetch ng Data ---");
+for (const key of endpoints) {
+    try {
+        const res = await fetch(`/api/${key}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!res.ok) { 
+            console.error(`Error fetching /api/${key}: ${res.statusText}`);
+            data[key] = []; 
+        } else {
+            let responseData = await res.json();
+            data[key] = responseData.data ? responseData.data : responseData;
         }
+    } catch (error) {
+        console.error(`Failed to fetch /api/${key}:`, error);
+        data[key] = []; 
+    }
+    console.log(`Data for /api/${key}:`, data[key]);
+}
+
+console.log("--- DEBUG: Tapos na ang Pag-fetch. ---");
         
-        // --- BAGO: I-FILTER AT I-PROCESS ANG BOOKINGS ---
+        // --- I-FILTER AT I-PROCESS ANG BOOKINGS ---
         const filteredBookings = data.bookings
             .filter(item => 
                 item.status === 'Active' || item.status === 'Confirmed'
             )
             .map(item => {
-                // I-concatenate ang pangalan base sa image mo
-                // Gagawa ito ng "First M. Last"
                 const middleInitial = (item.middle_name && item.middle_name.length > 0) 
                                     ? ` ${item.middle_name.charAt(0)}. ` 
                                     : ' ';
-                
-                // I-o-overwrite natin ang 'name' property na gagamitin ng renderTable
                 item.name = `${item.first_name ?? ''}${middleInitial}${item.last_name ?? ''}`;
+                return item;
+            });
+        
+        const filteredApplications = data.applications
+            .filter(item => item.status === 'Approved')
+            .map(item => {
+                item.tenant_name = `${item.first_name ?? ''} ${item.last_name ?? ''}`;
+                return item;
+            });
+        
+        console.log("✅ Filtered Applications:", filteredApplications);
+        console.log("📦 Raw API Applications:", data.applications);
+        
+        console.log("📦 Raw API Contracts:", data.contracts); // Debug log
+        const filteredContracts = data.contracts
+            .filter(item => item.status === 'ongoing')
+            .map(item => {
+                item.tenant_name = (item.tenant) 
+                    ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
+                    : 'N/A'; 
+                return item;
+            });
+        console.log("✅ Filtered Contracts:", filteredContracts); // Debug log
+        
+        
+        // ========================================================== //
+        // ============ BINAGO SA JAVASCRIPT (Data Processing) ========== //
+        // ========================================================== //
+        
+        console.log("📦 Raw API Payments:", data.payments); // Debug log
+        const filteredPayments = data.payments
+            .filter(item => 
+                item.payment_status === 'paid'
+            )
+            .map(item => {
+                // == BINAGO: Kinukuha ang tenant name (Mula sa nested 'item.tenant') ==
+                item.tenant_name = (item.tenant) 
+                    ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
+                    : 'N/A'; //
+        
+                // Fino-format ang payment date
+                if (item.payment_date) {
+                    const dateObj = new Date(item.payment_date);
+                    const year = dateObj.getFullYear();
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // +1 kasi 0-indexed ang getMonth()
+
+                    // Format: YR - DD - MONTH (gaya ng request)
+                    item.payment_date = `${year} - ${day} - ${month}`;
+                } else {
+                    item.payment_date = 'N/A';
+                }
                 
                 return item;
             });
-        // --- WAKAS NG PAG-PROCESS NG BOOKINGS ---
+        console.log("✅ Filtered Payments:", filteredPayments); // Debug log
+        // ========================================================== //
+        // ========================================================== //
+
         
-        const filteredApplications = data.applications.filter(item => 
-            item.status === 'Approved'
-        );
-        const filteredContracts = data.contracts.filter(item => 
-            item.status === 'ongoing' 
-        );
-        const filteredPayments = data.payments.filter(item => 
-            item.status === 'paid'
-        );
+ console.log("🔍 Maintenance raw response:", data.maintenance);
+
+// Filter muna
+const filteredMaintenance = data.maintenance
+    .filter(item => item.status === 'Completed');
+
+// Mag-log ng sample data bago mag-map
+console.log("🧩 Maintenance Sample:", filteredMaintenance[0]);
+
+// Map pagkatapos
+const mappedMaintenance = filteredMaintenance.map(item => {
+    item.tenant_name = (item.tenant) 
+        ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
+        : 'N/A';
+    item.unit_name = (item.tenant && item.tenant.unit) 
+        ? item.tenant.unit.title 
+        : 'N/A';
+    item.created_at = new Date(item.created_at).toLocaleDateString("en-US", { 
+        month: 'short', 
+        day: '2-digit', 
+        year: 'numeric' 
+    });
+    return item;
+});
+
+console.log("✅ Filtered & Mapped Maintenance:", mappedMaintenance);
+
 
         // I-store ang filtered data sa global variable
         reportData = {
             bookings: filteredBookings,
             applications: filteredApplications,
             contracts: filteredContracts,
-            payments: filteredPayments
+            payments: filteredPayments, 
+            maintenance: filteredMaintenance 
         };
-
-        // Update Counts for Analytics
-        document.getElementById('bookingsCount').textContent = filteredBookings.length;
-        document.getElementById('contractsCount').textContent = filteredContracts.length;
-        document.getElementById('applicationsCount').textContent = filteredApplications.length;
-        document.getElementById('paymentsCount').textContent = filteredPayments.length;
-
+        
         // Populate Tables
         const renderTable = (id, items, cols) => {
             const tbody = document.getElementById(id);
@@ -343,11 +428,13 @@
         };
 
         // I-render ang tables gamit ang TAMANG keys
-        // Hindi na kailangang baguhin ito dahil in-overwrite na natin ang 'name' key
         renderTable('bookingsTable', filteredBookings, ['id', 'name', 'email', 'contact_num', 'date', 'booking_time', 'status']);
-        renderTable('contractsTable', filteredContracts, ['tenant_id', 'contract_start', 'contract_end', 'status']);
-        renderTable('applicationsTable', filteredApplications, ['id', 'first_name', 'last_name', 'email', 'contact_num', 'unit_price', 'status']);
-        renderTable('paymentsTable', filteredPayments, ['tenant_id', 'status', 'payment_date', 'payment_method', 'remarks']);
+        renderTable('contractsTable', filteredContracts, ['tenant_id', 'tenant_name', 'contract_start', 'contract_end', 'status']);
+        renderTable('applicationsTable', filteredApplications, ['id', 'tenant_name', 'email', 'contact_num', 'unit_price', 'status']);
+        
+        renderTable('paymentsTable', filteredPayments, ['tenant_id', 'tenant_name', 'payment_status', 'payment_date', 'payment_method', 'remarks']);
+        
+        renderTable('maintenanceTable', filteredMaintenance, ['id', 'tenant_name', 'unit_name', 'category', 'description', 'created_at', 'status']);
 
         // Set the initial view to Bookings
         showReport('bookings', 'Bookings Report', document.querySelector('.dropdown-menu a'));

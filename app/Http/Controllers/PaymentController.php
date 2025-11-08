@@ -19,7 +19,11 @@ class PaymentController extends Controller
      */
     
     protected $service;
+    public function showIndex(){
 
+        $payment = Payment::all();
+       return response()->json($payment);
+    }
     public function __construct(RevenueService $service){
          $this->service = $service;
     }
