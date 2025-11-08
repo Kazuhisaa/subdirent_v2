@@ -93,7 +93,8 @@ Route::prefix('prediction')->group(function () {
     Route::get('/revenue/perQuarter', [RevenuePredictionController::class, 'showPredictionQuarter']);
     Route::get('/revenue/perAnnual', [RevenuePredictionController::class, 'showPredictionAnnual']);
     Route::post('/revenue/train', [RevenuePredictionController::class, 'trainModel']);
-    Route::post('/units/predict', [UnitsController::class, 'predict']);
+    Route::get('v2/revenue/perAnnual',[RevenuePredictionController::class,'showPredictionAnnualv2']);
+     Route::get('v2/revenue/perQuarter', [RevenuePredictionController::class, 'showPredictionQuarterV2']);
 });
 Route::prefix('revenue')->group(function () {
     Route::get('/average', [RevenueController::class, 'showAverage']);
