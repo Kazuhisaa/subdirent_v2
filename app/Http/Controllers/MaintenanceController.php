@@ -147,14 +147,20 @@ public function showIndex()
      * Update the status, scheduled date, and notes for a maintenance request.
      */
     public function update(Request $request, Maintenance $maintenance)
-    {
+    {   
+
+        $today = Carbon::today()->toDateString();
+        $maxDate = $this->calculateMaxDate($maintenance->urgency);
+
         $validated = $request->validate([
             'status' => ['required', Rule::in(['Pending', 'In Progress', 'Completed'])],
             // Require scheduled_date ONLY IF status is 'In Progress'
             'scheduled_date' => [
                 Rule::requiredIf($request->status == 'In Progress'),
                 'nullable',
-                'date'
+                'date',
+                'after_or_equal:' . $today, // Cannot be in the past
+                'before_or_equal:' . $maxDate // Must be within urgency window
             ],
             'notes' => 'nullable|string',
         ]);
@@ -179,6 +185,21 @@ public function showIndex()
         // === FIX: Changed route name from 'admin.maintenance.index' to 'admin.maintenance' ===
         return redirect()->route('admin.maintenance')->with('success', 'Maintenance request updated successfully.');
     }
+
+
+    private function calculateMaxDate($urgency)
+        {
+        $maxDate = Carbon::today();
+        if ($urgency === 'High') {
+        $maxDate->addDays(2);
+        } elseif ($urgency === 'Medium') {
+        $maxDate->addDays(4);
+        } else {
+        // Default for 'Low' and 'Others'
+        $maxDate->addDays(7);
+        }
+        return $maxDate->toDateString();
+        }
 
     /**
      * Archive a maintenance request (Soft Delete).
