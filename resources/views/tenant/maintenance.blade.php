@@ -10,9 +10,6 @@
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body d-flex align-items-center justify-content-between flex-wrap">
       <div class="d-flex align-items-center mb-2 mb-md-0">
-        <div class="me-3">
-          <img src="{{ asset('images/maintenance-icon.png') }}" alt="Maintenance" class="rounded" width="70" height="70">
-        </div>
         <div>
           <h5 class="fw-bold mb-1 text-primary">Maintenance Request Center</h5>
           <p class="text-muted mb-0">Submit and track your property maintenance issues easily.</p>
@@ -83,20 +80,29 @@
 
           @forelse ($recentRequests as $req)
             <div class="border-start border-3 ps-3 mb-3 
-                @if($req->status == 'Pending') border-warning 
-                @elseif($req->status == 'In Progress') border-danger 
-                @else border-success @endif">
+              @if($req->status == 'Pending') border-warning 
+              @elseif($req->status == 'In Progress') border-danger 
+              @else border-success @endif">
 
-              <h6 class="fw-semibold text-capitalize mb-1 text-{{ $req->status == 'Completed' ? 'success' : ($req->status == 'Pending' ? 'primary' : 'danger') }}">
-                {{ $req->description }}
+              {{-- 1. Category (Now bold and using thematic color) --}}
+              <h6 class="fw-bold text-capitalize mb-0 text-blue-900">
+                Category: {{ $req->category }}
               </h6>
-              <small class="text-muted d-block mb-1">Category: {{ $req->category }}</small>
+              
+              {{-- Description (Only displayed if $req->description is present) --}}
+              @if($req->description)
+              <p class="small d-block text-blue-900 mb-1 fw-semibold">
+                  <i class="bi bi-wrench-adjustable me-2"></i> {{ $req->description }}
+              </p>
+              @endif
+              
+              {{-- Status Badge (FIXED TO USE STANDARD BOOTSTRAP CLASSES) --}}
               <small class="badge 
-                {{ $req->status == 'Completed' ? 'bg-success' : ($req->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
-                {{ $req->status }}
+                  {{ $req->status == 'Completed' ? 'bg-success' : ($req->status == 'Pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
+                  {{ $req->status }}
               </small>
               <p class="small text-muted mb-0">Reported: {{ $req->created_at->format('M d, Y') }}</p>
-            </div>
+          </div>
           @empty
             <p class="text-muted">No maintenance requests yet.</p>
           @endforelse
@@ -121,16 +127,19 @@
         const urgencyRadios = document.querySelectorAll('.urgency-radio');
         const categorySelect = document.getElementById('category-select');
         const descriptionTextarea = document.getElementById('description-textarea');
-        const descriptionLabel = document.getElementById('description-label');
+        const descriptionLabel = document.getElementById('description-label'); // Added descriptionLabel
 
-        // Define categories based on urgency
         const categories = {
             'Low': ['Appliance is Destroyed', 'General Wear and Tear', 'Minor Paint Issue', 'Non-essential Plumbing', 'Other Minor Repair'],
             'Medium': ['Water Heater Malfunction', 'Minor Electrical Issues (e.g., specific outlet failure)', 'Pest Control (Non-emergency)', 'Broken Window Pane', 'Leaky Faucet/Toilet'],
             'High': ['Major Water Leakage (Flooding)', 'Total Loss of Power/HVAC', 'Gas Leak/Fumes', 'Structural Damage Threat', 'Security Issue (e.g., broken main door lock)'],
-            'Others': [], // Empty for 'Others'
+            'Others': [], 
         };
 
+        /**
+         * Dynamically updates the Category dropdown and Description field requirements
+         * based on the selected Urgency level.
+         */
         function updateFormFields(urgency) {
             // 1. Reset/Clear Category Dropdown
             categorySelect.innerHTML = '';
@@ -165,18 +174,37 @@
             }
         }
 
-        // Attach event listener to all radio buttons
         urgencyRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 updateFormFields(this.value);
             });
         });
 
-        // Initialize form fields on page load based on the checked radio button (default is 'Low')
         const initialChecked = document.querySelector('.urgency-radio:checked');
         if (initialChecked) {
             updateFormFields(initialChecked.value);
         }
+
+        // === SWEETALERT INTEGRATION START ===
+        const successMessage = '{{ session('success') }}';
+        const errorMessage = '{{ session('error') }}';
+
+        if (successMessage) {
+            // Check if the message is not just an empty string
+            if (successMessage.trim()) {
+                // Assuming window.showSuccess is defined in your alerts.js file
+                window.showSuccess(successMessage);
+            }
+        }
+        if (errorMessage) {
+            // Check if the message is not just an empty string
+            if (errorMessage.trim()) {
+                // Assuming window.showError is defined in your alerts.js file
+                window.showError(errorMessage);
+            }
+        }
+        // === SWEETALERT INTEGRATION END ===
+
     });
 </script>
 @endsection

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('images/favicon-96x96.png') }}">
+<link rel="icon" type="image/png" sizes="96x96" href="{{ asset('images/favicon-96x96.png') }}">
 <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
 <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
 <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
@@ -16,15 +16,18 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    @vite([
+        'resources/bootstrap/css/bootstrap.css',
+        'resources/css/tenant.css',
+        'resources/bootstrapjs/js/bootstrap.bundle.js',
+        'resources/js/app.js',
+        'resources/js/alerts.js',
+    ])
+    {{-- This stack is for any styles pushed from child pages --}}
+    @stack('styles')
 
-  @vite([
-      'resources/bootstrap/css/bootstrap.css',
-      'resources/css/tenant.css',
-      'resources/bootstrapjs/js/bootstrap.bundle.js',
-      'resources/js/app.js'
-  ])
-  {{-- This stack is for any styles pushed from child pages --}}
-  @stack('styles')
+    {{-- 1. SWEETALERT LIBRARY --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
 </head>
 
 <body>
@@ -136,7 +139,6 @@
 
 <script>
   window.apiToken = "{{ auth()->user()->createToken('tenant-token')->plainTextToken ?? '' }}";
-
 </script>
 @stack('scripts')
 
