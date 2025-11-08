@@ -66,37 +66,6 @@ function apiHeaders(token) {
 const TENANTS_BASE = "/api/admin/api/tenants";
 
 /* ---------- SweetAlert Helpers ---------- */
-
-function showSuccess(message) {
-  Swal.fire({
-    icon: "success",
-    title: "Success!",
-    text: message,
-    confirmButtonColor: "#198754",
-  });
-}
-
-function showError(message) {
-  Swal.fire({
-    icon: "error",
-    title: "Error!",
-    text: message,
-    confirmButtonColor: "#dc3545",
-  });
-}
-
-function showConfirm(message) {
-  return Swal.fire({
-    icon: "warning",
-    title: "Are you sure?",
-    text: message,
-    showCancelButton: true,
-    confirmButtonText: "Yes",
-    cancelButtonText: "Cancel",
-    confirmButtonColor: "#0d6efd",
-  });
-}
-
 /* ---------- Loaders ---------- */
 
 async function loadTenants(token) {
@@ -354,78 +323,88 @@ function buildPaginationUI(totalPages, currentPage) {
 /* ---------- Listeners ---------- */
 
 function attachEditArchiveListeners(token) {
-  // Note: These listeners are now attached *after* each render
-  document.querySelectorAll("#tenant-table-body .edit-btn").forEach((btn) => {
-    // Prevent double-listening
-    if (btn.listenerAttached) return; 
-    btn.listenerAttached = true;
-    
-    btn.addEventListener("click", async (e) => {
-      const id = e.currentTarget.closest("tr").dataset.id;
-      try {
-        const res = await fetch(`${TENANTS_BASE}/${id}`, { headers: apiHeaders(token) });
-        const json = await res.json();
-        fillEditModal(Array.isArray(json) ? json[0] : json);
-        new bootstrap.Modal(document.getElementById("editTenantModal")).show();
-      } catch {
-        showError("Failed to fetch tenant details.");
-      }
-    })
-  });
+  // Note: These listeners are now attached *after* each render
+  document.querySelectorAll("#tenant-table-body .edit-btn").forEach((btn) => {
+    // Prevent double-listening
+    if (btn.listenerAttached) return; 
+    btn.listenerAttached = true;
+    
+    btn.addEventListener("click", async (e) => {
+      const id = e.currentTarget.closest("tr").dataset.id;
+      try {
+        const res = await fetch(`${TENANTS_BASE}/${id}`, { headers: apiHeaders(token) });
+        const json = await res.json();
+        fillEditModal(Array.isArray(json) ? json[0] : json);
+        new bootstrap.Modal(document.getElementById("editTenantModal")).show();
+      } catch {
+        showError("Failed to fetch tenant details.");
+      }
+    });
+  });
 
-  document.querySelectorAll("#tenant-table-body .archive-btn").forEach((btn) => {
-    // Prevent double-listening
-    if (btn.listenerAttached) return;
-    btn.listenerAttached = true;
+  document.querySelectorAll("#tenant-table-body .archive-btn").forEach((btn) => {
+    // Prevent double-listening
+    if (btn.listenerAttached) return;
+    btn.listenerAttached = true;
 
-    btn.addEventListener("click", async (e) => {
-      const id = e.currentTarget.closest("tr").dataset.id;
-      const result = await showConfirm("Archive this tenant?");
-      if (!result.isConfirmed) return;
+    btn.addEventListener("click", (e) => { // Removed 'async'
+      const id = e.currentTarget.closest("tr").dataset.id;
 
-      try {
-        const res = await fetch(`${TENANTS_BASE}/${id}`, { method: "DELETE", headers: apiHeaders(token) });
-        if (!res.ok) throw new Error();
-        showSuccess("Tenant archived successfully.");
-        // Reload all data and re-render
-        await loadTenants(token);
-        await loadArchivedTenants(token);
-      } catch {
-        showError("Failed to archive tenant.");
-      }
-    })
-  });
+      // Use the callback pattern, just like in your bookings file
+      confirmAction(
+        "Archive this tenant?", 
+        "Yes, archive it", 
+        "Cancel", 
+        async () => { // This is the 'onConfirm' callback
+          try {
+            const res = await fetch(`${TENANTS_BASE}/${id}`, { method: "DELETE", headers: apiHeaders(token) });
+            if (!res.ok) throw new Error();
+            showSuccess("Tenant archived successfully.");
+             // Reload all data and re-render
+            await loadTenants(token);
+            await loadArchivedTenants(token);
+          } catch {
+            showError("Failed to archive tenant.");
+          }
+        }
+      );
+    }); 
+  }); 
 }
-
 function attachRestoreListeners(token) {
-  // Note: These listeners are now attached *after* each render
-  document.querySelectorAll("#archived-table-body .restore-btn").forEach((btn) => {
-    // Prevent double-listening
-    if (btn.listenerAttached) return;
-    btn.listenerAttached = true;
+  // Note: These listeners are now attached *after* each render
+  document.querySelectorAll("#archived-table-body .restore-btn").forEach((btn) => {
+    // Prevent double-listening
+    if (btn.listenerAttached) return;
+    btn.listenerAttached = true;
 
-    btn.addEventListener("click", async (e) => {
-      const id = e.currentTarget.dataset.id;
-      const result = await showConfirm("Restore this tenant?");
-      if (!result.isConfirmed) return;
+    btn.addEventListener("click", (e) => { // Removed 'async'
+      const id = e.currentTarget.dataset.id;
 
-      try {
-        const res = await fetch(`${TENANTS_BASE}/${id}/restore`, {
-          method: "PUT",
-          headers: apiHeaders(token),
-        });
-        if (!res.ok) throw new Error();
-        showSuccess("Tenant restored successfully.");
-        // Reload all data and re-render
-        await loadTenants(token);
-        await loadArchivedTenants(token);
-      } catch {
-        showError("Failed to restore tenant.");
-      }
-    })
-  });
+      // Use the callback pattern
+       confirmAction(
+        "Restore this tenant?", 
+        "Yes, restore it", 
+        "Cancel", 
+        async () => { // This is the 'onConfirm' callback
+          try {
+            const res = await fetch(`${TENANTS_BASE}/${id}/restore`, {
+              method: "PUT",
+              headers: apiHeaders(token),
+            });
+            if (!res.ok) throw new Error();
+            showSuccess("Tenant restored successfully.");
+            // Reload all data and re-render
+            await loadTenants(token);
+            await loadArchivedTenants(token);
+          } catch {
+            showError("Failed to restore tenant.");
+          }
+        }
+      );
+    }); 
+  }); 
 }
-
 /* ---------- Edit Form ---------- */
 
 async function handleEditSubmit(token) {

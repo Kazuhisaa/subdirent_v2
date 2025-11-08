@@ -109,9 +109,9 @@
                                     </a>
                                     <form action="{{ route('admin.admin.payments.archive', $payment->id) }}" method="POST" class="mb-0 archive-form">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive">
-                                            <i class="bi bi-archive"></i>
-                                        </button>
+                                            <button type="submit" class="btn btn-sm btn-outline-warning archive-btn" title="Archive">
+                                                <i class="bi bi-archive"></i>
+                                       </button>
                                     </form>
                                 </div>
                             </td>
@@ -315,7 +315,7 @@ function renderPaymentsDisplay(page = 1) {
                         </a>
                         <form action="${p.archiveUrl}" method="POST" class="mb-0 archive-form">
                             <input type="hidden" name="_token" value="${csrfToken}">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive">
+                            <button type="submit" class="btn btn-sm btn-outline-warning" title="Archive">
                                 <i class="bi bi-archive"></i>
                             </button>
                         </form>
