@@ -1,5 +1,6 @@
 :root {
   /* Deep Blue Palette */
+  --blue-990: #1E81CE;
   --blue-950: #071C2C;
   --blue-900: #0A2845;
   --blue-800: #10365A;
@@ -175,7 +176,7 @@ header .h6 {
 
 /* Badges */
 .badge.bg-success {
-  background-color: var(--blue-600) !important;
+  background-color: var(--blue-990) !important;
 }
 .badge.bg-secondary {
   background-color: var(--blue-300) !important;

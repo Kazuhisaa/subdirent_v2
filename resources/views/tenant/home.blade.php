@@ -6,9 +6,7 @@
 @section('content')
 <div class="container-fluid tenant-dashboard">
 
-  <!-- Welcome + Property Card -->
   <div class="row align-items-stretch mb-4">
-    <!-- Welcome Message -->
     <div class="col-md-8 d-flex">
       <div class="card tenant-card shadow-sm border-0 p-4 flex-fill d-flex flex-row align-items-center">
         {{-- === START UPDATE (Simplified) === --}}
@@ -25,7 +23,6 @@
       </div>
     </div>
 
-    <!-- Dynamic Property Card -->
     <div class="col-md-4 d-flex">
       <div class="card p-3 border-0 shadow-sm flex-fill">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -52,7 +49,6 @@
     </div>
   </div>
 
-  <!-- Maintenance + Alerts -->
   <div class="row mb-4">
     <div class="col-lg-8">
       <div class="card border-0 shadow-sm p-4">
@@ -84,7 +80,6 @@
     </div>
   </div>
 
-  <!-- Full Width Calendar -->
   <div class="row mb-5">
     <div class="col-12">
       <div class="card border-0 shadow-sm p-4 w-100">
@@ -95,7 +90,6 @@
     </div>
   </div>
 
-  <!-- Dynamic Payments Table -->
   <div class="card border-0 shadow-sm p-0">
     <div class="card-header bg-light border-0 py-3">
       <h6 class="fw-bold text-primary mb-0">Recent Payments & Invoices</h6>
@@ -158,7 +152,6 @@
     
   </div>
 
-  <!-- === NEW: Maintenance Requests Table === -->
   <div class="row mb-5">
     <div class="col-12">
       <div class="card border-0 shadow-sm p-0">
@@ -191,12 +184,15 @@
                             </td>
                             <td>{{ $request->created_at->format('M d, Y') }}</td>
                             <td>
+                                {{-- === MODIFIED LOGIC START: Explicitly ensure Completed is green === --}}
                                 @php
-                                    $badgeClass = 'bg-secondary'; // Default for Pending
-                                    if ($request->status == 'Completed') $badgeClass = 'bg-success';
-                                    if ($request->status == 'In Progress') $badgeClass = 'bg-primary';
+                                    $badgeClass = 'bg-secondary'; // Default 
+                                    if ($request->status == 'Completed') $badgeClass = 'bg-success'; // GREEN
+                                    else if ($request->status == 'Pending') $badgeClass = 'bg-warning text-dark'; // YELLOW/ORANGE
+                                    else if ($request->status == 'In Progress') $badgeClass = 'bg-danger'; // RED
                                 @endphp
                                 <span class="badge {{ $badgeClass }}">{{ $request->status }}</span>
+                                {{-- === MODIFIED LOGIC END === --}}
                             </td>
                             <td class="fw-bold pe-4">
                                 {{ $request->scheduled_date ? \Carbon\Carbon::parse($request->scheduled_date)->format('M d, Y') : 'N/A' }}
