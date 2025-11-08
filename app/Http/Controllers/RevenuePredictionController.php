@@ -32,6 +32,12 @@ class RevenuePredictionController extends Controller
       return response()->json($predict);
     }
       
+
+    public function showPredictionQuarterv2(){
+      $predict = $this->revenuepredictionservice->predictQuarterlyV2();
+
+      return response()->json($predict);
+    }
     public function showPredictionAnnual()
     {
        $predict = $this->revenuepredictionservice->predictAnnualy();
@@ -39,6 +45,14 @@ class RevenuePredictionController extends Controller
       return response()->json($predict);
     }
 
+
+         
+    public function showPredictionAnnualv2()
+    {
+       $predict = $this->revenuepredictionservice->predictAnnualyv2();
+
+      return response()->json($predict);
+    }
     public function trainModel(){
       $this->revenuepredictionservice->train();
 
