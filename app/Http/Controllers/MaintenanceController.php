@@ -7,6 +7,7 @@ use App\Models\Maintenance;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule; // Import Rule
+use Illuminate\Support\Carbon;
 
 class MaintenanceController extends Controller
 {
@@ -34,7 +35,7 @@ public function showIndex()
 
         $recentRequests = \App\Models\Maintenance::where('tenant_id', $tenantId)
             ->orderBy('created_at', 'desc')
-            ->limit(5)
+            ->limit(3)
             ->get();
 
         return view('tenant.maintenance', compact('recentRequests'));
@@ -138,10 +139,20 @@ public function showIndex()
             'notes' => 'nullable|string',
         ]);
 
-        // If status is NOT 'In Progress', force scheduled_date to be null
-        if ($validated['status'] != 'In Progress') {
+        // === MODIFIED LOGIC START ===
+        if ($validated['status'] == 'Pending') {
+            // Pending requests should not have a scheduled date
             $validated['scheduled_date'] = null;
+        } elseif ($validated['status'] == 'Completed') {
+            // Completed requests should record the completion date/time
+            // If scheduled_date was provided (e.g., if updating from In Progress), use it.
+            // Otherwise, use the current time (completion time).
+            if (empty($validated['scheduled_date'])) {
+                 $validated['scheduled_date'] = Carbon::now();
+            }
         }
+        // If status is 'In Progress', the scheduled_date is handled by the validation's requiredIf rule.
+        // === MODIFIED LOGIC END ===
 
         $maintenance->update($validated);
 

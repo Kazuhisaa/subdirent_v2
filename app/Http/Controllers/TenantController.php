@@ -54,23 +54,30 @@ class TenantController extends Controller
         ];
 
         // === START NEW SECTION ===
-        // Get all maintenance requests for calendar and new table
         $maintenanceRequests = Maintenance::where('tenant_id', $tenant->id)
+            // --- CHANGE: Use FIELD to prioritize statuses ---
+            ->orderByRaw("FIELD(status, 'In Progress', 'Pending', 'Completed')")
+            // --- Then, order by newest requests within each group ---
             ->orderBy('created_at', 'desc')
+            ->limit(5)
             ->get();
-        
+
+        // 2. GET DATA FOR THE CALENDAR (UNLIMITED, focused on scheduled future/ongoing events)
+        $calendarMaintenanceRequests = Maintenance::where('tenant_id', $tenant->id)
+            ->where('status', 'In Progress')
+            ->whereNotNull('scheduled_date')
+            ->get(); 
+
         $maintenanceEvents = [];
-        foreach ($maintenanceRequests as $request) {
-            // Add to calendar only if In Progress and has a scheduled date
-            if ($request->status == 'In Progress' && $request->scheduled_date) {
-                $maintenanceEvents[] = [
-                    'title' => 'Service: ' . $request->category,
-                    'start' => Carbon::parse($request->scheduled_date)->format('Y-m-d'),
-                    'color' => '#6f42c1', // Bootstrap Purple
-                    'description' => $request->description
-                ];
-            }
+        foreach ($calendarMaintenanceRequests as $request) {
+            $maintenanceEvents[] = [
+                'title' => 'Service: ' . $request->category,
+                'start' => Carbon::parse($request->scheduled_date)->format('Y-m-d'),
+                'color' => '#6f42c1', // Bootstrap Purple
+                'description' => $request->description
+            ];
         }
+        
         // === END NEW SECTION ===
 
 
