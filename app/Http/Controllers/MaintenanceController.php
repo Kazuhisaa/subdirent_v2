@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Maintenance;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule; // Import Rule
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\File;
 
 class MaintenanceController extends Controller
 {
@@ -73,24 +73,44 @@ public function showIndex()
         }
 
         $path = null;
+        // 4. HANDLE THE PHOTO UPLOAD (MODIFIED BLOCK)
         if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('maintenance_photos', 'public');
+            $file = $request->file('photo');
+            // NOTE: Changed 'public/uploads/maintenances/' to 'uploads/maintenances/' 
+            // to correctly store the public web path in the database.
+            $uploadDir = 'uploads/maintenances/'; 
+            $uploadPath = public_path($uploadDir); 
+            
+            // Create directory if it doesn't exist
+            if (!File::exists($uploadPath)) {
+                File::makeDirectory($uploadPath, 0755, true);
+            }
+
+            // Create a unique filename
+            $filename = time() . '-' . $user->tenant->id . '.' . $file->getClientOriginalExtension();
+            $path = $uploadDir . $filename; // Path to save in DB
+
+            // Move the new file to public/uploads/maintenances
+            $file->move($uploadPath, $filename);
         }
+        // END PHOTO UPLOAD BLOCK
 
         // Handle the category value when 'Others' is selected and the dropdown is disabled.
         $category = $request->category;
         if ($request->urgency === 'Others' || empty($category)) {
-             $category = 'N/A - See Description'; 
+            $category = 'N/A - See Description'; 
         }
-
+        
+        // === RESTORED: SAVING THE MAINTENANCE RECORD ===
         Maintenance::create([
             'tenant_id' => $user->tenant->id,
-            'category' => $category, // Saves the selected or default category
+            'category' => $category,
             'urgency' => $request->urgency,
             'description' => $request->description,
-            'photo' => $path,
+            'photo' => $path, // Contains the saved path or null
             'status' => 'Pending',
         ]);
+        // ===============================================
 
         return redirect()->back()->with('success', 'Maintenance request submitted successfully!');
     }
@@ -163,7 +183,7 @@ public function showIndex()
     /**
      * Archive a maintenance request (Soft Delete).
      */
-public function archive(Maintenance $maintenance)
+    public function archive(Maintenance $maintenance)
     {
         $maintenance->delete(); // This is a soft delete
 
