@@ -142,14 +142,12 @@ Route::post('/applications/{id}/unarchive', [ApplicationController::class, 'unar
 
     // Maintenance Routes
     // This route MUST point to the 'adminIndex' method
-     Route::get('/maintenance', [\App\Http\Controllers\MaintenanceController::class, 'adminIndex'])
-         ->name('maintenance'); 
-         
-    Route::put('/maintenance/{maintenance}', [\App\Http\Controllers\MaintenanceController::class, 'update'])
+     Route::get('/maintenance', [MaintenanceController::class, 'adminIndex'])
+         ->name('maintenance');   
+    Route::put('/maintenance/{maintenance}', [MaintenanceController::class, 'update'])
          ->name('maintenance.update'); 
-         
-    Route::delete('/maintenance/{maintenance}', [\App\Http\Controllers\MaintenanceController::class, 'archive'])
-         ->name('maintenance.archive'); 
+         Route::delete('/maintenance/{maintenance}', [MaintenanceController::class, 'archive'])->name('maintenance.archive');
+         Route::put('/maintenance/{id}/restore', [MaintenanceController::class, 'restore'])->name('maintenance.restore');
     // Static admin pages
     Route::get('/rooms', [UnitsController::class, 'rooms'])->name('rooms');
     Route::view('/addroom', 'admin.addroom')->name('addroom');

@@ -82,19 +82,26 @@ public function showIndex()
      * Display all maintenance requests for the admin.
      * This is the method that provides the $requests variable.
      */
-    public function adminIndex()
+public function adminIndex()
     {
-        // This line fetches all requests and their tenant/unit info
+        // 1. Fetch active requests
         $requests = Maintenance::with('tenant.unit') 
+            ->withoutTrashed() // Explicitly get only active
             ->orderBy('created_at', 'desc')
             ->get(); 
 
-        // This line passes the $requests variable to the view
+        // 2. Fetch archived (soft-deleted) requests
+        $archivedRequests = Maintenance::with('tenant.unit')
+            ->onlyTrashed() // <-- This is the important part
+            ->orderBy('deleted_at', 'desc')
+            ->get();
+
+        // 3. Pass BOTH variables to the view
         return view('admin.maintenance', [
-            'requests' => $requests
+            'requests' => $requests,
+            'archivedRequests' => $archivedRequests // <-- This variable is now included
         ]);
     }
-
     /**
      * Update the status, scheduled date, and notes for a maintenance request.
      */
@@ -125,38 +132,24 @@ public function showIndex()
     /**
      * Archive a maintenance request (Soft Delete).
      */
-  public function archive($id)
+public function archive(Maintenance $maintenance)
     {
-        $maintenance = Maintenance::findOrFail($id);
-        $maintenance->delete();
+        $maintenance->delete(); // This is a soft delete
 
-       return response()->json([
-        'success' => true,
-        'message' => 'Maintenance request archived successfully.'
-    ]);
-}
-
-    /**
-     * Get all archived (soft-deleted) maintenance requests
-     */
-    public function archived()
-    {
-        $archivedRequests = Maintenance::onlyTrashed()
-            ->with('tenant.unit')
-            ->orderBy('deleted_at', 'desc')
-            ->get();
-
-        return response()->json($archivedRequests);
+        return redirect()->route('admin.maintenance')->with('success', 'Maintenance request archived.');
     }
 
     /**
-     * Restore a previously archived maintenance request
+     * ✅ NEW: Restore an archived maintenance request.
+     * This method is required for the "Restore" button in the modal.
      */
     public function restore($id)
     {
+        // Find *only* in the trash
         $maintenance = Maintenance::onlyTrashed()->findOrFail($id);
-        $maintenance->restore();
+        
+        $maintenance->restore(); // Restores the soft-deleted model
 
-        return response()->json(['success' => true, 'message' => 'Request restored successfully.']);
+        return redirect()->route('admin.maintenance')->with('success', 'Maintenance request restored.');
     }
 }
