@@ -32,7 +32,7 @@ class ApplicationController extends Controller
 
     public function __construct(RevenueService $revenueservice){
          $this->revenueservice = $revenueservice;
-         
+
     }
 
     public function index()
@@ -248,15 +248,34 @@ return redirect()
     /**
      * Archive (soft delete) an application
      */
-    public function archive($id)
+public function archive($id)
     {
-        $application = Application::findOrFail($id);
-        $application->delete();
+        try {
+            // Use find() instead of findOrFail() to prevent 404 errors
+            $application = Application::find($id);
 
-       return redirect()->route('admin.applications')
-                     ->with('success', 'Application archived successfully');
-}
+            // Check if it exists before trying to delete
+            if ($application) {
+                $application->delete();
 
+                // ✅ Return a JSON response for the JavaScript
+                return response()->json([
+                    'message' => 'Application archived successfully!'
+                ], 200);
+            }
+
+            // If it's already gone, just say it was successful
+            return response()->json([
+                'message' => 'Application was already archived.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            // ✅ Catch any other potential errors
+            return response()->json([
+                'message' => 'Error archiving applicant: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * View archived applications
      */
@@ -284,14 +303,21 @@ return redirect()
     public function indexView()
     {
         // Idagdag lang ang ->latest() bago ang ->get()
-        $applications = Application::with('unit')->latest()->get(); // <--- ITO NA YUNG BAGO
-
-        $units = Unit::all(); 
+$applications = Application::orderByRaw("
+        CASE
+            WHEN status = 'Pending' THEN 1
+            WHEN status = 'Approved' THEN 2
+            WHEN status = 'Rejected' THEN 3
+            ELSE 4
+        END")
+    ->latest() // This keeps your original date sorting as a secondary rule
+    ->paginate(10);
+            $units = Unit::all();
 
 
         return view('admin.applications', compact('applications', 'units'));
     }
-    
+
     public function showContract($id)
 {
     $contract = Contract::findOrFail($id);
