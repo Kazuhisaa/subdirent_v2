@@ -165,7 +165,7 @@
             }
         }
 
-        async function fetchAndRender(type) {
+async function fetchAndRender(type) {
             const endpoints = {
                 month: '/api/prediction/revenue/permonth',
                 quarter: '/api/prediction/v2/revenue/perQuarter',
@@ -259,6 +259,8 @@
                                     const label = ctx.dataset.label;
                                     
                                     if (label === 'Predicted Revenue')
+                                        // These 'r2Score' and 'mape' variables are now the correct ones
+                                        // from the current function scope.
                                         return [`Predicted: ₱${pred.toLocaleString()}`, `Accuracy: ${r2Score}`, `MAPE: ${mape}`];
                                     if (label === 'Higher Confidence interval (95%)') return `High CI: ₱${ciUpper.toLocaleString()}`;
                                     if (label === 'Lower Confidence interval (95%)') return `Low CI: ₱${ciLower.toLocaleString()}`;
@@ -274,12 +276,13 @@
                 if (!chart) {
                     chart = new Chart(ctx, { type: 'line', data: chartData, options });
                 } else {
-                    chart.data = chartData; chart.update();
+                    chart.data = chartData;
+                    chart.options = options; // ✅✅✅ FIX APPLIED HERE ✅✅✅
+                    chart.update();
                 }
 
             } catch (err) { console.error('Failed to fetch/render chart:', err); }
         }
-
         function setActiveButton(type){
             document.querySelectorAll('.chart-btn').forEach(btn=>{
                 btn.classList.remove('btn-primary','text-white', 'active');
