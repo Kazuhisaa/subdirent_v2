@@ -223,7 +223,7 @@ class ApplicationController extends Controller
         ]);
 
         // Send email credentials
-        Mail::to($user->email)->queue(new TenantMail($user->email, $password));
+        Mail::to($user->email)->send(new TenantMail($user->email, $password));
 
 // ✅ Generate contract PDF (AFTER all data is ready)
 $pdf = Pdf::loadView('tenant.contract', [
