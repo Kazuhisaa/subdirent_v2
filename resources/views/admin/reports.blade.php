@@ -216,8 +216,8 @@
                 dataKeys = ['id', 'name', 'email', 'contact_num', 'date', 'booking_time', 'status'];
                 break;
             case 'applications':
-                headers = ['ID', 'Tenant Name', 'Email', 'Contact', 'UnitPrice', 'Status'];
-                dataKeys = ['id', 'tenant_name', 'email', 'contact_num', 'unit_price', 'status'];
+                headers = ['ID', 'Tenant Name', 'Email', 'Contact', 'Date', 'Time', 'Unit Price', 'Status'];
+                dataKeys = ['id', 'tenant_name', 'email', 'contact_num', 'date_applied', 'time_applied', 'unit_price', 'status'];
                 break;
             case 'contracts':
                 headers = ['Tenant ID', 'Tenant Name', 'Contract Start', 'Contract End', 'Status'];
