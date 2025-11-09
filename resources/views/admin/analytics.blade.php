@@ -227,8 +227,8 @@ async function fetchAndRender(type) {
                     labels: allLabels,
                     datasets: [
                         {
-                            label: 'Historical Revenue (₱)', data: histDataExtended, borderColor: '#0d6efd',
-                            backgroundColor: '#0d6efd33', fill: false, tension: 0.3, pointRadius: 4
+                            label: 'Historical Revenue (₱)', data: histDataExtended, borderColor: '#FFD700',
+                            backgroundColor: 'rgba(255, 215, 0, 0.25)', fill: false, tension: 0.3, pointRadius: 4
                         },
                         {
                             label: 'Predicted Revenue', data: predData, borderColor: '#0d6efd',
@@ -315,11 +315,41 @@ let occChart;
 let activeOccBtn = 'all';
 
 
-const bluePalette = [
-    '#EAF8FF', '#CDEEFF', '#9FD8F7', '#5AB8F0', '#2A9DF4',
-    '#1E81CE', '#145DA0', '#0D3B66', '#0A2540'
-];
-const chartColors = bluePalette.slice().reverse();
+function generateColorPalette(count) {
+    const baseColors = [
+        '#0A2540', // Navy Blue 
+        '#E1AD01', 
+        '#FF851B', 
+        '#D4AF37', 
+        '#FE828C', 
+        '#F5F5DC', 
+        '#ADE8F4', 
+        '#CAF0F8', 
+        '#3A506B', 
+        '#5BC0BE'  
+    ];
+
+    if (count <= baseColors.length) return baseColors.slice(0, count);
+
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+        const base = baseColors[i % baseColors.length];
+        const variation = adjustColorBrightness(base, (i * 12) % 40 - 20);
+        colors.push(variation);
+    }
+    return colors;
+}
+
+function adjustColorBrightness(hex, percent) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    let r = (num >> 16) + percent;
+    let g = ((num >> 8) & 0x00FF) + percent;
+    let b = (num & 0x0000FF) + percent;
+    r = Math.max(Math.min(255, r), 0);
+    g = Math.max(Math.min(255, g), 0);
+    b = Math.max(Math.min(255, b), 0);
+    return `rgb(${r},${g},${b})`;
+}
 
 const chartContainer = document.getElementById('occupancyChartContainer');
 const legendContainer = document.getElementById('occupancyLegendContainer');
@@ -379,7 +409,7 @@ async function fetchOccupancyData(type) {
         }
         // ✅✅✅ Y-AXIS FIX END ✅✅✅
 
-        const bgColors = labels.map((_, i) => chartColors[i % chartColors.length]);
+        const bgColors = generateColorPalette(labels.length);
 
         const chartData = {
             labels,
