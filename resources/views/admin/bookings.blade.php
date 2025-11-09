@@ -119,6 +119,50 @@ const ROWS_PER_PAGE = 10;
 
 document.addEventListener('DOMContentLoaded', fetchBookings);
 
+// --- BAGONG HELPER FUNCTIONS ---
+
+/**
+ * Formats date to "Month Day, Year" (e.g., "November 9, 2025")
+ */
+function formatBookingDate(dateString) {
+    if (!dateString) return 'N/A';
+    try {
+        const date = new Date(dateString);
+        // Fix para sa potential timezone issue, ituring as local
+        const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+        return localDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch (e) {
+        return dateString; // Fallback
+    }
+}
+
+/**
+ * Formats 24-hr time to 12-hr time with AM/PM (e.g., "10:14 AM")
+ */
+function formatBookingTime(timeString) {
+    if (!timeString) return 'N/A';
+    try {
+        // Gumawa ng dummy date para ma-parse 'yung time
+        const [hours, minutes] = timeString.split(':');
+        const date = new Date();
+        date.setHours(hours);
+        date.setMinutes(minutes);
+        
+        return date.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    } catch (e) {
+        return timeString; // Fallback
+    }
+}
+
+
 // --- Render Functions ---
 
 /**
@@ -152,8 +196,11 @@ function renderBookingsDisplay(page = 1) {
             const fullName = `${b.first_name} ${b.middle_name ?? ''} ${b.last_name}`.trim();
             const email = b.email || 'N/A';
             const contact = b.contact_num || 'N/A';
-            const date = b.date || 'N/A';
-            const time = b.booking_time || 'N/A';
+            
+            // ✅ GINAMIT ANG BAGONG FORMATTERS
+            const date = formatBookingDate(b.date);
+            const time = formatBookingTime(b.booking_time);
+            
             const status = b.status || 'Pending';
             
            return `
@@ -217,8 +264,11 @@ function renderArchivedDisplay(page = 1) {
             const fullName = `${b.first_name} ${b.middle_name ?? ''} ${b.last_name}`.trim();
             const email = b.email || 'N/A';
             const contact = b.contact_num || 'N/A';
-            const date = b.date || 'N/A';
-            const time = b.booking_time || 'N/A';
+            
+            // ✅ GINAMIT ANG BAGONG FORMATTERS
+            const date = formatBookingDate(b.date);
+            const time = formatBookingTime(b.booking_time);
+            
             const status = b.status || 'Pending';
 
             return `
@@ -242,10 +292,7 @@ function renderArchivedDisplay(page = 1) {
 
 /**
  * Builds the Bootstrap pagination HTML string.
- * @param {number} totalPages Total number of pages.
- * @param {number} currentPage The current active page.
- * @param {string} renderFunctionName The name of the render function to call on page click.
- * @returns {string} The HTML for the pagination component.
+ * (Walang binago dito)
  */
 function buildPaginationUI(totalPages, currentPage, renderFunctionName) {
     if (totalPages <= 1) return "";
@@ -259,7 +306,7 @@ function buildPaginationUI(totalPages, currentPage, renderFunctionName) {
     // Page numbers (simple version)
     for (let i = 1; i <= totalPages; i++) {
         html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunctionName}(${i})">${i}</a>
+                     <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunctionName}(${i})">${i}</a>
                  </li>`;
     }
 
@@ -287,8 +334,26 @@ async function fetchBookings() {
         const data = await response.json();
         if (!Array.isArray(data)) throw new Error('Invalid response format');
         
-        // Sort by ID descending (latest first) and store
-        allBookings = data.sort((a, b) => b.id - a.id);
+        // ✅ --- BAGONG SORTING LOGIC ---
+        allBookings = data.sort((a, b) => {
+            // I-check kung ano ang status
+            const aIsPending = (a.status || 'Pending') === 'Pending';
+            const bIsPending = (b.status || 'Pending') === 'Pending';
+
+            // Kung si 'a' ay Pending at si 'b' ay HINDI, unahin si 'a'
+            if (aIsPending && !bIsPending) {
+                return -1;
+            }
+            // Kung si 'b' ay Pending at si 'a' ay HINDI, unahin si 'b'
+            if (!aIsPending && bIsPending) {
+                return 1;
+            }
+            
+            // Kung pareho sila ng status (parehong Pending o parehong Confirmed),
+            // i-sort sila based sa latest ID
+            return b.id - a.id;
+        });
+        // --- END NG BAGONG SORTING ---
         
         // Render the first page
         renderBookingsDisplay(1);
@@ -322,8 +387,14 @@ async function fetchArchivedBookings() {
         const data = await res.json();
         if (!Array.isArray(data)) throw new Error('Invalid response format');
         
-        // Sort by ID descending (latest first) and store
-        allArchivedBookings = data.sort((a, b) => b.id - a.id);
+        // ✅ Ginamit ko na rin 'yung bagong sorting dito para consistent
+        allArchivedBookings = data.sort((a, b) => {
+            const aIsPending = (a.status || 'Pending') === 'Pending';
+            const bIsPending = (b.status || 'Pending') === 'Pending';
+            if (aIsPending && !bIsPending) return -1;
+            if (!aIsPending && bIsPending) return 1;
+            return b.id - a.id;
+        });
 
         // Render the first page of the modal
         renderArchivedDisplay(1);
