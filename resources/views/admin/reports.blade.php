@@ -76,6 +76,8 @@
                                 <th>Tenant Name</th> 
                                 <th>Email</th>
                                 <th>Contact</th>
+                                <th>Date</th>
+                                <th>Time</th>
                                 <th>UnitPrice</th>
                                 <th>Status</th>
                             </tr>
@@ -214,8 +216,8 @@
                 dataKeys = ['id', 'name', 'email', 'contact_num', 'date', 'booking_time', 'status'];
                 break;
             case 'applications':
-                headers = ['ID', 'Tenant Name', 'Email', 'Contact', 'UnitPrice', 'Status'];
-                dataKeys = ['id', 'tenant_name', 'email', 'contact_num', 'unit_price', 'status'];
+                headers = ['ID', 'Tenant Name', 'Email', 'Contact', 'Date', 'Time', 'Unit Price', 'Status'];
+                dataKeys = ['id', 'tenant_name', 'email', 'contact_num', 'date_applied', 'time_applied', 'unit_price', 'status'];
                 break;
             case 'contracts':
                 headers = ['Tenant ID', 'Tenant Name', 'Contract Start', 'Contract End', 'Status'];
@@ -312,101 +314,120 @@ for (const key of endpoints) {
 console.log("--- DEBUG: Tapos na ang Pag-fetch. ---");
         
         // --- I-FILTER AT I-PROCESS ANG BOOKINGS ---
-        const filteredBookings = data.bookings
-            .filter(item => 
-                item.status === 'Active' || item.status === 'Confirmed'
-            )
-            .map(item => {
-                const middleInitial = (item.middle_name && item.middle_name.length > 0) 
-                                    ? ` ${item.middle_name.charAt(0)}. ` 
-                                    : ' ';
-                item.name = `${item.first_name ?? ''}${middleInitial}${item.last_name ?? ''}`;
-                return item;
-            });
-        
-        const filteredApplications = data.applications
-            .filter(item => item.status === 'Approved')
-            .map(item => {
-                item.tenant_name = `${item.first_name ?? ''} ${item.last_name ?? ''}`;
-                return item;
-            });
-        
-        console.log("✅ Filtered Applications:", filteredApplications);
-        console.log("📦 Raw API Applications:", data.applications);
-        
-        console.log("📦 Raw API Contracts:", data.contracts); // Debug log
-        const filteredContracts = data.contracts
-            .filter(item => item.status === 'ongoing')
-            .map(item => {
-                item.tenant_name = (item.tenant) 
-                    ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
-                    : 'N/A'; 
-                return item;
-            });
-        console.log("✅ Filtered Contracts:", filteredContracts); // Debug log
-        
-        
-        // ========================================================== //
-        // ============ BINAGO SA JAVASCRIPT (Data Processing) ========== //
-        // ========================================================== //
-        
-        console.log("📦 Raw API Payments:", data.payments); // Debug log
-        const filteredPayments = data.payments
-            .filter(item => 
-                item.payment_status === 'paid'
-            )
-            .map(item => {
-                // == BINAGO: Kinukuha ang tenant name (Mula sa nested 'item.tenant') ==
-                item.tenant_name = (item.tenant) 
-                    ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
-                    : 'N/A'; //
-        
-                // Fino-format ang payment date
-                if (item.payment_date) {
-                    const dateObj = new Date(item.payment_date);
-                    const year = dateObj.getFullYear();
-                    const day = String(dateObj.getDate()).padStart(2, '0');
-                    const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // +1 kasi 0-indexed ang getMonth()
+const filteredBookings = data.bookings
+    .filter(item => item.status === 'Active' || item.status === 'Confirmed')
+    .map(item => {
+        const middleInitial = (item.middle_name && item.middle_name.length > 0) 
+                            ? ` ${item.middle_name.charAt(0)}. ` 
+                            : ' ';
+        item.name = `${item.first_name ?? ''}${middleInitial}${item.last_name ?? ''}`;
 
-                    // Format: YR - DD - MONTH (gaya ng request)
-                    item.payment_date = `${year} - ${day} - ${month}`;
-                } else {
-                    item.payment_date = 'N/A';
-                }
-                
-                return item;
-            });
-        console.log("✅ Filtered Payments:", filteredPayments); // Debug log
-        // ========================================================== //
-        // ========================================================== //
+        // 🗓 Format Date
+        if (item.date) {
+    const dateObj = new Date(item.date);
+    item.date = dateObj.toLocaleDateString("en-US", { 
+        month: 'long', day: 'numeric', year: 'numeric' 
+    });
+}
+if (item.booking_time) {
+    const timeObj = new Date(`1970-01-01T${item.booking_time}`);
+    item.booking_time = timeObj.toLocaleTimeString("en-US", { 
+        hour: 'numeric', minute: '2-digit', hour12: true 
+    });
+}
+        return item;
+    });
 
-        
- console.log("🔍 Maintenance raw response:", data.maintenance);
+// --- I-FILTER ANG APPLICATIONS ---
+const filteredApplications = data.applications
+    .filter(item => item.status === 'Approved')
+    .map(item => {
+        item.tenant_name = `${item.first_name ?? ''} ${item.last_name ?? ''}`;
 
-// Filter muna
-const filteredMaintenance = data.maintenance
-    .filter(item => item.status === 'Completed');
-
-// Mag-log ng sample data bago mag-map
-console.log("🧩 Maintenance Sample:", filteredMaintenance[0]);
-
-// Map pagkatapos
-const mappedMaintenance = filteredMaintenance.map(item => {
-    item.tenant_name = (item.tenant) 
-        ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
-        : 'N/A';
-    item.unit_name = (item.tenant && item.tenant.unit) 
-        ? item.tenant.unit.title 
-        : 'N/A';
-    item.created_at = new Date(item.created_at).toLocaleDateString("en-US", { 
-        month: 'short', 
-        day: '2-digit', 
+        // ✅ Format date
+        if (item.created_at) {
+    const dateObj = new Date(item.created_at);
+    item.date_applied = dateObj.toLocaleDateString("en-US", { 
+        month: 'long', 
+        day: 'numeric', 
         year: 'numeric' 
     });
-    return item;
-});
+    item.time_applied = dateObj.toLocaleTimeString("en-US", { 
+        hour: 'numeric', 
+        minute: 'numeric', 
+        hour12: true 
+    });
+} else {
+    item.date_applied = 'N/A';
+    item.time_applied = 'N/A';
+}
 
-console.log("✅ Filtered & Mapped Maintenance:", mappedMaintenance);
+        return item;
+    });
+
+// --- CONTRACTS ---
+const filteredContracts = data.contracts
+    .filter(item => item.status === 'ongoing')
+    .map(item => {
+        item.tenant_name = (item.tenant) 
+            ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
+            : 'N/A'; 
+        
+        // 🗓 Format contract dates
+        if (item.contract_start) {
+            item.contract_start = new Date(item.contract_start).toLocaleDateString("en-US", { 
+                month: 'long', day: 'numeric', year: 'numeric' 
+            });
+        }
+        if (item.contract_end) {
+            item.contract_end = new Date(item.contract_end).toLocaleDateString("en-US", { 
+                month: 'long', day: 'numeric', year: 'numeric' 
+            });
+        }
+        return item;
+    });
+
+// --- PAYMENTS ---
+const filteredPayments = data.payments
+    .filter(item => item.payment_status === 'paid')
+    .map(item => {
+        item.tenant_name = (item.tenant) 
+            ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
+            : 'N/A';
+        
+        // 🗓 Format payment date
+        if (item.payment_date) {
+            item.payment_date = new Date(item.payment_date).toLocaleDateString("en-US", { 
+                month: 'long', day: 'numeric', year: 'numeric' 
+            });
+        } else {
+            item.payment_date = 'N/A';
+        }
+        return item;
+    });
+
+// --- MAINTENANCE ---
+console.log("🔍 Maintenance raw response:", data.maintenance);
+
+const filteredMaintenance = data.maintenance
+    .filter(item => item.status === 'Completed')
+    .map(item => {
+        item.tenant_name = (item.tenant) 
+            ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
+            : 'N/A';
+        item.unit_name = (item.tenant && item.tenant.unit) 
+            ? item.tenant.unit.title 
+            : 'N/A';
+        
+        // 🗓 Format submitted date
+        item.created_at = new Date(item.created_at).toLocaleDateString("en-US", { 
+            month: 'long', day: 'numeric', year: 'numeric' 
+        });
+        return item;
+    });
+
+console.log("🧩 Maintenance Sample:", filteredMaintenance[0]);
+console.log("✅ Filtered & Mapped Maintenance:", filteredMaintenance);
 
 
         // I-store ang filtered data sa global variable
@@ -430,8 +451,9 @@ console.log("✅ Filtered & Mapped Maintenance:", mappedMaintenance);
         // I-render ang tables gamit ang TAMANG keys
         renderTable('bookingsTable', filteredBookings, ['id', 'name', 'email', 'contact_num', 'date', 'booking_time', 'status']);
         renderTable('contractsTable', filteredContracts, ['tenant_id', 'tenant_name', 'contract_start', 'contract_end', 'status']);
-        renderTable('applicationsTable', filteredApplications, ['id', 'tenant_name', 'email', 'contact_num', 'unit_price', 'status']);
         
+        renderTable('applicationsTable', filteredApplications, ['id', 'tenant_name', 'email', 'contact_num', 'date_applied', 'time_applied', 'unit_price', 'status']);
+
         renderTable('paymentsTable', filteredPayments, ['tenant_id', 'tenant_name', 'payment_status', 'payment_date', 'payment_method', 'remarks']);
         
         renderTable('maintenanceTable', filteredMaintenance, ['id', 'tenant_name', 'unit_name', 'category', 'description', 'created_at', 'status']);
