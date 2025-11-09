@@ -209,7 +209,7 @@ public function property()
         'predictions' => $predictions, // ✅ pass predictions to Blade
     ]);
 }
-}
+
 
 public function payments()
 {
