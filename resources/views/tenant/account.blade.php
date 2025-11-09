@@ -9,9 +9,7 @@
   {{-- === TOP ROW === --}}
   <div class="row g-4">
 
-    <!-- ===== LEFT COLUMN (Profile, Unit) ===== -->
     <div class="col-lg-4 d-flex flex-column">
-      <!-- Profile Card -->
       <div class="card shadow-sm rounded-4 p-4 text-center mb-4">
         
         <img 
@@ -25,7 +23,6 @@
         <p class="text-muted small mb-0">Tenant</p>
       </div>
 
-      <!-- Linked Unit Card -->
       @if($tenant->tenant && $tenant->tenant->unit)
       {{-- 1. ADDED h-100 and d-flex TO THE CARD to allow inner stretching --}}
       <div class="card shadow-sm rounded-4 p-4 flex-fill h-100 d-flex flex-column"> 
@@ -41,9 +38,7 @@
       @endif
     </div>
 
-    <!-- ===== RIGHT COLUMN (Personal Info) ===== -->
     <div class="col-lg-8">
-      <!-- Personal Info Form -->
       <div class="card shadow-sm rounded-4 p-4 h-100"> 
         <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-person-fill me-2"></i>Personal Information</h6>
         
@@ -90,7 +85,7 @@
   </div> {{-- === END OF TOP ROW === --}}
 
 
-  {{-- === 3. FULL-WIDTH ROW FOR SECURITY (ADDED mt-4) === --}}
+  {{-- === FULL-WIDTH ROW FOR SECURITY === --}}
   <div class="row g-4 mt-4"> {{-- g-4 for alignment, mt-4 for top margin --}}
     <div class="col-12">
       <div class="card shadow-sm rounded-4 p-4">
@@ -119,18 +114,37 @@
               @enderror
             </div>
 
+            {{-- 🔑 NEW PASSWORD FIELD WITH TOGGLE --}}
             <div class="mb-3">
               <label class="form-label">New Password</label>
-              <input type="password" class="form-control rounded-pill @error('password') is-invalid @enderror" name="password" placeholder="Enter new password (min 8 characters)">
-              {{-- NEW: Show password validation errors --}}
+              <div class="input-group">
+                <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                       name="password" 
+                       id="newPassword" 
+                       placeholder="Enter new password (min 8 characters)">
+                <button class="btn btn-outline-secondary" type="button" data-password-toggle="newPassword">
+                    <i class="bi bi-eye-slash" id="newPassword-icon"></i>
+                </button>
+                
+                {{-- REMOVED rounded-pill from input to fit input-group, added to group --}}
+              </div>
               @error('password')
                 <div class="invalid-feedback d-block">{{ $message }}</div>
               @enderror
             </div>
-
+            
+            {{-- 🔑 CONFIRM PASSWORD FIELD WITH TOGGLE --}}
             <div class="mb-3">
               <label class="form-label">Confirm Password</label>
-              <input type="password" class="form-control rounded-pill" name="password_confirmation" placeholder="Confirm new password">
+              <div class="input-group">
+                <input type="password" class="form-control" 
+                       name="password_confirmation" 
+                       id="confirmPassword" 
+                       placeholder="Confirm new password">
+                <button class="btn btn-outline-secondary" type="button" data-password-toggle="confirmPassword">
+                    <i class="bi bi-eye-slash" id="confirmPassword-icon"></i>
+                </button>
+              </div>
             </div>
 
             <div class="d-flex justify-content-end">
@@ -144,7 +158,7 @@
 
 </div>
 
-{{-- This script previews the new avatar AND handles the security form toggle --}}
+{{-- This script previews the new avatar AND handles the security form toggle AND password toggle --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   
@@ -162,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // --- CUSTOM TOGGLE SCRIPT ---
+  // --- CUSTOM TOGGLE SCRIPT (Security Collapse) ---
   const toggleBtn = document.getElementById('toggleSecurityButton');
   const securityForm = document.getElementById('securityCollapse');
 
@@ -172,8 +186,34 @@ document.addEventListener('DOMContentLoaded', function() {
       event.preventDefault(); 
       // Manually add or remove the 'show' class to toggle visibility
       securityForm.classList.toggle('show');
+      
+      // Update button text/icon (optional visual feedback)
+      if (securityForm.classList.contains('show')) {
+          toggleBtn.innerHTML = 'Hide';
+      } else {
+          toggleBtn.innerHTML = 'Change';
+      }
     });
   }
+  
+  // --- 🔑 NEW PASSWORD TOGGLE SCRIPT ---
+  document.querySelectorAll('[data-password-toggle]').forEach(button => {
+    button.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-password-toggle');
+      const targetInput = document.getElementById(targetId);
+      const targetIcon = document.getElementById(targetId + '-icon');
+      
+      if (targetInput.type === 'password') {
+        targetInput.type = 'text';
+        targetIcon.classList.remove('bi-eye-slash');
+        targetIcon.classList.add('bi-eye');
+      } else {
+        targetInput.type = 'password';
+        targetIcon.classList.remove('bi-eye');
+        targetIcon.classList.add('bi-eye-slash');
+      }
+    });
+  });
 
 });
 </script>

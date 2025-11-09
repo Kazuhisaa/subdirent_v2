@@ -35,7 +35,7 @@
                     {{-- Ang email ay (hypothetically) galing sa URL kaya naka-readonly --}}
                     <div class="mb-3">
                         <input type="email" name="email" id="email" class="form-control" 
-                               placeholder="Enter your e-mail" value="user@example.com" required readonly>
+                               placeholder="Enter your e-mail" value="user@example.com">
                     </div>
 
                     <div class="mb-3">
