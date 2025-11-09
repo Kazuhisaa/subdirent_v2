@@ -352,29 +352,3 @@
         .custom-modal-body { padding: 20px; }
         .custom-modal-footer { padding: 15px 20px; flex-direction: column; }
     }
-.swal2-popup {
-    /* 1. Ito yung request mong background image */
-    background-image: url('../uploads/bg1.jpg') !important;
-    
-    /* 2. Dinagdag ko 'to para maganda ang pwesto ng image */
-    background-size: cover !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
-    
-    /* 3. In-maintain ko 'yung shadow para maganda pa rin tignan */
-    box-shadow: 0 8px 25px rgba(30, 58, 138, 0.2) !important; 
-}
-
-/* Huwag mong burahin 'yung iba mong swal styles... */
-.swal2-title, .swal2-html-container {
-    color: var(--blue-800) !important; /* dark blue text */
-    font-family: 'Poppins', sans-serif;
-} /* <--- ITO! ITO YUNG BRACE NA KULANG! */
-
-.swal2-confirm {
-    border-radius: 25px !important;
-    font-weight: bold;
-    background: white !important;
-    color: var(--blue-800) !important;
-    border: 1px solid var(--blue-800) !important;
-}
