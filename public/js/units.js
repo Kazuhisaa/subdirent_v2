@@ -124,6 +124,57 @@ window.showWarning = showWarning;
 window.showInfo = showInfo;
 window.confirmAction = confirmAction;
 
+// === START: BAGONG FUNCTION PARA SA SLIDER ===
+// === Global variables for image slider ===
+let modalPrevBtn, modalNextBtn, modalUnitImage;
+let currentUnitImages = [];
+let currentImageIndex = 0;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modalImage = document.getElementById('modalUnitImage');
+    const prevBtn = document.getElementById('prevImageBtn');
+    const nextBtn = document.getElementById('nextImageBtn');
+
+    let currentImageIndex = 0;
+    let images = 
+["uploads\/units\/unit4.jpg", "uploads\/units\/unit2.jpg", "uploads\/units\/unit3.jpg"]; // dito natin ilalagay yung image URLs ng unit
+
+    // Function to show modal with images
+    window.showUnitModal = function(unit) {
+        // Example: kung may array ng images
+        images = unit.images && unit.images.length ? unit.images : [unit.image];
+        currentImageIndex = 0;
+        updateImage();
+
+        // Hide/show buttons depende kung ilan images
+        if (images.length <= 1) {
+            prevBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+        } else {
+            prevBtn.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+
+        document.querySelector('.custom-modal').classList.add('show');
+        document.querySelector('.modal-overlay').classList.add('show');
+    };
+
+    function updateImage() {
+        modalImage.src = images[currentImageIndex];
+    }
+
+    prevBtn.addEventListener('click', () => {
+        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        updateImage();
+    });
+
+    nextBtn.addEventListener('click', () => {
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+        updateImage();
+    });
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const moveInDateInput = document.getElementById('move_in_date');
