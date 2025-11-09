@@ -5,389 +5,428 @@
 @section('content')
 <div class="container-fluid py-4">
 
+{{-- PAGE HEADER --}}
 <div class="row mb-4">
-    <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gy-3">
-        <h2 class="fw-bold text-blue-900 mb-0">Bookings Management</h2>
-
-        <button class="btn btn-action rounded-pill fw-bold px-4" onclick="fetchArchivedBookings()">
-            <i class="bi bi-archive-fill me-1"></i> Archived Bookings
-        </button>
+    <div class="col-md-6">
+        <h2 class="fw-bold text-blue-900">Bookings Management</h2>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end align-items-center">
+        {{-- NEW: View Toggle Button Group --}}
+        <div class="btn-group" role="group" aria-label="View Toggle">
+            <button type="button" class="btn btn-action rounded-pill-start fw-bold px-4 active" id="btn-view-active">
+                <i class="bi bi-person-check-fill me-1"></i> Active
+            </button>
+            <button type="button" class="btn btn-outline-blue rounded-pill-end fw-bold px-4" id="btn-view-archived">
+                <i class="bi bi-archive-fill me-1"></i> Archived
+            </button>
+        </div>
     </div>
 </div>
 
-    {{-- ✅ ACTIVE BOOKINGS --}}
-    <div class="card border-0 shadow-sm mb-5 rounded-4 overflow-hidden">
-        
-        <div class="card-header fw-bold text-white d-flex justify-content-between align-items-center flex-wrap gy-2"
-             style="background: linear-gradient(90deg, #007BFF, #0A2540);">
-            
-            <span>ACTIVE BOOKINGS</span>
-            
-            <input type="text" id="searchInput" class="form-control form-control-sm" 
-                   style="flex-basis: 300px;" placeholder="Search bookings...">
-        </div>
+{{-- ✅ UNIFIED BOOKINGS TABLE --}}
+<div class="card border-0 shadow-sm mb-5 rounded-4 overflow-hidden">
 
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table align-middle text-center mb-0">
-                    <thead class="table-light text-uppercase small text-secondary">
-                        <tr>
-                            <th>Tenant Name</th>
-                            <th>Email</th>
-                            <th>Contact</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bookingsTable">
-                        <tr>
-                            <td colspan="8" class="py-4 text-muted">Loading bookings...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="card-header fw-bold text-white d-flex justify-content-between align-items-center flex-wrap gy-2"
+         style="background: linear-gradient(90deg, #007BFF, #0A2540);">
 
-        {{-- ✅ 1. THIS IS THE PAGINATION CONTAINER FOR ACTIVE BOOKINGS --}}
-        <div class="card-footer bg-white border-0 d-flex justify-content-center pt-3" id="pagination-container">
-            </div>
+        {{-- Title changes dynamically --}}
+        <span id="table-title">ACTIVE BOOKINGS</span>
+
+        {{-- Search bar is now generic --}}
+        <input type="text" id="table-search" class="form-control form-control-sm"
+               style="flex-basis: 300px;" placeholder="Search bookings...">
     </div>
 
-    {{-- ✅ ARCHIVED BOOKINGS MODAL --}}
-    <div class="modal fade" id="archivedModal" tabindex="-1" aria-labelledby="archivedLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-
-                {{-- Header --}}
-                <div class="modal-header text-white border-0"
-                     style="background: linear-gradient(90deg, #007BFF, #0A2540);">
-                    <h5 class="modal-title fw-bold" id="archivedLabel">
-                        <i class="bi bi-archive me-2"></i> Archived Bookings
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-
-                {{-- Body --}}
-                <div class="modal-body bg-light p-0">
-                    <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
-                        {{-- Make sure this ID is 'searchArchivedInput' as used in the new script --}}
-                        <input type="text" id="searchArchivedInput" class="form-control form-control-sm w-50"
-                               placeholder="Search archived bookings...">
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle text-center mb-0">
-                            <thead class="table-light text-uppercase small text-secondary">
-                                <tr>
-                                    <th>Tenant Name</th>
-                                    <th>Email</th>
-                                    <th>Contact</th>
-                                    <th>Date</th>
-                                    <th>Time</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="archivedTable">
-                                <tr>
-                                    <td colspan="8" class="py-4 text-muted">Loading archived bookings...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {{-- ✅ 2. THIS IS THE MODIFIED FOOTER FOR ARCHIVED PAGINATION --}}
-                <div class="modal-footer bg-white border-0 d-flex justify-content-between align-items-center">
-                    <div id="archived-pagination-container">
-                        </div>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-
-            </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            {{-- Table is now generic --}}
+            <table class="table align-middle text-center mb-0">
+                {{-- Head changes dynamically --}}
+                <thead class="table-light text-uppercase small text-secondary" id="main-table-head">
+                    {{-- Content injected by JS --}}
+                </thead>
+                {{-- Body changes dynamically --}}
+                <tbody id="main-table-body">
+                    <tr>
+                        <td colspan="7" class="py-4 text-muted">Loading bookings...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+
+    {{-- ✅ PAGINATION CONTAINER IS NOW GENERIC --}}
+    <div class="card-footer bg-white border-0 d-flex justify-content-center pt-3" id="main-pagination-container">
+        {{-- Content injected by JS --}}
+    </div>
+</div>
+
+{{-- Note: The '#archivedModal' has been removed. --}}
+
 </div>
 @endsection
-@push('scripts') {{-- Or @push('scripts') if you use @stack --}}
+
+@push('scripts')
 <script>
-// --- Global State for Data and Pagination ---
+// --- Global State for Data, Pagination, and View ---
 let allBookings = [];
 let allArchivedBookings = [];
+let currentView = 'active'; // 'active' or 'archived'
 const ROWS_PER_PAGE = 10;
+let currentToken = ""; // Store token
 
-document.addEventListener('DOMContentLoaded', fetchBookings);
+document.addEventListener('DOMContentLoaded', async () => {
+    // We get the token once and store it
+    currentToken = sessionStorage.getItem('admin_api_token');
+    if (!currentToken) {
+        showError('Admin token not found. App cannot function.');
+        return;
+    }
 
-// --- BAGONG HELPER FUNCTIONS ---
+    // --- Attach View Toggle Listeners ---
+    const btnActive = document.querySelector("#btn-view-active");
+    const btnArchived = document.querySelector("#btn-view-archived");
+
+    if (btnActive && btnArchived) {
+        btnActive.addEventListener("click", () => {
+            if (currentView === 'active') return;
+            currentView = 'active';
+            btnActive.classList.add("active", "btn-action");
+            btnActive.classList.remove("btn-outline-blue");
+            btnArchived.classList.remove("active", "btn-action");
+            btnArchived.classList.add("btn-outline-blue");
+            renderDisplay(1); // Re-render with new view
+        });
+        btnArchived.addEventListener("click", () => {
+            if (currentView === 'archived') return;
+            currentView = 'archived';
+            btnArchived.classList.add("active", "btn-action");
+            btnArchived.classList.remove("btn-outline-blue");
+            btnActive.classList.remove("active", "btn-action");
+            btnActive.classList.add("btn-outline-blue");
+            renderDisplay(1); // Re-render with new view
+        });
+    }
+
+    // --- Attach Generic Search Listener ---
+    const searchInput = document.getElementById('table-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => { // 'input' is more responsive than 'keyup'
+            renderDisplay(1); // On search, filter and go back to page 1
+        });
+    }
+
+    // --- Load All Data and Initial Render ---
+    await loadAllDataAndRender();
+});
 
 /**
- * Formats date to "Month Day, Year" (e.g., "November 9, 2025")
+ * Main function to load all data from the server and trigger the first render.
  */
+async function loadAllDataAndRender() {
+    const tableBody = document.getElementById('main-table-body');
+    tableBody.innerHTML = '<tr><td colspan="7" class="py-4 text-muted">Loading data...</td></tr>';
+
+    try {
+        // Fetch active and archived bookings in parallel
+        await Promise.all([
+            fetchBookings(),
+            fetchArchivedBookings()
+        ]);
+
+        // Once all data is loaded, render the display
+        renderDisplay(1);
+
+    } catch (err) {
+        console.error("Error loading initial data:", err);
+        tableBody.innerHTML = '<tr><td colspan="7" class="py-4 text-danger">Failed to load critical data.</td></tr>';
+        showError('Failed to load data. Please refresh the page.');
+    }
+}
+
+// --- BAGONG HELPER FUNCTIONS (Unchanged) ---
 function formatBookingDate(dateString) {
     if (!dateString) return 'N/A';
     try {
         const date = new Date(dateString);
-        // Fix para sa potential timezone issue, ituring as local
         const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
         return localDate.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+            year: 'numeric', month: 'long', day: 'numeric'
         });
     } catch (e) {
-        return dateString; // Fallback
+        return dateString;
     }
 }
 
-/**
- * Formats 24-hr time to 12-hr time with AM/PM (e.g., "10:14 AM")
- */
 function formatBookingTime(timeString) {
     if (!timeString) return 'N/A';
     try {
-        // Gumawa ng dummy date para ma-parse 'yung time
         const [hours, minutes] = timeString.split(':');
         const date = new Date();
         date.setHours(hours);
         date.setMinutes(minutes);
-        
         return date.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
+            hour: 'numeric', minute: '2-digit', hour12: true
         });
     } catch (e) {
-        return timeString; // Fallback
+        return timeString;
     }
 }
 
-
-// --- Render Functions ---
-
-/**
- * Renders the active bookings table and its pagination UI.
- * @param {number} page The page number to display.
- */
-function renderBookingsDisplay(page = 1) {
-    const tableBody = document.getElementById('bookingsTable');
-    const paginationContainer = document.getElementById('pagination-container');
-    if (!tableBody || !paginationContainer) return;
-    
-    // 1. Filter data based on search input
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    const filteredData = allBookings.filter(b => {
-        const fullName = `${b.first_name} ${b.middle_name ?? ''} ${b.last_name}`;
-        const searchableText = [fullName, b.email, b.contact_num, b.date, b.status].join(' ').toLowerCase();
-        return searchableText.includes(query);
-    });
-
-    // 2. Paginate the filtered data
-    const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
-    const start = (page - 1) * ROWS_PER_PAGE;
-    const end = start + ROWS_PER_PAGE;
-    const pageData = filteredData.slice(start, end);
-
-    // 3. Render table rows
-    if (pageData.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8" class="py-4 text-muted">No bookings found.</td></tr>';
-    } else {
-        tableBody.innerHTML = pageData.map((b, index) => {
-            const fullName = `${b.first_name} ${b.middle_name ?? ''} ${b.last_name}`.trim();
-            const email = b.email || 'N/A';
-            const contact = b.contact_num || 'N/A';
-            
-            // ✅ GINAMIT ANG BAGONG FORMATTERS
-            const date = formatBookingDate(b.date);
-            const time = formatBookingTime(b.booking_time);
-            
-            const status = b.status || 'Pending';
-            
-           return `
-            <tr>
-                <td>${fullName}</td>
-                <td>${email}</td>
-                <td>${contact}</td>
-                <td>${date}</td>
-                <td>${time}</td>
-                <td>
-                    <span class="badge bg-${status === 'Confirmed' ? 'success' : 'warning text-dark'}">
-                        ${status}
-                    </span>
-                </td>
-                <td>
-                    <div class="d-flex justify-content-center gap-2">
-                        ${status === 'Pending' ? `
-                            <button class="btn btn-outline-success btn-sm" onclick="updateBookingStatus(${b.id}, 'confirm')" title="Confirm">
-                                <i class="bi bi-check-lg"></i>
-                            </button>
-                        ` : ''}
-                        <button class="btn btn-outline-warning btn-sm" onclick="archiveBooking(${b.id})" title="Archive">
-                            <i class="bi bi-archive-fill"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `}).join('');
-    }
-
-    // 4. Render pagination UI
-    paginationContainer.innerHTML = buildPaginationUI(totalPages, page, 'renderBookingsDisplay');
+function escapeHtml(str) {
+    return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
+// --- NEW UNIFIED RENDER FUNCTION ---
 
 /**
- * Renders the archived bookings table and its pagination UI.
- * @param {number} page The page number to display.
+ * Filters, paginates, and renders the appropriate booking list (active or archived)
+ * based on the global 'currentView' state.
  */
-function renderArchivedDisplay(page = 1) {
-    const tableBody = document.getElementById('archivedTable');
-    const paginationContainer = document.getElementById('archived-pagination-container');
-    if (!tableBody || !paginationContainer) return;
-    
-    const query = document.getElementById('searchArchivedInput').value.toLowerCase();
-    const filteredData = allArchivedBookings.filter(b => {
-        const fullName = `${b.first_name} ${b.middle_name ?? ''} ${b.last_name}`;
-        const searchableText = [fullName, b.email, b.contact_num, b.date, b.status].join(' ').toLowerCase();
-        return searchableText.includes(query);
-    });
+function renderDisplay(page = 1) {
+    const titleEl = document.querySelector("#table-title");
+    const searchEl = document.querySelector("#table-search");
+    const headEl = document.querySelector("#main-table-head");
+    const bodyEl = document.querySelector("#main-table-body");
+    const paginationEl = document.querySelector("#main-pagination-container");
 
-    const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
-    const start = (page - 1) * ROWS_PER_PAGE;
-    const end = start + ROWS_PER_PAGE;
-    const pageData = filteredData.slice(start, end);
+    if (!titleEl || !searchEl || !headEl || !bodyEl || !paginationEl) {
+        console.error("One or more critical table elements are missing.");
+        return;
+    }
 
-    if (pageData.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No archived bookings.</td></tr>';
-    } else {
-        tableBody.innerHTML = pageData.map((b, index) => {
-            const fullName = `${b.first_name} ${b.middle_name ?? ''} ${b.last_name}`.trim();
-            const email = b.email || 'N/A';
-            const contact = b.contact_num || 'N/A';
-            
-            // ✅ GINAMIT ANG BAGONG FORMATTERS
-            const date = formatBookingDate(b.date);
-            const time = formatBookingTime(b.booking_time);
-            
-            const status = b.status || 'Pending';
+    // 1. Define sources based on currentView
+    let sourceData, tableHeadHTML, rowBuilderFn, listenerFn, emptyText;
+
+    const sharedTableHead = `
+        <tr>
+            <th>Tenant Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>`;
+
+    if (currentView === 'active') {
+        titleEl.textContent = 'ACTIVE BOOKINGS';
+        searchEl.placeholder = 'Search active bookings...';
+        sourceData = allBookings;
+        emptyText = 'No active bookings found.';
+        tableHeadHTML = sharedTableHead;
+
+        rowBuilderFn = (b) => {
+            const fullName = escapeHtml(`${b.first_name} ${b.middle_name ?? ''} ${b.last_name}`.trim());
+            const email = escapeHtml(b.email || 'N/A');
+            const contact = escapeHtml(b.contact_num || 'N/A');
+            const date = escapeHtml(formatBookingDate(b.date));
+            const time = escapeHtml(formatBookingTime(b.booking_time));
+            const status = escapeHtml(b.status || 'Pending');
 
             return `
-            <tr>
-                <td>${fullName}</td>
-                <td>${email}</td>
-                <td>${contact}</td>
-                <td>${date}</td>
-                <td>${time}</td>
-                <td><span class="badge bg-${status === 'Confirmed' ? 'success' : 'warning text-dark'}">${status}</span></td>
-                <td>
-                    <button class="btn btn-outline-success btn-sm" onclick="restoreBooking(${b.id})">
-                        <i class="bi bi-arrow-clockwise"></i> Restore
-                    </button>
-                </td>
-            </tr>
-        `}).join('');
+                <tr>
+                    <td>${fullName}</td>
+                    <td>${email}</td>
+                    <td>${contact}</td>
+                    <td>${date}</td>
+                    <td>${time}</td>
+                    <td>
+                        <span class="badge bg-${status === 'Confirmed' ? 'success' : 'warning text-dark'}">
+                            ${status}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="d-flex justify-content-center gap-2">
+                            ${status === 'Pending' ? `
+                                <button class="btn btn-outline-success btn-sm confirm-btn" data-id="${b.id}" title="Confirm">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            ` : ''}
+                            <button class="btn btn-outline-warning btn-sm archive-btn" data-id="${b.id}" title="Archive">
+                                <i class="bi bi-archive-fill"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+        };
+
+        listenerFn = attachActiveListeners;
+
+    } else { // 'archived'
+        titleEl.textContent = 'ARCHIVED BOOKINGS';
+        searchEl.placeholder = 'Search archived bookings...';
+        sourceData = allArchivedBookings;
+        emptyText = 'No archived bookings found.';
+        tableHeadHTML = sharedTableHead;
+
+        rowBuilderFn = (b) => {
+            const fullName = escapeHtml(`${b.first_name} ${b.middle_name ?? ''} ${b.last_name}`.trim());
+            const email = escapeHtml(b.email || 'N/A');
+            const contact = escapeHtml(b.contact_num || 'N/A');
+            const date = escapeHtml(formatBookingDate(b.date));
+            const time = escapeHtml(formatBookingTime(b.booking_time));
+            const status = escapeHtml(b.status || 'Pending');
+
+            return `
+                <tr>
+                    <td>${fullName}</td>
+                    <td>${email}</td>
+                    <td>${contact}</td>
+                    <td>${date}</td>
+                    <td>${time}</td>
+                    <td>
+                        <span class="badge bg-${status === 'Confirmed' ? 'success' : 'warning text-dark'}">
+                            ${status}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-outline-success btn-sm restore-btn" data-id="${b.id}">
+                            <i class="bi bi-arrow-clockwise"></i> Restore
+                        </button>
+                    </td>
+                </tr>`;
+        };
+
+        listenerFn = attachRestoreListeners;
     }
-    paginationContainer.innerHTML = buildPaginationUI(totalPages, page, 'renderArchivedDisplay');
+
+    // 2. Filter Data
+    const query = searchEl.value.trim().toLowerCase();
+    const filteredData = sourceData.filter(b => {
+        const fullName = `${b.first_name} ${b.middle_name ?? ''} ${b.last_name}`;
+        const searchableText = [fullName, b.email, b.contact_num, b.date, b.status].join(' ').toLowerCase();
+        return searchableText.includes(query);
+    });
+
+    // 3. Paginate Data
+    const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
+    const start = (page - 1) * ROWS_PER_PAGE;
+    const end = start + ROWS_PER_PAGE;
+    const pageData = filteredData.slice(start, end);
+
+    // 4. Render Table Head
+    headEl.innerHTML = tableHeadHTML;
+
+    // 5. Render Table Rows
+    bodyEl.innerHTML = ""; // Clear previous rows
+    if (pageData.length === 0) {
+        bodyEl.innerHTML = `<tr><td colspan="7" class="text-muted py-3">${emptyText}</td></tr>`;
+    } else {
+        pageData.forEach((b) => {
+            bodyEl.insertAdjacentHTML("beforeend", rowBuilderFn(b));
+        });
+    }
+
+    // 6. Render Pagination (Using the better pattern)
+    paginationEl.innerHTML = buildPaginationUI(totalPages, page);
+
+    // 7. Re-attach listeners for new buttons
+    listenerFn();
+
+    // 8. Attach listeners for pagination links
+    paginationEl.querySelectorAll(".page-link").forEach(link => {
+        link.addEventListener("click", e => {
+            e.preventDefault();
+            const newPage = parseInt(e.target.dataset.page, 10);
+            if (newPage) {
+                renderDisplay(newPage); // Call the main render function
+            }
+        });
+    });
 }
 
 /**
- * Builds the Bootstrap pagination HTML string.
- * (Walang binago dito)
+ * Builds Bootstrap pagination HTML string.
+ * (This is the cleaner version from your tenant file)
  */
-function buildPaginationUI(totalPages, currentPage, renderFunctionName) {
+function buildPaginationUI(totalPages, currentPage) {
     if (totalPages <= 1) return "";
     let html = `<nav><ul class="pagination pagination-sm mb-0">`;
-    
+
     // Previous button
     html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunctionName}(${currentPage - 1})">&laquo;</a>
+                <a class="page-link" href="#" data-page="${currentPage - 1}" aria-label="Previous">&laquo;</a>
              </li>`;
 
-    // Page numbers (simple version)
-    for (let i = 1; i <= totalPages; i++) {
-        html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-                     <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunctionName}(${i})">${i}</a>
-                 </li>`;
+    // Page numbers logic (same as tenant file)
+    const pagesToShow = [];
+    pagesToShow.push(1);
+    let start = Math.max(2, currentPage - 2);
+    let end = Math.min(totalPages - 1, currentPage + 2);
+    if (currentPage - 2 > 2) pagesToShow.push('...');
+    for (let i = start; i <= end; i++) {
+        if (!pagesToShow.includes(i)) pagesToShow.push(i);
     }
+    if (currentPage + 2 < totalPages - 1) pagesToShow.push('...');
+    if (!pagesToShow.includes(totalPages)) pagesToShow.push(totalPages);
+
+    pagesToShow.forEach(p => {
+        if (p === '...') {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        } else {
+            html += `<li class="page-item ${p === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" data-page="${p}">${p}</a>
+                     </li>`;
+        }
+    });
 
     // Next button
     html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunctionName}(${currentPage + 1})">&raquo;</a>
+                <a class="page-link" href="#" data-page="${currentPage + 1}" aria-label="Next">&raquo;</a>
              </li>`;
-    
     html += `</ul></nav>`;
     return html;
 }
 
-// --- Data Fetching and Actions ---
+// --- Data Fetching Functions (Refactored) ---
 
+/**
+ * Fetches ACTIVE bookings and stores them in 'allBookings'.
+ * Does not render, just fetches data.
+ */
 async function fetchBookings() {
-    const token = sessionStorage.getItem('admin_api_token');
-    const tableBody = document.getElementById('bookingsTable');
-    tableBody.innerHTML = '<tr><td colspan="8" class="py-4 text-muted">Loading bookings...</td></tr>';
-    
     try {
         const response = await fetch('/api/bookings', {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 'Authorization': `Bearer ${currentToken}` }
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         if (!Array.isArray(data)) throw new Error('Invalid response format');
-        
-        // ✅ --- BAGONG SORTING LOGIC ---
+
         allBookings = data.sort((a, b) => {
-            // I-check kung ano ang status
             const aIsPending = (a.status || 'Pending') === 'Pending';
             const bIsPending = (b.status || 'Pending') === 'Pending';
-
-            // Kung si 'a' ay Pending at si 'b' ay HINDI, unahin si 'a'
-            if (aIsPending && !bIsPending) {
-                return -1;
-            }
-            // Kung si 'b' ay Pending at si 'a' ay HINDI, unahin si 'b'
-            if (!aIsPending && bIsPending) {
-                return 1;
-            }
-            
-            // Kung pareho sila ng status (parehong Pending o parehong Confirmed),
-            // i-sort sila based sa latest ID
+            if (aIsPending && !bIsPending) return -1;
+            if (!aIsPending && bIsPending) return 1;
             return b.id - a.id;
         });
-        // --- END NG BAGONG SORTING ---
-        
-        // Render the first page
-        renderBookingsDisplay(1);
     } catch (err) {
         console.error('fetchBookings error:', err);
-        showError('Failed to load bookings. Please try again later.');
-        tableBody.innerHTML = `<tr><td colspan="8" class="py-4 text-danger text-center">Error loading bookings.</td></tr>`;
+        showError('Failed to load active bookings.');
+        allBookings = []; // Ensure it's an empty array on failure
+        throw err; // Re-throw to be caught by Promise.all
     }
 }
 
+/**
+ * Fetches ARCHIVED bookings and stores them in 'allArchivedBookings'.
+ * Does not render or show a modal, just fetches data.
+ */
 async function fetchArchivedBookings() {
-    const token = sessionStorage.getItem('admin_api_token');
-    const modalEl = document.getElementById('archivedModal');
-    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-    const tableBody = document.getElementById('archivedTable');
-
-    tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Loading...</td></tr>';
-    modal.show();
-
-    if (!token) {
-        showError('Missing authorization token.');
-        tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Authorization error.</td></tr>';
-        return;
-    }
-
     try {
         const res = await fetch('/api/bookings/archived', {
-            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+            headers: { 'Authorization': `Bearer ${currentToken}`, 'Accept': 'application/json' }
         });
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
         if (!Array.isArray(data)) throw new Error('Invalid response format');
-        
-        // ✅ Ginamit ko na rin 'yung bagong sorting dito para consistent
+
         allArchivedBookings = data.sort((a, b) => {
             const aIsPending = (a.status || 'Pending') === 'Pending';
             const bIsPending = (b.status || 'Pending') === 'Pending';
@@ -395,31 +434,75 @@ async function fetchArchivedBookings() {
             if (!aIsPending && bIsPending) return 1;
             return b.id - a.id;
         });
-
-        // Render the first page of the modal
-        renderArchivedDisplay(1);
     } catch (err) {
         console.error('fetchArchivedBookings error:', err);
-        showError('Error loading archived bookings: ' + err.message);
-        tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger py-4">Error loading data.</td></tr>`;
+        showError('Failed to load archived bookings.');
+        allArchivedBookings = []; // Ensure it's an empty array on failure
+        throw err; // Re-throw to be caught by Promise.all
     }
 }
 
-async function updateBookingStatus(id, action) {
-    const token = sessionStorage.getItem('admin_api_token');
-    if (!token) return showError('Missing authorization token.');
+// --- NEW ACTION LISTENER ATTACHMENT ---
 
-    // Assuming confirmAction exists globally
+/**
+ * Attaches event listeners for 'Confirm' and 'Archive' buttons.
+ */
+function attachActiveListeners() {
+    // Confirm buttons
+    document.querySelectorAll("#main-table-body .confirm-btn").forEach(btn => {
+        if (btn.listenerAttached) return;
+        btn.listenerAttached = true;
+        btn.addEventListener('click', (e) => {
+            const id = e.currentTarget.dataset.id;
+            updateBookingStatus(id, 'confirm');
+        });
+    });
+
+    // Archive buttons
+    document.querySelectorAll("#main-table-body .archive-btn").forEach(btn => {
+        if (btn.listenerAttached) return;
+        btn.listenerAttached = true;
+        btn.addEventListener('click', (e) => {
+            const id = e.currentTarget.dataset.id;
+            archiveBooking(id);
+        });
+    });
+}
+
+/**
+ * Attaches event listeners for 'Restore' buttons.
+ */
+function attachRestoreListeners() {
+    document.querySelectorAll("#main-table-body .restore-btn").forEach(btn => {
+        if (btn.listenerAttached) return;
+        btn.listenerAttached = true;
+        btn.addEventListener('click', (e) => {
+            const id = e.currentTarget.dataset.id;
+            restoreBooking(id);
+        });
+    });
+}
+
+
+// --- Action Functions (Refactored for new render flow) ---
+
+async function updateBookingStatus(id, action) {
+    if (!currentToken) return showError('Missing authorization token.');
+
     confirmAction('Do you want to confirm this booking?', 'Yes, confirm it', 'Cancel', async () => {
         try {
             const response = await fetch(`/api/bookings/${action}/${id}`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                headers: { 'Authorization': `Bearer ${currentToken}`, 'Accept': 'application/json' }
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'Failed to update booking.');
+
             showSuccess(result.message || 'Booking confirmed!');
-            fetchBookings(); // Re-fetch and re-render
+
+            // Just re-fetch active bookings and re-render
+            await fetchBookings();
+            renderDisplay(); // Re-render current page
         } catch (err) {
             console.error('updateBookingStatus error:', err);
             showError('Error updating booking: ' + err.message);
@@ -428,20 +511,22 @@ async function updateBookingStatus(id, action) {
 }
 
 async function archiveBooking(id) {
-    const token = sessionStorage.getItem('admin_api_token');
-    if (!token) return showError('Missing authorization token.');
+    if (!currentToken) return showError('Missing authorization token.');
 
-    // Assuming confirmAction exists globally
     confirmAction('Are you sure you want to archive this booking?', 'Yes, archive it', 'Cancel', async () => {
         try {
             const response = await fetch(`/api/bookings/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 'Authorization': `Bearer ${currentToken}` }
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'Failed to archive booking.');
+
             showSuccess('Booking archived successfully!');
-            fetchBookings(); // Re-fetch and re-render
+
+            // Re-fetch BOTH and re-render, staying on page 1 of 'active' view
+            await Promise.all([fetchBookings(), fetchArchivedBookings()]);
+            renderDisplay(1);
         } catch (err) {
             console.error('archiveBooking error:', err);
             showError('Error archiving booking: ' + err.message);
@@ -450,48 +535,26 @@ async function archiveBooking(id) {
 }
 
 async function restoreBooking(id) {
-    const token = sessionStorage.getItem('admin_api_token');
-    if (!token) return showError('Missing authorization token.');
+    if (!currentToken) return showError('Missing authorization token.');
 
-    // Assuming confirmAction exists globally
     confirmAction('Do you want to restore this booking?', 'Yes, restore it', 'Cancel', async () => {
         try {
             const res = await fetch(`/api/bookings/restore/${id}`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+                headers: { 'Authorization': `Bearer ${currentToken}`, 'Accept': 'application/json' }
             });
             const result = await res.json();
             if (!res.ok) throw new Error(result.message || `Failed (${res.status})`);
+
             showSuccess('Booking restored successfully!');
-            
-            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('archivedModal'));
-            if(modalInstance) modalInstance.hide();
-            
-            fetchBookings(); // Re-fetch active bookings
-            // We fetch archived as well so the data is fresh next time the modal is opened
-            fetchArchivedBookings(); 
+
+            // Re-fetch BOTH and re-render, staying on page 1 of 'archived' view
+            await Promise.all([fetchBookings(), fetchArchivedBookings()]);
+            renderDisplay(1);
         } catch (err) {
             console.error('restoreBooking error:', err);
             showError('Error restoring booking: ' + err.message);
         }
-    });
-}
-
-// --- Search Event Listeners ---
-
-// Main page search
-const searchInput = document.getElementById('searchInput');
-if (searchInput) {
-    searchInput.addEventListener('keyup', () => {
-        renderBookingsDisplay(1); // On search, filter and go back to page 1
-    });
-}
-
-// Archived modal search
-const searchArchivedInput = document.getElementById('searchArchivedInput');
-if (searchArchivedInput) {
-    searchArchivedInput.addEventListener('keyup', () => {
-        renderArchivedDisplay(1); // On search, filter and go back to page 1
     });
 }
 

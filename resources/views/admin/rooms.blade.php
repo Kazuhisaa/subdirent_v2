@@ -24,16 +24,6 @@
     </div>
 </div>
 
-<!-- Full Image Modal -->
-<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-transparent border-0">
-      <img id="imageModalImg" src="" class="w-100 rounded shadow" alt="Full Image">
-    </div>
-  </div>
-</div>
-
-
 {{-- ✅ Pass API token safely --}}
 <script>
 sessionStorage.setItem('admin_api_token', "{{ session('admin_api_token') }}");
@@ -49,7 +39,7 @@ sessionStorage.setItem('admin_api_token', "{{ session('admin_api_token') }}");
 
 .clickable-image {
     cursor: zoom-in;
-    position: relative; 
+    position: relative;
     z-index: 1;
 }
 .clickable-image:hover {

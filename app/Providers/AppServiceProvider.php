@@ -22,5 +22,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // Ito lang dapat ang laman ng boot() function
         Paginator::useBootstrapFive();
+        Paginator::defaultView('pagination::bootstrap-5');
     }
 }
