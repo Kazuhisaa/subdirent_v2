@@ -120,7 +120,7 @@
 @php
     $rentPayments = $payments->filter(function ($payment) {
         return str_starts_with($payment->remarks, 'Rent Payment');
-    })->sortByDesc('for_month');
+    })->sortByDesc('for_month')->take(5);
 @endphp
 
     @forelse($rentPayments as $payment)
