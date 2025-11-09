@@ -16,6 +16,8 @@
 
     {{-- Summary Cards --}}
     <div class="row text-center mb-4">
+        {{-- Note: Ang count dito ay bibilangin lang 'yung nasa CURRENT page. --}}
+        {{-- Kung gusto mo 'yung TOTAL talaga, kailangan ng separate query sa controller --}}
         <div class="col-md-4 mb-3">
             <div class="card border-0 shadow-sm booking-card">
                 <div class="card-body">
@@ -27,7 +29,7 @@
         <div class="col-md-4 mb-3">
             <div class="card border-0 shadow-sm booking-card approved">
                 <div class="card-body">
-                    <h6 class="card-title">Approved Applications</h6>
+                    <h6 class="card-title">Approved</h6>
                     <h3 class="fw-bold">{{ $applications->where('status', 'Approved')->count() }}</h3>
                 </div>
             </div>
@@ -35,7 +37,7 @@
         <div class="col-md-4 mb-3">
             <div class="card border-0 shadow-sm booking-card rejected">
                 <div class="card-body">
-                    <h6 class="card-title">Rejected Applications</h6>
+                    <h6 class="card-title">Rejected (This Page)</h6>
                     <h3 class="fw-bold">{{ $applications->where('status', 'Rejected')->count() }}</h3>
                 </div>
             </div>
@@ -44,9 +46,19 @@
 
     {{-- Applications List --}}
     <div class="card border-0 shadow-sm">
-        <div class="card-header fw-bold text-white"
+        
+        {{-- ✅ BINAGO: Idinagdag ang Search Bar (gaya ng sa Bookings) --}}
+        <div class="card-header fw-bold text-white d-flex justify-content-between align-items-center flex-wrap gy-2"
              style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem;">
-            APPLICATIONS LIST
+            
+            <span>APPLICATIONS LIST</span>
+            
+            {{-- Ito 'yung Search Form --}}
+            <form action="{{ route('admin.applications') }}" method="GET" class="d-flex" style="flex-basis: 300px;">
+                <input type="text" name="search" class="form-control form-control-sm me-2" 
+                       placeholder="Search name or email..." value="{{ request('search') }}">
+                <button type="submit" class="btn btn-sm btn-light">Search</button>
+            </form>
         </div>
 
         <div class="card-body p-0">
@@ -64,6 +76,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {{-- Ang @forelse ay gagana pa rin, pero para sa 10 items lang --}}
                         @forelse($applications as $application)
                         <tr>
                             <td>{{ $application->first_name }} {{ $application->middle_name }} {{ $application->last_name }}</td>
@@ -86,22 +99,21 @@
                                     ₱{{ number_format($application->unit->unit_price, 2) }}
                                 @else — @endif
                             </td>
-                            <td>
+                           <td>
                                 @if($application->status === 'Approved')
-                                    <span class="badge bg-success">Approved</span>
+                                    <span class="badge bg-success">Approved</span> 
                                 @elseif($application->status === 'Rejected')
                                     <span class="badge bg-danger">Rejected</span>
                                 @else
-                                    <span class="badge bg-secondary">Pending</span>
+                                    <span class="badge bg-warning text-dark">Pending</span> 
                                 @endif
                             </td>
 
                             {{-- Action Buttons --}}
                             <td>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
-
                                     <button 
-                                        class="btn btn-sm btn-info view-btn"
+                                        class="btn btn-sm btn-outline-info view-btn"
                                         data-bs-toggle="modal"
                                         data-bs-target="#viewApplicationModal"
                                         title="View Details"
@@ -121,11 +133,9 @@
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
 
-
-                                    {{-- Hide edit button if approved/rejected --}}
                                     @if($application->status === 'Pending')
                                         <button 
-                                            class="btn btn-sm btn-primary edit-btn"
+                                            class="btn btn-sm btn-outline-primary edit-btn"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editApplicationModal"
                                             title="Edit"
@@ -148,26 +158,26 @@
 
                                         {{-- Approve --}}
                                         <form action="{{ route('admin.applications.approve', $application->id) }}" method="POST" class="mb-0">@csrf
-                                            <button type="submit" class="btn btn-sm btn-success" title="Approve">
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
                                                 <i class="bi bi-check-lg"></i>
                                             </button>
                                         </form>
 
                                         {{-- Reject --}}
                                         <form action="{{ route('admin.applications.reject', $application->id) }}" method="POST" class="mb-0">@csrf
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Reject">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject">
                                                 <i class="bi bi-x-lg"></i>
                                             </button>
                                         </form>
                                     @endif
 
-                                    {{-- Archive (Always visible) --}}
-                                    <form action="{{ route('admin.applications.archive', $application->id) }}" method="POST" class="mb-0">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Archive">
-                                            <i class="bi bi-archive-fill"></i>
-                                        </button>
-                                    </form>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-warning" 
+                                            title="Archive"
+                                            onclick="archiveApplication({{ $application->id }})">
+                                        <i class="bi bi-archive-fill"></i>
+                                    </button>
+                                    
                                 </div>
                             </td>
                         </tr>
@@ -178,9 +188,16 @@
                 </table>
             </div>
         </div>
+
+
     </div>
 </div>
 
+{{-- 
+    ===========================================
+    MGA MODAL (Walang binago dito)
+    ===========================================
+--}}
 <div class="modal fade" id="editApplicationModal" tabindex="-1" aria-labelledby="editApplicationLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -345,6 +362,13 @@
         </div>
     </div>
 </div>
+
+
+{{-- 
+    ===========================================
+    MGA SCRIPT (Walang binago dito)
+    ===========================================
+--}}
 <script>
     // Global variable para sa all units
     let allUnits = [];
@@ -380,7 +404,7 @@
 
 
         // ===========================================
-        // 3. ITO YUNG SCRIPT PARA SA VIEW MODAL
+        // 3. ITO YUNG SCRIPT PARA SA VIEW MODAL (Walang binago)
         // ===========================================
         const viewModalEl = document.getElementById('viewApplicationModal');
         if(viewModalEl) {
@@ -451,8 +475,7 @@
     });
 
     /**
-     * Ito 'yung function na magpupuno ng modal
-     * (DITO 'YUNG MAY BINAGO)
+     * Ito 'yung function na magpupuno ng modal (Walang binago)
      */
     function populateEditModal(application) {
         // Ilagay ang basic info
@@ -465,11 +488,6 @@
         document.getElementById('downpayment').value = application.downpayment || '';
         document.getElementById('contract_years').value = application.contract_years || '';
 
-        // === START NG PAGBABAGO ===
-        // TINANGGAL KO 'YUNG LINYA NA 'TO DAHIL ITO 'YUNG CAUSE NG ERROR:
-        // document.getElementById('contract_start').value = application.contract_start || '';
-        // === END NG PAGBABAGO ===
-
         const phaseSelect = document.getElementById('phase_select');
         const unitSelect = document.getElementById('unit_select');
 
@@ -478,7 +496,6 @@
         unitSelect.innerHTML = '<option value="">-- Select Phase First --</option>';
 
         // 4. FIX: Kunin ang data mula sa /api/allUnits
-        // Dahil tinanggal na 'yung error, aandar na ulit 'yung code na 'to
         axios.get('/api/allUnits')
             .then(response => {
                 allUnits = response.data; // I-save sa global variable
@@ -518,9 +535,7 @@
     }
 
     /**
-     * Helper function para i-populate ang units dropdown
-     * @param {string} selectedPhaseName - Ang pangalan ng phase (e.g., "Phase 1")
-     * @param {string|int} selectedUnitId - Ang ID ng unit na naka-select
+     * Helper function para i-populate ang units dropdown (Walang binago)
      */
     function populateUnits(selectedPhaseName, selectedUnitId) {
         const unitSelect = document.getElementById('unit_select');
@@ -544,22 +559,20 @@
         });
     }
 
-    // Listener para kapag nagpalit ng Phase
+    // Listener para kapag nagpalit ng Phase (Walang binago)
     document.getElementById('phase_select').addEventListener('change', (event) => {
         // I-populate ulit ang units gamit ang bagong phase NAME
         populateUnits(event.target.value, null);
     });
 
 
-    // 9. 'Save' button listener (WALA TAYONG BINAGO DITO, TAMA NA 'TO)
+    // 9. 'Save' button listener (Walang binago)
     document.getElementById('saveChangesBtn').addEventListener('click', async () => {
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0'); // +1 kasi 0-indexed (Jan=0)
         const day = String(today.getDate()).padStart(2, '0');
         
-        // 2. I-format natin as YYYY-MM-DD
-        // Ito 'yung pinaka-safe na format ipadala sa backend (Laravel)
         const contractStartDate = `${year}-${month}-${day}`;
         const id = document.getElementById('application_id').value;
         const data = {
@@ -575,7 +588,6 @@
         };
 
         try {
-            // FIX: Ito 'yung tamang URL base sa api.php mo
             const response = await axios.put(`/api/applications/editApplications/${id}`, data);
             
             alert(response.data.message);
@@ -594,134 +606,171 @@
         }
     });
     
-document.querySelector('[data-bs-target="#archivedModal"]').addEventListener('click', async () => {
-    try {
-        const res = await fetch('/api/applications/archived');
-        const data = await res.json();
+    // Archived Modal script (Walang binago)
+    document.querySelector('[data-bs-target="#archivedModal"]').addEventListener('click', async () => {
+        try {
+            const res = await fetch('/api/applications/archived');
+            const data = await res.json();
 
-        const tbody = document.getElementById('archivedApplicationsBody');
-        tbody.innerHTML = '';
+            const tbody = document.getElementById('archivedApplicationsBody');
+            tbody.innerHTML = '';
 
-        data.forEach(app => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${app.first_name} ${app.middle_name} ${app.last_name}</td>
-                <td>${app.email}</td>
-                <td>${app.contact_num}</td>
-                <td>${app.status}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-success" onclick="restoreApplicant(${app.id})">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
-                    </button> </td>
-            `;
-            tbody.appendChild(tr);
-        });
+            data.forEach(app => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${app.first_name} ${app.middle_name} ${app.last_name}</td>
+                    <td>${app.email}</td>
+                    <td>${app.contact_num}</td>
+                    <td>${app.status}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-success" onclick="restoreApplicant(${app.id})">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                        </button> </td>
+                `;
+                tbody.appendChild(tr);
+            });
 
-    } catch (err) {
-        console.error(err);
-        alert('Failed to load archived applications');
-    }
-});
-
-
-
-</script>
-
-<script>
-    
-
-async function archiveApplication(id) {
-    const token = sessionStorage.getItem('admin_api_token');
-    if (!token) return alert('Missing token');
-
-    if (!confirm('Archive this application?')) return;
-
-    try {
-        const res = await fetch(`/api/applications/archive/${id}`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || 'Failed');
-
-        alert('Application archived!');
-        // refresh UI here
-    } catch (err) {
-        console.error(err);
-        alert('Error: ' + err.message);
-    }
-}
-</script>
-
-
-<script>
-async function restoreApplicant(id) {
-    
-    // Get CSRF token from meta tag (standard for Laravel blade)
-    const csrfToken = document.querySelector('meta[name="csrf-token"]') 
-                      ? document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                      : '';
-
-    // Check if your global SweetAlert functions exist, otherwise use fallbacks
-    // (This makes the code safer)
-    const sa_confirmAction = window.confirmAction || function(title, confirmText, cancelText, callback) {
-        // Simple browser confirm as a fallback
-        if (confirm(title)) {
-            callback();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to load archived applications');
         }
-    };
-    const sa_showSuccess = window.showSuccess || function(message) {
-        alert(message);
-    };
-    const sa_showError = window.showError || function(message) {
-        alert(message);
-    };
+    });
+</script>
 
-    // Use the SweetAlert-style confirmation
-    sa_confirmAction(
-        'Do you want to restore this applicant?', // Title
-        'Yes, restore it', // Confirm text
-        'Cancel', // Cancel text
-        async () => { // This is the callback function that runs on confirmation
-            try {
-                // Use the correct API path for applications
-                const res = await fetch(`/api/applications/restore/${id}`, {
-                    method: 'POST',
-                    headers: { 
-                        'Accept': 'application/json',
-                        // Add CSRF token for web route protection
-                        'X-CSRF-TOKEN': csrfToken 
-                    }
-                });
 
-                const result = await res.json();
-                if (!res.ok) {
-                    throw new Error(result.message || `Failed (${res.status})`);
-                }
+<script>
+    /**
+     * Inayos ko 'to para gumamit ng CSRF token at SweetAlert fallbacks,
+     * katulad ng restoreApplicant() function mo.
+     */
+    async function archiveApplication(id) {
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]') 
+                          ? document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                          : '';
 
-                // Use SweetAlert-style success message
-                sa_showSuccess('Applicant restored successfully!');
-                
-                // Hide the modal
-                const modalEl = document.getElementById('archivedModal');
-                if (modalEl) {
-                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                    if (modalInstance) {
-                         modalInstance.hide();
-                    }
-                }
-       
-                // Refresh the page to show the restored applicant in the main list
-                location.reload();
-
-            } catch (err) {
-                console.error(err);
-                // Use SweetAlert-style error message
-                sa_showError('Error restoring applicant: ' + err.message);
+        // SweetAlert fallbacks
+        const sa_confirmAction = window.confirmAction || function(title, confirmText, cancelText, callback) {
+            if (confirm(title)) {
+                callback();
             }
-        }
-    );
-}
+        };
+        const sa_showSuccess = window.showSuccess || function(message) {
+            alert(message);
+        };
+        const sa_showError = window.showError || function(message) {
+            alert(message);
+        };
+
+        // Confirmation
+        sa_confirmAction(
+            'Do you want to archive this applicant?', // Title
+            'Yes, archive it', // Confirm text
+            'Cancel', // Cancel text
+            async () => { // Callback
+                try {
+                    // Gamitin ang route mula sa form mo dati
+                    // (NOTE: Siguraduhin na ito ay POST route sa web.php mo)
+                    const res = await fetch(`/admin/applications/archive/${id}`, {
+                        method: 'POST', // Ginawa kong POST para tumugma sa <form> mo dati at sa restore
+                        headers: { 
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken 
+                        }
+                    });
+
+                    const result = await res.json();
+                    if (!res.ok) {
+                        throw new Error(result.message || `Failed (${res.status})`);
+                    }
+
+                    sa_showSuccess('Applicant archived successfully!');
+                    
+                    // Refresh para mawala sa listahan
+                    location.reload();
+
+                } catch (err) {
+                    console.error(err);
+                    sa_showError('Error archiving applicant: ' + err.message);
+                }
+            }
+        );
+    }
+</script>
+
+
+<script>
+    /**
+     * Ito 'yung original script mo para sa RESTORE.
+     * Tama na 'to, WALA AKONG BINAGO DITO.
+     */
+    async function restoreApplicant(id) {
+        
+        // Get CSRF token from meta tag (standard for Laravel blade)
+        const csrfToken = document.querySelector('meta[name="csrf-token"]') 
+                        ? document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        : '';
+
+        // Check if your global SweetAlert functions exist, otherwise use fallbacks
+        // (This makes the code safer)
+        const sa_confirmAction = window.confirmAction || function(title, confirmText, cancelText, callback) {
+            // Simple browser confirm as a fallback
+            if (confirm(title)) {
+                callback();
+            }
+        };
+        const sa_showSuccess = window.showSuccess || function(message) {
+            alert(message);
+        };
+        const sa_showError = window.showError || function(message) {
+            alert(message);
+        };
+
+        // Use the SweetAlert-style confirmation
+        sa_confirmAction(
+            'Do you want to restore this applicant?', // Title
+            'Yes, restore it', // Confirm text
+            'Cancel', // Cancel text
+            async () => { // This is the callback function that runs on confirmation
+                try {
+                    // Use the correct API path for applications
+                    const res = await fetch(`/api/applications/restore/${id}`, {
+                        method: 'POST',
+                        headers: { 
+                            'Accept': 'application/json',
+                            // Add CSRF token for web route protection
+                            'X-CSRF-TOKEN': csrfToken 
+                        }
+                    });
+
+                    const result = await res.json();
+                    if (!res.ok) {
+                        throw new Error(result.message || `Failed (${res.status})`);
+                    }
+
+                    // Use SweetAlert-style success message
+                    sa_showSuccess('Applicant restored successfully!');
+                    
+                    // Hide the modal
+                    const modalEl = document.getElementById('archivedModal');
+                    if (modalEl) {
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInstance) {
+                                modalInstance.hide();
+                        }
+                    }
+            
+                    // Refresh the page to show the restored applicant in the main list
+                    location.reload();
+
+                } catch (err) {
+                    console.error(err);
+                    // Use SweetAlert-style error message
+                    sa_showError('Error restoring applicant: ' + err.message);
+                }
+            }
+        );
+    }
 </script>
 @endsection

@@ -121,7 +121,7 @@ function renderContractsDisplay(page = 1) {
         const start = c.contract_start ?? '—';
         const end = c.contract_end ?? '—';
 
-        const row = `
+       const row = `
             <tr>
                 <td>${tenantName || 'N/A'}</td>
                 <td>${unitName}</td>
@@ -130,16 +130,18 @@ function renderContractsDisplay(page = 1) {
                 <td><span class="badge bg-success">Active</span></td>
                 <td>
                     <div class="d-flex justify-content-center align-items-center gap-2">
-                        <a href="/admin/contracts/${c.id}" class="btn btn-sm btn-outline-primary" title="View Contract">
+                        <a href="/admin/contracts/${c.id}" class="btn btn-sm btn-outline-info" title="View Contract">
                             <i class="bi bi-eye"></i>
                         </a>
-                        <a href="/admin/contracts/${c.id}/edit" class="btn btn-sm btn-outline-blue edit-btn" title="Edit">
+                        <a href="/admin/contracts/${c.id}/edit" class="btn btn-sm btn-outline-primary edit-btn" title="Edit">
                             <i class="bi bi-pencil-square"></i>
-                        </a>                    
+                        </a>
                     </div>
                 </td>
             </tr>
         `;
+
+
         tableBody.insertAdjacentHTML('beforeend', row);
     });
 

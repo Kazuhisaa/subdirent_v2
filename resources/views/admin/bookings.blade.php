@@ -32,7 +32,6 @@
                 <table class="table align-middle text-center mb-0">
                     <thead class="table-light text-uppercase small text-secondary">
                         <tr>
-                            <th>#</th>
                             <th>Tenant Name</th>
                             <th>Email</th>
                             <th>Contact</th>
@@ -81,7 +80,6 @@
                         <table class="table table-hover align-middle text-center mb-0">
                             <thead class="table-light text-uppercase small text-secondary">
                                 <tr>
-                                    <th>#</th>
                                     <th>Tenant Name</th>
                                     <th>Email</th>
                                     <th>Contact</th>
@@ -158,23 +156,22 @@ function renderBookingsDisplay(page = 1) {
             const time = b.booking_time || 'N/A';
             const status = b.status || 'Pending';
             
-            return `
+           return `
             <tr>
-                <td>${start + index + 1}</td>
                 <td>${fullName}</td>
                 <td>${email}</td>
                 <td>${contact}</td>
                 <td>${date}</td>
                 <td>${time}</td>
                 <td>
-                    <span class="badge bg-${status === 'Confirmed' ? 'success' : 'secondary'}">
+                    <span class="badge bg-${status === 'Confirmed' ? 'success' : 'warning text-dark'}">
                         ${status}
                     </span>
                 </td>
                 <td>
-                    <div class="d-flex justify-content-center" style="gap: .25rem;">
+                    <div class="d-flex justify-content-center gap-2">
                         ${status === 'Pending' ? `
-                            <button class="btn btn-success btn-sm" onclick="updateBookingStatus(${b.id}, 'confirm')" title="Confirm">
+                            <button class="btn btn-outline-success btn-sm" onclick="updateBookingStatus(${b.id}, 'confirm')" title="Confirm">
                                 <i class="bi bi-check-lg"></i>
                             </button>
                         ` : ''}
@@ -226,13 +223,12 @@ function renderArchivedDisplay(page = 1) {
 
             return `
             <tr>
-                <td>${start + index + 1}</td>
                 <td>${fullName}</td>
                 <td>${email}</td>
                 <td>${contact}</td>
                 <td>${date}</td>
                 <td>${time}</td>
-                <td><span class="badge bg-${status === 'Confirmed' ? 'success' : 'secondary'}">${status}</span></td>
+                <td><span class="badge bg-${status === 'Confirmed' ? 'success' : 'warning text-dark'}">${status}</span></td>
                 <td>
                     <button class="btn btn-outline-success btn-sm" onclick="restoreBooking(${b.id})">
                         <i class="bi bi-arrow-clockwise"></i> Restore

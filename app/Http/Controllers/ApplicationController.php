@@ -283,7 +283,9 @@ return redirect()
      */
     public function indexView()
     {
-        $applications = Application::with('unit')->get();
+        // Idagdag lang ang ->latest() bago ang ->get()
+        $applications = Application::with('unit')->latest()->get(); // <--- ITO NA YUNG BAGO
+
         $units = Unit::all(); 
 
 
