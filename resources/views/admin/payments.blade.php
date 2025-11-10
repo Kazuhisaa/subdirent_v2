@@ -230,7 +230,6 @@ function renderDisplay(page = 1) {
     let sourceData, tableHeadHTML, rowBuilderFn, emptyText;
     const sharedTableHead = `
         <tr>
-            <th>Tenant ID</th>
             <th>Tenant Name</th>
             <th>Payment Status</th>
             <th>Payment Date</th>
@@ -249,7 +248,6 @@ function renderDisplay(page = 1) {
 
         rowBuilderFn = (p) => `
             <tr>
-                <td>${escapeHtml(p.tenantId)}</td>
                 <td>${escapeHtml(p.name)}</td>
                 <td>${renderStatusBadge(p.status)}</td>
                 <td>${formatDate(p.date)}</td>
