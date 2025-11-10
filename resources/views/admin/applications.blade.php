@@ -672,7 +672,7 @@
                 try {
                     // Gamitin ang route mula sa form mo dati
                     // (NOTE: Siguraduhin na ito ay POST route sa web.php mo)
-                    const res = await fetch(`/admin/applications/archive/${id}`, {
+                    const res = await fetch(`admin/applications/${id}/archive/`, {
                         method: 'POST', // Ginawa kong POST para tumugma sa <form> mo dati at sa restore
                         headers: { 
                             'Accept': 'application/json',
@@ -684,7 +684,6 @@
                     if (!res.ok) {
                         throw new Error(result.message || `Failed (${res.status})`);
                     }
-
                     sa_showSuccess('Applicant archived successfully!');
                     
                     // Refresh para mawala sa listahan

@@ -10,23 +10,31 @@
     <div class="row mb-4 no-print">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h3 id="reportTitle" class="fw-bold text-dark mb-0">Bookings Report</h3>
-            <div class="d-flex">
-                <div class="dropdown me-2">
+            
+            {{-- ✅ BINAGO: Dinagdag ang CSV button at inayos ang spacing --}}
+            <div class="d-flex align-items-center gap-2">
+                <div class="dropdown">
                     <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="reportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         Bookings
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="reportDropdown">
-                        <li><a class="dropdown-item" href="#" onclick="showReport('bookings', 'Bookings Report', this)">BOOKINGS</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="showReport('applications', 'Application Report', this)">APPLICATION</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="showReport('contracts', 'Contracts Report', this)">CONTRACTS</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="showReport('payments', 'Payments Report', this)">PAYMENTS</a></li>
-                        {{-- BAGO: Pinalitan ang Analytics ng Maintenance --}}
-                        <li><a class="dropdown-item" href="#" onclick="showReport('maintenance', 'Maintenance Report', this)">MAINTENANCE</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showReport('bookings', 'Bookings Report', this)">Confirmed Bookings</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showReport('applications', 'Application Report', this)">Approved Applications</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showReport('contracts', 'Contracts Report', this)">Ongoing Contracts</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showReport('downpayments', 'Downpayments Report', this)">Downpayments</a></li>
+                        {{-- ✅ BAGO: Rent Payments --}}
+                        <li><a class="dropdown-item" href="#" onclick="showReport('rent_payments', 'Rent Payments Report', this)">Rent Payments</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showReport('maintenance', 'Maintenance Report', this)">Completed Maintenance</a></li>
                     </ul>
                 </div>
-                {{-- ITO YUNG TAMANG BUTTON: --}}
+                
+                {{-- ✅ BAGO: Generate CSV Button --}}
+                <button class="btn btn-success" onclick="generateCSV()" id="generateCsvButton">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+                </button>
+
                 <button class="btn btn-primary" onclick="generatePDF()" id="generatePdfButton">
-                    <i class="bi bi-printer"></i> Generate Report
+                    <i class="bi bi-printer"></i> PDF
                 </button>
             </div>
         </div>
@@ -44,7 +52,6 @@
                     <table class="table mb-0 small text-center">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
                                 <th>Tenant Name</th>
                                 <th>Email</th>
                                 <th>Contact</th>
@@ -59,6 +66,8 @@
                     </table>
                 </div>
             </div>
+            {{-- ✅ BAGO: Pagination Container --}}
+            <div class="card-footer bg-white border-0 d-flex justify-content-center pt-3" id="bookings-pagination"></div>
         </div>
     </div>
 
@@ -72,7 +81,6 @@
                     <table class="table mb-0 small text-center">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
                                 <th>Tenant Name</th> 
                                 <th>Email</th>
                                 <th>Contact</th>
@@ -86,6 +94,8 @@
                     </table>
                 </div>
             </div>
+            {{-- ✅ BAGO: Pagination Container --}}
+            <div class="card-footer bg-white border-0 d-flex justify-content-center pt-3" id="applications-pagination"></div>
         </div>
     </div>
 
@@ -100,7 +110,6 @@
                     <table class="table mb-0 small text-center">
                         <thead class="table-light">
                             <tr>
-                                <th>Tenant ID</th>
                                 <th>Tenant Name</th> 
                                 <th>Contract Start</th>
                                 <th>Contract End</th>
@@ -113,20 +122,22 @@
                     </table>
                 </div>
             </div>
+            {{-- ✅ BAGO: Pagination Container --}}
+            <div class="card-footer bg-white border-0 d-flex justify-content-center pt-3" id="contracts-pagination"></div>
         </div>
     </div>
 
-    <div id="payments-report" class="report-section" style="display: none;">
+    {{-- ✅ BINAGO: Ito na ngayon ay Downpayments Report --}}
+    <div id="downpayments-report" class="report-section" style="display: none;">
         <div class="card border-0 shadow-sm">
             <div class="card-header fw-bold text-white" style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem .5rem 0 0;">
-                Payments
+                Downpayments
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table mb-0 small text-center">
                         <thead class="table-light">
                             <tr>
-                                <th>Tenant ID</th>
                                 <th>Tenant Name</th> 
                                 <th>Payment Status</th>
                                 <th>Payment Date</th>
@@ -134,17 +145,47 @@
                                 <th>Remarks</th>
                             </tr>
                         </thead>
-                        <tbody id="paymentsTable">
+                        <tbody id="downpaymentsTable">
                             <tr><td colspan="6" class="text-muted py-3">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+            {{-- ✅ BAGO: Pagination Container --}}
+            <div class="card-footer bg-white border-0 d-flex justify-content-center pt-3" id="downpayments-pagination"></div>
+        </div>
+    </div>
+    
+    {{-- ✅ BAGO: Rent Payments Report --}}
+    <div id="rent_payments-report" class="report-section" style="display: none;">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header fw-bold text-white" style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem .5rem 0 0;">
+                Rent Payments
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0 small text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tenant Name</th> 
+                                <th>Payment Status</th>
+                                <th>Payment Date</th>
+                                <th>Payment Method</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rentPaymentsTable">
+                            <tr><td colspan="6" class="text-muted py-3">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{-- ✅ BAGO: Pagination Container --}}
+            <div class="card-footer bg-white border-0 d-flex justify-content-center pt-3" id="rent_payments-pagination"></div>
         </div>
     </div>
 
 
-    {{-- BAGO: Pinalitan ang Analytics ng Maintenance --}}
     <div id="maintenance-report" class="report-section" style="display: none;">
         <div class="card border-0 shadow-sm">
             <div class="card-header fw-bold text-white" style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem .5rem 0 0;">
@@ -155,7 +196,6 @@
                     <table class="table mb-0 small text-center">
                         <thead class="table-light">
                             <tr>
-                                <th>ID</th>
                                 <th>Tenant</th>
                                 <th>Unit</th>
                                 <th>Issue Type</th>
@@ -170,19 +210,90 @@
                     </table>
                 </div>
             </div>
+            {{-- ✅ BAGO: Pagination Container --}}
+            <div class="card-footer bg-white border-0 d-flex justify-content-center pt-3" id="maintenance-pagination"></div>
         </div>
     </div>
 
 </div>
 @endsection
-
-
 @push('scripts')
 {{-- 🧠 JavaScript Logic --}}
 <script>
-    // Global variables
+    // --- Global State ---
     let reportData = {};
     let activeReportId = 'bookings';
+    const ROWS_PER_PAGE = 10;
+
+    // ========================================================== //
+    // ============ HELPER FUNCTIONS (Date/Time/Pagination) ===== //
+    // ========================================================== //
+
+    /**
+     * Formats date to "Month Day, Year"
+     */
+    function formatAppDate(dateString) {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+            return localDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch (e) { return dateString; }
+    }
+
+    /**
+     * Formats 24-hr time to 12-hr time with AM/PM
+     */
+    function formatAppTime(timeString) {
+        if (!timeString) return 'N/A';
+        try {
+            const [hours, minutes] = timeString.split(':');
+            const date = new Date();
+            date.setHours(hours);
+            date.setMinutes(minutes);
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        } catch (e) { return timeString; }
+    }
+
+    /**
+     * Builds the Bootstrap pagination HTML string.
+     */
+    function buildPaginationUI(totalPages, currentPage, renderFunctionName) {
+        if (totalPages <= 1) return "";
+        let html = `<nav><ul class="pagination pagination-sm mb-0">`;
+        
+        // Previous button
+        html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunctionName}(${currentPage - 1})">&laquo;</a>
+                 </li>`;
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                         <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunctionName}(${i})">${i}</a>
+                     </li>`;
+        }
+
+        // Next button
+        html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="event.preventDefault(); ${renderFunctionName}(${currentPage + 1})">&raquo;</a>
+                 </li>`;
+        
+        html += `</ul></nav>`;
+        return html;
+    }
+
+    // ========================================================== //
+    // ============ CORE FUNCTIONS (Show, PDF, CSV) ============= //
+    // ========================================================== //
 
     // Function to switch between reports
     function showReport(reportId, title, element) {
@@ -198,40 +309,63 @@
         document.getElementById('reportTitle').textContent = title;
         document.getElementById('reportDropdown').textContent = element.textContent;
         activeReportId = reportId;
+
+        // ✅ BINAGO: Tawagin ang specific render function para sa page 1
+        switch (reportId) {
+            case 'bookings':      renderBookingsReport(1); break;
+            case 'applications':  renderApplicationsReport(1); break;
+            case 'contracts':     renderContractsReport(1); break;
+            case 'downpayments':  renderDownpaymentsReport(1); break;
+            case 'rent_payments': renderRentPaymentsReport(1); break;
+            case 'maintenance':   renderMaintenanceReport(1); break;
+        }
+    }
+
+    /**
+     * Helper function to get headers and keys for exports
+     */
+    function getExportConfig(reportId) {
+        let headers = [];
+        let dataKeys = [];
+
+        switch (reportId) {
+            case 'bookings':
+                headers = ['Tenant Name', 'Email', 'Contact', 'Date', 'Time', 'Status'];
+                dataKeys = ['name', 'email', 'contact_num', 'date', 'booking_time', 'status'];
+                break;
+            case 'applications':
+                headers = ['Tenant Name', 'Email', 'Contact', 'UnitPrice', 'Status'];
+                dataKeys = ['tenant_name', 'email', 'contact_num', 'unit_price', 'status'];
+                break;
+            case 'contracts':
+                headers = ['Tenant Name', 'Contract Start', 'Contract End', 'Status'];
+                dataKeys = ['tenant_name', 'contract_start', 'contract_end', 'status'];
+                break;
+            case 'downpayments': // ✅ BINAGO
+                headers = ['Tenant Name', 'Status', 'Payment Date', 'Method', 'Remarks'];
+                dataKeys = ['tenant_name', 'payment_status', 'payment_date', 'payment_method', 'remarks'];
+                break;
+            case 'rent_payments': // ✅ BAGO
+                headers = ['Tenant Name', 'Status', 'Payment Date', 'Method', 'Remarks'];
+                dataKeys = ['tenant_name', 'payment_status', 'payment_date', 'payment_method', 'remarks'];
+                break;
+            case 'maintenance':
+                headers = ['Tenant', 'Unit', 'Issue', 'Description', 'Date', 'Status'];
+                dataKeys = ['tenant_name', 'unit_name', 'category', 'description', 'created_at', 'status'];
+                break;
+        }
+        return { headers, dataKeys };
     }
 
     // Function para i-generate ang PDF
     async function generatePDF() {
-        
         const reportTitle = document.getElementById('reportTitle').textContent;
         const dataToSend = reportData[activeReportId];
-        let headers = [];
-        let dataKeys = [];
+        const { headers, dataKeys } = getExportConfig(activeReportId);
 
-        switch (activeReportId) {
-            case 'bookings':
-                headers = ['ID', 'Tenant Name', 'Email', 'Contact', 'Date', 'Time', 'Status'];
-                dataKeys = ['id', 'name', 'email', 'contact_num', 'date', 'booking_time', 'status'];
-                break;
-            case 'applications':
-                headers = ['ID', 'Tenant Name', 'Email', 'Contact', 'UnitPrice', 'Status'];
-                dataKeys = ['id', 'tenant_name', 'email', 'contact_num', 'unit_price', 'status'];
-                break;
-            case 'contracts':
-                headers = ['Tenant ID', 'Tenant Name', 'Contract Start', 'Contract End', 'Status'];
-                dataKeys = ['tenant_id', 'tenant_name', 'contract_start', 'contract_end', 'status'];
-                break;
-            case 'payments':
-                headers = ['Tenant ID', 'Tenant Name', 'Status', 'Payment Date', 'Method', 'Remarks'];
-                dataKeys = ['tenant_id', 'tenant_name', 'payment_status', 'payment_date', 'payment_method', 'remarks'];
-                break;
-            case 'maintenance':
-                headers = ['ID', 'Tenant', 'Unit', 'Issue', 'Description', 'Date', 'Status'];
-                dataKeys = ['id', 'tenant_name', 'unit_name', 'category', 'description', 'created_at', 'status'];
-                break;
-            default:
-                console.error('Unknown report type for PDF generation');
-                return;
+        if (!dataKeys.length) {
+            console.error('Unknown report type for PDF generation');
+            return;
         }
 
         // I-format ang data
@@ -260,9 +394,7 @@
                 })
             });
 
-            if (!response.ok) {
-                throw new Error('Server error: Could not generate PDF.');
-            }
+            if (!response.ok) throw new Error('Server error: Could not generate PDF.');
 
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
@@ -284,6 +416,41 @@
         }
     }
 
+    // ✅ BAGO: Generate CSV Function
+    function generateCSV() {
+        const { headers, dataKeys } = getExportConfig(activeReportId);
+        const data = reportData[activeReportId];
+
+        if (!dataKeys.length) {
+            console.error('Unknown report type for CSV generation');
+            return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        // Add headers
+        csvContent += headers.join(",") + "\r\n";
+
+        // Add rows
+        data.forEach(row => {
+            const rowData = dataKeys.map(key => {
+                let cellData = row[key] ?? 'N/A';
+                // Linisin ang data para sa CSV (tanggalin ang commas)
+                return `"${String(cellData).replace(/"/g, '""')}"`;
+            });
+            csvContent += rowData.join(",") + "\r\n";
+        });
+
+        // Trigger download
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${activeReportId}_report.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
 
     // --- DOMContentLoaded script ---
     document.addEventListener("DOMContentLoaded", async () => {
@@ -291,36 +458,33 @@
         const endpoints = ['bookings', 'contracts', 'applications', 'payments', 'maintenance'];
         const data = {};
 
-       console.log("--- DEBUG: Simula ng Pag-fetch ng Data ---");
-for (const key of endpoints) {
-    try {
-        const res = await fetch(`/api/${key}`, { headers: { 'Authorization': `Bearer ${token}` } });
-        if (!res.ok) { 
-            console.error(`Error fetching /api/${key}: ${res.statusText}`);
-            data[key] = []; 
-        } else {
-            let responseData = await res.json();
-            data[key] = responseData.data ? responseData.data : responseData;
+        console.log("--- DEBUG: Simula ng Pag-fetch ng Data ---");
+        for (const key of endpoints) {
+            try {
+                const res = await fetch(`/api/${key}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) { 
+                    console.error(`Error fetching /api/${key}: ${res.statusText}`);
+                    data[key] = []; 
+                } else {
+                    let responseData = await res.json();
+                    data[key] = responseData.data ? responseData.data : responseData;
+                }
+            } catch (error) {
+                console.error(`Failed to fetch /api/${key}:`, error);
+                data[key] = []; 
+            }
         }
-    } catch (error) {
-        console.error(`Failed to fetch /api/${key}:`, error);
-        data[key] = []; 
-    }
-    console.log(`Data for /api/${key}:`, data[key]);
-}
-
-console.log("--- DEBUG: Tapos na ang Pag-fetch. ---");
+        console.log("--- DEBUG: Tapos na ang Pag-fetch. ---");
         
-        // --- I-FILTER AT I-PROCESS ANG BOOKINGS ---
+        // --- I-FILTER AT I-PROCESS ANG DATA ---
+        
         const filteredBookings = data.bookings
-            .filter(item => 
-                item.status === 'Active' || item.status === 'Confirmed'
-            )
+            .filter(item => item.status === 'Active' || item.status === 'Confirmed')
             .map(item => {
-                const middleInitial = (item.middle_name && item.middle_name.length > 0) 
-                                    ? ` ${item.middle_name.charAt(0)}. ` 
-                                    : ' ';
+                const middleInitial = (item.middle_name && item.middle_name.length > 0) ? ` ${item.middle_name.charAt(0)}. ` : ' ';
                 item.name = `${item.first_name ?? ''}${middleInitial}${item.last_name ?? ''}`;
+                item.date = formatAppDate(item.date);
+                item.booking_time = formatAppTime(item.booking_time);
                 return item;
             });
         
@@ -331,114 +495,217 @@ console.log("--- DEBUG: Tapos na ang Pag-fetch. ---");
                 return item;
             });
         
-        console.log("✅ Filtered Applications:", filteredApplications);
-        console.log("📦 Raw API Applications:", data.applications);
-        
-        console.log("📦 Raw API Contracts:", data.contracts); // Debug log
         const filteredContracts = data.contracts
             .filter(item => item.status === 'ongoing')
             .map(item => {
-                item.tenant_name = (item.tenant) 
-                    ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
-                    : 'N/A'; 
+                item.tenant_name = (item.tenant) ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` : 'N/A'; 
+                item.contract_start = formatAppDate(item.contract_start);
+                item.contract_end = formatAppDate(item.contract_end);
                 return item;
             });
-        console.log("✅ Filtered Contracts:", filteredContracts); // Debug log
-        
-        
-        // ========================================================== //
-        // ============ BINAGO SA JAVASCRIPT (Data Processing) ========== //
-        // ========================================================== //
-        
-        console.log("📦 Raw API Payments:", data.payments); // Debug log
-        const filteredPayments = data.payments
+
+        // ✅ BINAGO: Paghiwalayin ang Downpayments at Rent Payments
+        const processedPayments = data.payments
             .filter(item => 
-                item.payment_status === 'paid'
+                // KUNIN LAHAT NG 'PAID' at 'PARTIAL'
+                item.payment_status === 'paid' || item.payment_status === 'partial' 
             )
             .map(item => {
-                // == BINAGO: Kinukuha ang tenant name (Mula sa nested 'item.tenant') ==
-                item.tenant_name = (item.tenant) 
-                    ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
-                    : 'N/A'; //
-        
-                // Fino-format ang payment date
-                if (item.payment_date) {
-                    const dateObj = new Date(item.payment_date);
-                    const year = dateObj.getFullYear();
-                    const day = String(dateObj.getDate()).padStart(2, '0');
-                    const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // +1 kasi 0-indexed ang getMonth()
-
-                    // Format: YR - DD - MONTH (gaya ng request)
-                    item.payment_date = `${year} - ${day} - ${month}`;
-                } else {
-                    item.payment_date = 'N/A';
-                }
-                
+                item.tenant_name = (item.tenant) ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` : 'N/A';
+                item.payment_date = formatAppDate(item.payment_date);
                 return item;
             });
-        console.log("✅ Filtered Payments:", filteredPayments); // Debug log
-        // ========================================================== //
-        // ========================================================== //
-
         
- console.log("🔍 Maintenance raw response:", data.maintenance);
+        const filteredDownpayments = processedPayments.filter(item => 
+            (item.remarks && item.remarks.toLowerCase() === 'downpayment') || 
+            (item.payment_method && item.payment_method.toLowerCase() === 'initial deposit')
+        );
+        
+        const filteredRentPayments = processedPayments.filter(item => 
+            // LAHAT NG HINDI DOWNPAYMENT (kasama na dito ang partials)
+            (item.remarks && item.remarks.toLowerCase() !== 'downpayment') && 
+            (item.payment_method && item.payment_method.toLowerCase() !== 'initial deposit')
+        );
 
-// Filter muna
-const filteredMaintenance = data.maintenance
-    .filter(item => item.status === 'Completed');
+        console.log("✅ Filtered Downpayments:", filteredDownpayments);
+        console.log("✅ Filtered Rent Payments (Kasama ang Partials):", filteredRentPayments);
 
-// Mag-log ng sample data bago mag-map
-console.log("🧩 Maintenance Sample:", filteredMaintenance[0]);
-
-// Map pagkatapos
-const mappedMaintenance = filteredMaintenance.map(item => {
-    item.tenant_name = (item.tenant) 
-        ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
-        : 'N/A';
-    item.unit_name = (item.tenant && item.tenant.unit) 
-        ? item.tenant.unit.title 
-        : 'N/A';
-    item.created_at = new Date(item.created_at).toLocaleDateString("en-US", { 
-        month: 'short', 
-        day: '2-digit', 
-        year: 'numeric' 
-    });
-    return item;
-});
-
-console.log("✅ Filtered & Mapped Maintenance:", mappedMaintenance);
-
+        const mappedMaintenance = data.maintenance
+            .filter(item => item.status === 'Completed')
+            .map(item => {
+                item.tenant_name = (item.tenant) ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` : 'N/A';
+                item.unit_name = (item.tenant && item.tenant.unit) ? item.tenant.unit.title : 'N/A';
+                item.created_at = formatAppDate(item.created_at);
+                return item;
+            });
 
         // I-store ang filtered data sa global variable
         reportData = {
             bookings: filteredBookings,
             applications: filteredApplications,
             contracts: filteredContracts,
-            payments: filteredPayments, 
-            maintenance: filteredMaintenance 
+            downpayments: filteredDownpayments,
+            rent_payments: filteredRentPayments,
+            maintenance: mappedMaintenance
         };
         
-        // Populate Tables
-        const renderTable = (id, items, cols) => {
-            const tbody = document.getElementById(id);
-            if (!tbody) return;
-            tbody.innerHTML = items.length
-                ? items.map(r => `<tr>${cols.map(c => `<td>${r[c] ?? 'N/A'}</td>`).join('')}</tr>`).join('')
-                : `<tr><td colspan="${cols.length}" class="text-muted py-3">No records found.</td></tr>`;
-        };
-
-        // I-render ang tables gamit ang TAMANG keys
-        renderTable('bookingsTable', filteredBookings, ['id', 'name', 'email', 'contact_num', 'date', 'booking_time', 'status']);
-        renderTable('contractsTable', filteredContracts, ['tenant_id', 'tenant_name', 'contract_start', 'contract_end', 'status']);
-        renderTable('applicationsTable', filteredApplications, ['id', 'tenant_name', 'email', 'contact_num', 'unit_price', 'status']);
-        
-        renderTable('paymentsTable', filteredPayments, ['tenant_id', 'tenant_name', 'payment_status', 'payment_date', 'payment_method', 'remarks']);
-        
-        renderTable('maintenanceTable', filteredMaintenance, ['id', 'tenant_name', 'unit_name', 'category', 'description', 'created_at', 'status']);
-
         // Set the initial view to Bookings
         showReport('bookings', 'Bookings Report', document.querySelector('.dropdown-menu a'));
     });
+    
+
+    // ========================================================== //
+    // ============ BAGONG RENDER FUNCTIONS (PAGINATION) ======== //
+    // ========================================================== //
+    // Bawat isa nito ay gumagawa ng table rows para sa 1 page
+
+    function renderBookingsReport(page = 1) {
+        const tbody = document.getElementById('bookingsTable');
+        const pagination = document.getElementById('bookings-pagination');
+        const data = reportData.bookings || [];
+        
+        const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+        const start = (page - 1) * ROWS_PER_PAGE;
+        const end = start + ROWS_PER_PAGE;
+        const pageData = data.slice(start, end);
+
+        tbody.innerHTML = pageData.length
+            ? pageData.map(r => `<tr>
+                <td>${r.name ?? 'N/A'}</td>
+                <td>${r.email ?? 'N/A'}</td>
+                <td>${r.contact_num ?? 'N/A'}</td>
+                <td>${r.date ?? 'N/A'}</td>
+                <td>${r.booking_time ?? 'N/A'}</td>
+                <td>${r.status ?? 'N/A'}</td>
+            </tr>`).join('')
+            : `<tr><td colspan="6" class="text-muted py-3">No records found.</td></tr>`;
+        
+        pagination.innerHTML = buildPaginationUI(totalPages, page, 'renderBookingsReport');
+    }
+
+    function renderApplicationsReport(page = 1) {
+        const tbody = document.getElementById('applicationsTable');
+        const pagination = document.getElementById('applications-pagination');
+        const data = reportData.applications || [];
+        
+        const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+        const start = (page - 1) * ROWS_PER_PAGE;
+        const end = start + ROWS_PER_PAGE;
+        const pageData = data.slice(start, end);
+
+        tbody.innerHTML = pageData.length
+            ? pageData.map(r => `<tr>
+                <td>${r.tenant_name ?? 'N/A'}</td>
+                <td>${r.email ?? 'N/A'}</td>
+                <td>${r.contact_num ?? 'N/A'}</td>
+                <td>${r.unit_price ? '₱' + parseFloat(r.unit_price).toLocaleString('en-US') : 'N/A'}</td>
+                <td>${r.status ?? 'N/A'}</td>
+            </tr>`).join('')
+            : `<tr><td colspan="5" class="text-muted py-3">No records found.</td></tr>`;
+        
+        pagination.innerHTML = buildPaginationUI(totalPages, page, 'renderApplicationsReport');
+    }
+
+    function renderContractsReport(page = 1) {
+        const tbody = document.getElementById('contractsTable');
+        const pagination = document.getElementById('contracts-pagination');
+        const data = reportData.contracts || [];
+        
+        const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+        const start = (page - 1) * ROWS_PER_PAGE;
+        const end = start + ROWS_PER_PAGE;
+        const pageData = data.slice(start, end);
+
+        tbody.innerHTML = pageData.length
+            ? pageData.map(r => `<tr>
+                <td>${r.tenant_name ?? 'N/A'}</td>
+                <td>${r.contract_start ?? 'N/A'}</td>
+                <td>${r.contract_end ?? 'N/A'}</td>
+                <td>${r.status ?? 'N/A'}</td>
+            </tr>`).join('')
+            : `<tr><td colspan="4" class="text-muted py-3">No records found.</td></tr>`;
+        
+        pagination.innerHTML = buildPaginationUI(totalPages, page, 'renderContractsReport');
+    }
+
+    function renderDownpaymentsReport(page = 1) {
+        const tbody = document.getElementById('downpaymentsTable');
+        const pagination = document.getElementById('downpayments-pagination');
+        const data = reportData.downpayments || [];
+        
+        const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+        const start = (page - 1) * ROWS_PER_PAGE;
+        const end = start + ROWS_PER_PAGE;
+        const pageData = data.slice(start, end);
+
+        tbody.innerHTML = pageData.length
+            ? pageData.map(r => `<tr>
+                <td>${r.tenant_name ?? 'N/A'}</td>
+                <td>${r.payment_status ?? 'N/A'}</td>
+                <td>${r.payment_date ?? 'N/A'}</td>
+                <td>${r.payment_method ?? 'N/A'}</td>
+                <td>${r.remarks ?? 'N/A'}</td>
+            </tr>`).join('')
+            : `<tr><td colspan="5" class="text-muted py-3">No records found.</td></tr>`;
+        
+        pagination.innerHTML = buildPaginationUI(totalPages, page, 'renderDownpaymentsReport');
+    }
+
+    function renderRentPaymentsReport(page = 1) {
+        const tbody = document.getElementById('rentPaymentsTable');
+        const pagination = document.getElementById('rent_payments-pagination');
+        const data = reportData.rent_payments || [];
+        
+        const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+        const start = (page - 1) * ROWS_PER_PAGE;
+        const end = start + ROWS_PER_PAGE;
+        const pageData = data.slice(start, end);
+
+        tbody.innerHTML = pageData.length
+            ? pageData.map(r => `<tr>
+                <td>${r.tenant_name ?? 'N/A'}</td>
+                <td>${r.payment_status ?? 'N/A'}</td>
+                <td>${r.payment_date ?? 'N/A'}</td>
+                <td>${r.payment_method ?? 'N/A'}</td>
+                <td>${r.remarks ?? 'N/A'}</td>
+            </tr>`).join('')
+            : `<tr><td colspan="5" class="text-muted py-3">No records found.</td></tr>`;
+        
+        pagination.innerHTML = buildPaginationUI(totalPages, page, 'renderRentPaymentsReport');
+    }
+
+    function renderMaintenanceReport(page = 1) {
+        const tbody = document.getElementById('maintenanceTable');
+        const pagination = document.getElementById('maintenance-pagination');
+        const data = reportData.maintenance || [];
+        
+        const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+        const start = (page - 1) * ROWS_PER_PAGE;
+        const end = start + ROWS_PER_PAGE;
+        const pageData = data.slice(start, end);
+
+        tbody.innerHTML = pageData.length
+            ? pageData.map(r => `<tr>
+                <td>${r.tenant_name ?? 'N/A'}</td>
+                <td>${r.unit_name ?? 'N/A'}</td>
+                <td>${r.category ?? 'N/A'}</td>
+                <td>${r.description ?? 'N/A'}</td>
+                <td>${r.created_at ?? 'N/A'}</td>
+                <td>${r.status ?? 'N/A'}</td>
+            </tr>`).join('')
+            : `<tr><td colspan="6" class="text-muted py-3">No records found.</td></tr>`;
+        
+        pagination.innerHTML = buildPaginationUI(totalPages, page, 'renderMaintenanceReport');
+    }
+
+    // --- Ilagay sa window para magamit ng pagination links ---
+    window.renderBookingsReport = renderBookingsReport;
+    window.renderApplicationsReport = renderApplicationsReport;
+    window.renderContractsReport = renderContractsReport;
+    window.renderDownpaymentsReport = renderDownpaymentsReport;
+    window.renderRentPaymentsReport = renderRentPaymentsReport;
+    window.renderMaintenanceReport = renderMaintenanceReport;
+
 </script>
 
 {{-- 🖨 Print-Friendly Styling --}}
