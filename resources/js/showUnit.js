@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let allUnits = [];
 
-    // 🟢 Function to render unit cards
     const renderUnits = (units) => {
         grid.innerHTML = '';
 
@@ -22,34 +21,67 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>`;
             return;
         }
-units.forEach(unit => {
-   const imagePath = (unit.files && unit.files.length > 0)
-    ? unit.files[0].startsWith('http') 
-        ? unit.files[0] 
-        : `/${unit.files[0].replace(/\\/g, '/')}` // siguraduhin forward slash
-    : '/uploads/units/default.jpg';
 
-
+        units.forEach(unit => {
             const cleanPrice = Number((unit.unit_price || '0').toString().replace(/[^0-9.]/g, ''));
 
+            // --- 1. Get all image paths ---
+            let allImages = [];
+            if (unit.files && Array.isArray(unit.files) && unit.files.length > 0) {
+                allImages = unit.files.map(file =>
+                    file.startsWith('http') ? file : `/${file.replace(/\\/g, '/')}`
+                );
+            } else {
+                allImages = ['/uploads/units/default.jpg']; // Default if empty
+            }
+
+            // --- 2. Build the carousel items (the images) ---
+            const carouselItemsHTML = allImages.map((imagePath, index) => {
+                const activeClass = index === 0 ? 'active' : '';
+                return `
+                    <div class="carousel-item ${activeClass}">
+                        <img src="${imagePath}"
+                             class="d-block w-100"
+                             alt="${unit.title || 'Unit Photo'} ${index + 1}"
+                             style="height: 200px; object-fit: cover;">
+                    </div>
+                `;
+            }).join('');
+
+            // --- 3. Build the carousel controls (prev/next buttons) ---
+            const carouselId = `unitCarousel-${unit.id}`; // Create a UNIQUE ID for each carousel
+            let carouselControlsHTML = '';
+
+            if (allImages.length > 1) { // Only show controls if there's more than 1 image
+                carouselControlsHTML = `
+                    <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                `;
+            }
+
+            // --- 4. Build the final card HTML ---
             const card = `
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 room-card">
-                        
-                        <div class="position-relative" style="height: 200px; background: #f5f9ff;">
-                            <img src="${imagePath}" 
-                                 alt="${unit.title}" 
-                                 class="w-100 h-100 clickable-image"
-                                 style="object-fit: cover;" 
-                                 data-full="${imagePath}">
+
+                        <div id="${carouselId}" class="carousel slide" data-bs-ride="false">
+                            <div class="carousel-inner">
+                                ${carouselItemsHTML}
+                            </div>
+                            ${carouselControlsHTML}
                         </div>
 
                         <div class="card-body">
-                            
                             <span class="badge bg-success mb-2">
                                 Available
                             </span>
-                            
+
                             <h5 class="fw-bold text-blue-900 mb-1">${unit.title ?? 'Untitled'}</h5>
                             <p class="text-blue-700 small mb-2">
                                 <i class="bi bi-geo-alt-fill"></i> ${unit.location ?? 'Unknown'}
@@ -76,13 +108,12 @@ units.forEach(unit => {
                         </div>
                     </div>
                 </div>`;
+
             grid.insertAdjacentHTML('beforeend', card);
         });
     };
-    
-    // ... (rest of your file is identical) ...
 
-    // 🟢 Fetch all available units
+    // --- FETCH and SEARCH LOGIC (No changes needed) ---
     try {
         const res = await fetch('/api/allUnits', {
             method: 'GET',
@@ -104,7 +135,6 @@ units.forEach(unit => {
         grid.innerHTML = `<div class="col-12 text-danger text-center">⚠ Error loading units.</div>`;
     }
 
-    // 🟢 Search filter
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase().trim();
         const filtered = allUnits.filter(unit => (
@@ -115,7 +145,7 @@ units.forEach(unit => {
         renderUnits(filtered);
     });
 
-    // 🟢 Edit button
+    // --- EDIT BUTTON LOGIC (No changes needed) ---
     document.addEventListener('click', (e) => {
         if (e.target.closest('.edit-unit-btn')) {
             const id = e.target.closest('.edit-unit-btn').dataset.id;
@@ -123,14 +153,5 @@ units.forEach(unit => {
         }
     });
 
-    // 🟢 Image click viewer (modal)
-    document.addEventListener('click', (e) => {
-        const img = e.target.closest('.clickable-image');
-        if (img) {
-            const fullImg = document.getElementById('imageModalImg');
-            fullImg.src = img.dataset.full;
-            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-            modal.show();
-        }
-    });
+    // --- NO MODAL CLICK HANDLER IS NEEDED ---
 });

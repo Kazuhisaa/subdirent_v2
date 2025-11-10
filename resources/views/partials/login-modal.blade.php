@@ -27,9 +27,9 @@
                     <div class="mb-3" style="position: relative;">
                         <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
                         {{-- Inilagay ang icon sa loob --}}
-                        <span class="password-toggle-icon" id="togglePassword">
-                            <i class="bi bi-eye"></i>
-                        </span>
+                        <span class="password-toggle-icon" id="togglePassword" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">
+    <i class="bi bi-eye-slash"></i>
+</span>
                     </div>
                     
                     <button type="submit" class="btn btn-login-v4 w-100">LOG IN</button>
@@ -69,36 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
-</script>
-{{-- ❗️ BAGO: 1. I-load ang SweetAlert2 Library --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-{{-- ❗️ BAGO: 2. I-load ang iyong custom alerts.js file --}}
-<script src="{{ asset('js/alerts.js') }}"></script> 
-
-{{-- 3. Iyong JavaScript (Pinagsama na) --}}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-
-    // --- Iyong Password Toggle Script (Walang pagbabago) ---
-    const passwordInput = document.getElementById('password');
-    const toggleBtn = document.getElementById('togglePassword');
-    
-    if (toggleBtn) {
-        const icon = toggleBtn.querySelector('i');
-        toggleBtn.addEventListener('click', () => {
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('bi-eye-slash');
-                icon.classList.add('bi-eye');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('bi-eye');
-                icon.classList.add('bi-eye-slash');
-            }
-        });
-    }
 
     // --- ❗️ BAGO: SweetAlert Triggers ---
     // Titingnan nito kung may "error" message mula sa Laravel session

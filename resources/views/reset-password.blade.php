@@ -14,6 +14,28 @@
         html, body { height: 100%; background-color: #f8f9fa; }
         body { display: flex; align-items: center; justify-content: center; }
         .forgot-password-container { width: 100%; max-width: 420px; padding: 15px; }
+        .btn-login-v4 {
+            border: none;
+            color: white;
+            padding: 0.9rem;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            background-color: #3b82f6; 
+            box-shadow: 0 4px 15px rgba(13, 59, 102, 0.2);
+        }
+        .btn-login-v4:hover {
+            background-color: #93c5fd; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(157, 170, 182, 0.3);
+        }
+
+        .login-form-v4 .form-control {
+             border-radius: 0.5rem;
+             padding: 0.9rem;
+        }
     </style>
 </head>
 <body>

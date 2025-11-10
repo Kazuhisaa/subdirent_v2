@@ -22,21 +22,26 @@ class ReportPDF extends \FPDF
 
     // Page header
     function Header()
-    {
-        $this->SetFont('Arial', 'B', 16);
-        $this->Cell(0, 10, 'Subdirent Subdivision', 0, 1, 'C');
-        
-        $this->SetFont('Arial', '', 10);
-        $this->Cell(0, 5, 'Official House Rental Report', 0, 1, 'C');
-        
-        $this->SetFont('Arial', 'B', 12);
-        $this->Cell(0, 10, $this->reportTitle, 0, 1, 'C');
-        
-        $this->SetFont('Arial', '', 10);
-        $this->Cell(0, 5, 'Date Generated: ' . date('M d, Y'), 0, 1, 'C');
-        
-        $this->Ln(10);
-    }
+{
+    // 🏠 Add Logo (left side of title)
+    $this->Image(public_path('uploads/ddf63450-50d1-4fd2-9994-7a08dd496ac1-removebg-preview.png'), 70, 11, 7); 
+    // (x=25, y=10, width=18mm; adjust width if gusto mo mas malaki o mas maliit)
+
+    // 🔹 Title beside logo
+    $this->SetFont('Arial', 'B', 16);
+    $this->Cell(0, 10, 'Subdirent Subdivision', 0, 1, 'C');
+    
+    $this->SetFont('Arial', '', 10);
+    $this->Cell(0, 5, 'Official House Rental Report', 0, 1, 'C');
+    
+    $this->SetFont('Arial', 'B', 12);
+    $this->Cell(0, 10, $this->reportTitle, 0, 1, 'C');
+    
+    $this->SetFont('Arial', '', 10);
+    $this->Cell(0, 5, 'Date Generated: ' . date('M d, Y'), 0, 1, 'C');
+    
+    $this->Ln(10);
+}
 
     // Page footer
     function Footer()

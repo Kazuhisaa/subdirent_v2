@@ -84,6 +84,8 @@
                                 <th>Tenant Name</th> 
                                 <th>Email</th>
                                 <th>Contact</th>
+                                <th>Date</th>
+                                <th>Time</th>
                                 <th>UnitPrice</th>
                                 <th>Status</th>
                             </tr>
@@ -476,79 +478,151 @@
         }
         console.log("--- DEBUG: Tapos na ang Pag-fetch. ---");
         
-        // --- I-FILTER AT I-PROCESS ANG DATA ---
-        
-        const filteredBookings = data.bookings
-            .filter(item => item.status === 'Active' || item.status === 'Confirmed')
-            .map(item => {
-                const middleInitial = (item.middle_name && item.middle_name.length > 0) ? ` ${item.middle_name.charAt(0)}. ` : ' ';
-                item.name = `${item.first_name ?? ''}${middleInitial}${item.last_name ?? ''}`;
-                item.date = formatAppDate(item.date);
-                item.booking_time = formatAppTime(item.booking_time);
-                return item;
-            });
-        
-        const filteredApplications = data.applications
-            .filter(item => item.status === 'Approved')
-            .map(item => {
-                item.tenant_name = `${item.first_name ?? ''} ${item.last_name ?? ''}`;
-                return item;
-            });
-        
-        const filteredContracts = data.contracts
-            .filter(item => item.status === 'ongoing')
-            .map(item => {
-                item.tenant_name = (item.tenant) ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` : 'N/A'; 
-                item.contract_start = formatAppDate(item.contract_start);
-                item.contract_end = formatAppDate(item.contract_end);
-                return item;
-            });
+        // --- I-FILTER AT I-PROCESS ANG BOOKINGS ---
+const filteredBookings = data.bookings
+    .filter(item => item.status === 'Active' || item.status === 'Confirmed')
+    .map(item => {
+        const middleInitial = (item.middle_name && item.middle_name.length > 0) 
+                            ? ` ${item.middle_name.charAt(0)}. ` 
+                            : ' ';
+        item.name = `${item.first_name ?? ''}${middleInitial}${item.last_name ?? ''}`;
 
-        // ✅ BINAGO: Paghiwalayin ang Downpayments at Rent Payments
-        const processedPayments = data.payments
-            .filter(item => 
-                // KUNIN LAHAT NG 'PAID' at 'PARTIAL'
-                item.payment_status === 'paid' || item.payment_status === 'partial' 
-            )
-            .map(item => {
-                item.tenant_name = (item.tenant) ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` : 'N/A';
-                item.payment_date = formatAppDate(item.payment_date);
-                return item;
-            });
-        
-        const filteredDownpayments = processedPayments.filter(item => 
-            (item.remarks && item.remarks.toLowerCase() === 'downpayment') || 
-            (item.payment_method && item.payment_method.toLowerCase() === 'initial deposit')
-        );
-        
-        const filteredRentPayments = processedPayments.filter(item => 
-            // LAHAT NG HINDI DOWNPAYMENT (kasama na dito ang partials)
-            (item.remarks && item.remarks.toLowerCase() !== 'downpayment') && 
-            (item.payment_method && item.payment_method.toLowerCase() !== 'initial deposit')
-        );
+        // 🗓 Format Date
+        if (item.date) {
+    const dateObj = new Date(item.date);
+    item.date = dateObj.toLocaleDateString("en-US", { 
+        month: 'long', day: 'numeric', year: 'numeric' 
+    });
+}
+if (item.booking_time) {
+    const timeObj = new Date(`1970-01-01T${item.booking_time}`);
+    item.booking_time = timeObj.toLocaleTimeString("en-US", { 
+        hour: 'numeric', minute: '2-digit', hour12: true 
+    });
+}
+        return item;
+    });
 
-        console.log("✅ Filtered Downpayments:", filteredDownpayments);
-        console.log("✅ Filtered Rent Payments (Kasama ang Partials):", filteredRentPayments);
+// --- I-FILTER ANG APPLICATIONS ---
+const filteredApplications = data.applications
+    .filter(item => item.status === 'Approved')
+    .map(item => {
+        item.tenant_name = `${item.first_name ?? ''} ${item.last_name ?? ''}`;
 
-        const mappedMaintenance = data.maintenance
-            .filter(item => item.status === 'Completed')
-            .map(item => {
-                item.tenant_name = (item.tenant) ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` : 'N/A';
-                item.unit_name = (item.tenant && item.tenant.unit) ? item.tenant.unit.title : 'N/A';
-                item.created_at = formatAppDate(item.created_at);
-                return item;
+        // ✅ Format date
+        if (item.created_at) {
+    const dateObj = new Date(item.created_at);
+    item.date_applied = dateObj.toLocaleDateString("en-US", { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+    item.time_applied = dateObj.toLocaleTimeString("en-US", { 
+        hour: 'numeric', 
+        minute: 'numeric', 
+        hour12: true 
+    });
+} else {
+    item.date_applied = 'N/A';
+    item.time_applied = 'N/A';
+}
+
+        return item;
+    });
+
+// --- CONTRACTS ---
+const filteredContracts = data.contracts
+    .filter(item => item.status === 'ongoing')
+    .map(item => {
+        item.tenant_name = (item.tenant) 
+            ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
+            : 'N/A'; 
+        
+        // 🗓 Format contract dates
+        if (item.contract_start) {
+            item.contract_start = new Date(item.contract_start).toLocaleDateString("en-US", { 
+                month: 'long', day: 'numeric', year: 'numeric' 
             });
+        }
+        if (item.contract_end) {
+            item.contract_end = new Date(item.contract_end).toLocaleDateString("en-US", { 
+                month: 'long', day: 'numeric', year: 'numeric' 
+            });
+        }
+        return item;
+    });
+
+// --- PAYMENTS ---
+const filteredPayments = data.payments
+    .filter(item => item.payment_status === 'paid')
+    .map(item => {
+        item.tenant_name = (item.tenant) 
+            ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
+            : 'N/A';
+        
+        // 🗓 Format payment date
+        if (item.payment_date) {
+            item.payment_date = new Date(item.payment_date).toLocaleDateString("en-US", { 
+                month: 'long', day: 'numeric', year: 'numeric' 
+            });
+        } else {
+            item.payment_date = 'N/A';
+        }
+        return item;
+    });
+
+// --- MAINTENANCE ---
+console.log("🔍 Maintenance raw response:", data.maintenance);
+
+const filteredMaintenance = data.maintenance
+    .filter(item => item.status === 'Completed')
+    .map(item => {
+        item.tenant_name = (item.tenant) 
+            ? `${item.tenant.first_name ?? ''} ${item.tenant.last_name ?? ''}` 
+            : 'N/A';
+        item.unit_name = (item.tenant && item.tenant.unit) 
+            ? item.tenant.unit.title 
+            : 'N/A';
+        
+        // 🗓 Format submitted date
+        item.created_at = new Date(item.created_at).toLocaleDateString("en-US", { 
+            month: 'long', day: 'numeric', year: 'numeric' 
+        });
+        return item;
+    });
+
+console.log("🧩 Maintenance Sample:", filteredMaintenance[0]);
+console.log("✅ Filtered & Mapped Maintenance:", filteredMaintenance);
+
 
         // I-store ang filtered data sa global variable
         reportData = {
             bookings: filteredBookings,
             applications: filteredApplications,
             contracts: filteredContracts,
-            downpayments: filteredDownpayments,
-            rent_payments: filteredRentPayments,
-            maintenance: mappedMaintenance
+            payments: filteredPayments, 
+            maintenance: filteredMaintenance 
         };
         
+        // Populate Tables
+        const renderTable = (id, items, cols) => {
+            const tbody = document.getElementById(id);
+            if (!tbody) return;
+            tbody.innerHTML = items.length
+                ? items.map(r => `<tr>${cols.map(c => `<td>${r[c] ?? 'N/A'}</td>`).join('')}</tr>`).join('')
+                : `<tr><td colspan="${cols.length}" class="text-muted py-3">No records found.</td></tr>`;
+        };
+
+        // I-render ang tables gamit ang TAMANG keys
+        renderTable('bookingsTable', filteredBookings, ['id', 'name', 'email', 'contact_num', 'date', 'booking_time', 'status']);
+        renderTable('contractsTable', filteredContracts, ['tenant_id', 'tenant_name', 'contract_start', 'contract_end', 'status']);
+        
+        renderTable('applicationsTable', filteredApplications, ['id', 'tenant_name', 'email', 'contact_num', 'date_applied', 'time_applied', 'unit_price', 'status']);
+
+        renderTable('paymentsTable', filteredPayments, ['tenant_id', 'tenant_name', 'payment_status', 'payment_date', 'payment_method', 'remarks']);
+        
+        renderTable('maintenanceTable', filteredMaintenance, ['id', 'tenant_name', 'unit_name', 'category', 'description', 'created_at', 'status']);
+
         // Set the initial view to Bookings
         showReport('bookings', 'Bookings Report', document.querySelector('.dropdown-menu a'));
     });
