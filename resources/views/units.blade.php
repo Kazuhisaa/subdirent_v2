@@ -145,7 +145,13 @@
     </div>
     <div class="custom-modal-body">
         
-        <img src="" id="modalUnitImage" alt="Unit Image" class="modal-unit-image">
+        <div class="modal-image-container">
+    <img id="modalUnitImage" class="modal-unit-image" src="" alt="Unit Image">
+
+    <!-- Navigation buttons -->
+    <button class="modal-nav-btn prev" id="prevImageBtn">&#10094;</button>
+    <button class="modal-nav-btn next" id="nextImageBtn">&#10095;</button>
+</div>
 
         <div class="modal-details-grid">
             <div class="modal-detail-item">

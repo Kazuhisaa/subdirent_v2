@@ -91,9 +91,8 @@
                     <table class="table table-sm mb-0 booking-table align-middle text-center">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Full Name</th>
-                                <th>Unit ID</th>
+                                <th>Unit Title</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -238,7 +237,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     async function fetchLatestBookings() {
         const tableBody = document.getElementById('latestBookingsTableBody');
         try {
-            const res = await fetch('/api/bookings', {
+            const res = await fetch('/api/applications', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
@@ -253,7 +252,13 @@ document.addEventListener("DOMContentLoaded", async function() {
                 return;
             }
 
-            bookings.slice(0, 5).forEach(b => {
+bookings
+    .sort((a, b) => {
+        const order = { 'Pending': 1, 'Confirmed': 2, 'Rejected': 3 };
+        return (order[a.status] || 4) - (order[b.status] || 4);
+    })
+    .slice(0, 5)
+    .forEach(b => {
                 const name = `${b.first_name || ''} ${b.middle_name ? b.middle_name + ' ' : ''}${b.last_name || ''}`.trim();
                 let badge = 'bg-secondary';
                 if (b.status === 'Confirmed') badge = 'bg-success';
@@ -261,7 +266,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
                 tableBody.insertAdjacentHTML('beforeend', `
                     <tr>
-                        <td>${b.id}</td>
                         <td>${name || 'N/A'}</td>
                         <td>${b.unit?.title ?? b.unit_id ?? 'N/A'}</td>
                         <td><span class="badge ${badge}">${b.status ?? 'Pending'}</span></td>

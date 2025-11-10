@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use FPDF;
+
+// 1. INAYOS KO: Ito 'yung tamang path galing sa root ng project mo
+require_once base_path('fpdf186/fpdf.php');
 
 /**
  * Custom FPDF Class para sa Header at Footer
+ * 2. INAYOS KO: Nilagyan ko ng '\' sa unahan para mahanap 'yung class
  */
-class ReportPDF extends FPDF
+class ReportPDF extends \FPDF
 {
     protected $reportTitle = 'REPORT';
 
@@ -48,17 +51,19 @@ class ReportPDF extends FPDF
         $this->Cell(0, 10, 'Page ' . $this->PageNo() . '/{nb}', 0, 0, 'C');
     }
 
-    // BAGO: Mas advanced na table function para ayusin ang alignment
     function BasicTable($headers, $data)
     {
-        // Kalkulahin ang lapad ng bawat column
         $numHeaders = count($headers);
         if ($numHeaders == 0) return;
-        $width = 195 / $numHeaders; // ~195mm usable width
+        
+        // Portrait ('P') 'Letter' size ay may usable width na mga 190mm
+        $usableWidth = $this->GetPageWidth() - $this->lMargin - $this->rMargin; 
+        $width = $usableWidth / $numHeaders;
 
         // Header
         $this->SetFont('Arial', 'B', 9);
-        $this->SetFillColor(230, 230, 230); // Light grey
+        $this->SetFillColor(10, 37, 64); // Dark Blue
+        $this->SetTextColor(255); // White
         foreach ($headers as $header) {
             $this->Cell($width, 7, $header, 1, 0, 'C', true);
         }
@@ -66,18 +71,31 @@ class ReportPDF extends FPDF
         
         // Data
         $this->SetFont('Arial', '', 8);
-        $this->SetFillColor(255); // White background
+        $this->SetTextColor(0); // Black
+        $this->SetFillColor(255, 255, 255); // Default White
 
+        if (empty($data)) {
+            $this->Cell($usableWidth, 10, 'No data available for this report.', 1, 1, 'C');
+            return;
+        }
+        
+        $fill = false; 
         foreach ($data as $row) {
-            // Kunin ang current Y position bago magsimula ng row
+            // ✅ FIXED: Correct conditional fill color
+            if ($fill) {
+                $this->SetFillColor(240, 240, 240); // light gray
+            } else {
+                $this->SetFillColor(255, 255, 255); // white
+            }
+
             $startY = $this->GetY();
             $startX = $this->GetX();
+            $maxHeight = 6; 
             
-            $maxHeight = 0; // Para i-track ang pinakamataas na cell
-            
-            // Unang pass: Kalkulahin ang kailangang height (6mm per line)
+            // 1st pass: Calculate max height
             for ($i = 0; $i < $numHeaders; $i++) {
                 $cellData = $row[$i] ?? 'N/A';
+                $cellData = html_entity_decode($cellData);
                 $lines = $this->NbLines($width, $cellData);
                 $height = 6 * $lines;
                 if ($height > $maxHeight) {
@@ -85,31 +103,32 @@ class ReportPDF extends FPDF
                 }
             }
 
-            // Pangalawang pass: Iguhit ang mga cells
-            $this->SetX($startX); // Balik sa simula ng row
+            // 2nd pass: Draw cells
+            $this->SetX($startX); 
             
             for ($i = 0; $i < $numHeaders; $i++) {
                 $cellData = $row[$i] ?? 'N/A';
+                $cellData = html_entity_decode($cellData);
                 $xPos = $this->GetX();
                 $yPos = $this->GetY();
                 
-                // Iguhit ang box (Rect)
-                $this->Rect($xPos, $yPos, $width, $maxHeight);
+                // Draw box
+                $this->Rect($xPos, $yPos, $width, $maxHeight, 'DF'); 
                 
-                // Ilagay ang text sa loob ng box (MultiCell)
-                // Ang 0 border ay para hindi mag-doble ang linya
-                $this->MultiCell($width, 6, $cellData, 0, 'C'); 
+                // Draw text (Left-aligned)
+                $this->MultiCell($width, 6, $cellData, 0, 'L'); 
                 
-                // Ilipat ang cursor sa tamang position para sa susunod na cell
+                // Reset position for next cell
                 $this->SetXY($xPos + $width, $yPos); 
             }
             
-            // Ilipat ang cursor sa ilalim ng row na katatapos lang
+            // Move cursor below the tallest cell
             $this->SetY($startY + $maxHeight);
+            $fill = !$fill;
         }
     }
 
-    // Utility function para bilangin ang lines (kailangan ito)
+    // Utility function (kailangan 'to)
     function NbLines($w, $txt)
     {
         $cw = &$this->CurrentFont['cw'];
@@ -137,7 +156,7 @@ class ReportPDF extends FPDF
             }
             if ($c == ' ')
                 $sep = $i;
-            $l += $cw[$c] ?? 0; // Nagdagdag ng fallback para sa unknown characters
+            $l += $cw[$c] ?? 0; 
             if ($l > $wmax) {
                 if ($sep == -1) {
                     if ($i == $j)
@@ -161,7 +180,8 @@ class ReportPDF extends FPDF
  */
 class ReportPdfController extends Controller
 {
-    public function generatePdf(Request $request)
+    // 3. INAYOS KO: 'generatePdf' to 'generate' para tumugma sa route
+    public function generatePDF(Request $request) 
     {
         $request->validate([
             'title' => 'required|string',
@@ -173,14 +193,16 @@ class ReportPdfController extends Controller
         $headers = $request->input('headers');
         $data = $request->input('data');
 
-        $pdf = new ReportPDF('P', 'mm', 'Letter');
+        $pdf = new ReportPDF('P', 'mm', 'Letter'); // Portrait mode
         $pdf->SetReportTitle($title);
         $pdf->AliasNbPages();
         $pdf->AddPage();
         $pdf->BasicTable($headers, $data);
         
+        // 'S' = return as string
+        // 4. INAYOS KO: Ginawang 'inline' para sa JavaScript
         return response($pdf->Output('S'), 200)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="report.pdf"');
+            ->header('Content-Disposition', 'inline; filename="report.pdf"');
     }
 }

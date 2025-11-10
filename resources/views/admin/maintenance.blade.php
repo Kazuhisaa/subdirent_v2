@@ -152,7 +152,6 @@ This hidden div contains your original Blade loops for the script to read.
         <tbody id="maintenance-table-original">
             @forelse ($requests as $request)
             <tr class="maintenance-row"
-                data-id="{{ $request->id }}"
                 data-tenant-name="{{ $request->tenant->first_name ?? 'N/A' }} {{ $request->tenant->last_name ?? '' }}"
                 data-unit="{{ $request->tenant->unit->title ?? 'N/A' }}"
                 data-category="{{ $request->category }}"
@@ -179,7 +178,6 @@ This hidden div contains your original Blade loops for the script to read.
             @isset($archivedRequests)
                 @forelse($archivedRequests as $archived)
                  <tr class="archived-row"
-                    data-id="{{ $archived->id }}"
                     data-tenant-name="{{ $archived->tenant->first_name ?? 'N/A' }} {{ $archived->tenant->last_name ?? '' }}"
                     data-unit="{{ $archived->tenant->unit->title ?? 'N/A' }}"
                     data-category="{{ $archived->category }}"
@@ -404,7 +402,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const activeTableHead = `
             <tr>
-                <th class="fw-semibold py-3 ps-4">ID</th>
                 <th class="fw-semibold">Tenant</th>
                 <th class="fw-semibold">Unit</th>
                 <th class="fw-semibold">Issue Type</th>
@@ -416,7 +413,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const archivedTableHead = `
             <tr>
-                <th class="fw-semibold py-3 ps-4">ID</th>
                 <th class="fw-semibold">Tenant</th>
                 <th class="fw-semibold">Unit</th>
                 <th class="fw-semibold">Issue Type</th>
@@ -434,7 +430,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             rowBuilderFn = (r) => `
                 <tr>
-                    <td class="ps-4">${escapeHtml(r.id)}</td>
                     <td class="fw-bold">${escapeHtml(r.tenantName)}</td>
                     <td>${escapeHtml(r.unit)}</td>
                     <td>${escapeHtml(r.category)}</td>
@@ -478,7 +473,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             rowBuilderFn = (r) => `
                 <tr>
-                    <td class="ps-4">${escapeHtml(r.id)}</td>
                     <td>${escapeHtml(r.tenantName)}</td>
                     <td>${escapeHtml(r.unit)}</td>
                     <td>${escapeHtml(r.category)}</td>
