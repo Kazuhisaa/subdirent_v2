@@ -73,7 +73,7 @@
                     </div>
                 </div>
                 {{-- ADJUSTED CHART HEIGHT HERE --}}
-                <div class="card-body" style="height:380px;"> 
+                <div class="card-body" style="height:380px;">
                     <canvas id="revenueChart" height="330"></canvas>
                 </div>
             </div>
@@ -99,7 +99,7 @@
                     </div>
                 </div>
                 {{-- ADJUSTED CHART HEIGHT HERE --}}
-                <div class="card-body d-flex align-items-center" style="height:380px;" id="occupancyChartContainerParent"> 
+                <div class="card-body d-flex align-items-center" style="height:380px;" id="occupancyChartContainerParent">
                     {{-- Container for the chart canvas --}}
                     <div id="occupancyChartContainer" style="flex: 1 1 70%; height: 100%; position: relative;">
                          <canvas id="occupancyChart"></canvas>
@@ -182,7 +182,7 @@ async function fetchAndRender(type) {
 
                 if (type === 'month') {
                     const historical = data.date || [];
-                    labels = historical.map(r => r.date || ''); 
+                    labels = historical.map(r => r.date || '');
                     histData = historical.map(r => parseFloat(r.monthly_revenue) || 0);
 
                     pred = data.prediction?.revenue_prediction || 0;
@@ -257,14 +257,14 @@ async function fetchAndRender(type) {
                                 label: function (ctx) {
                                     const y = ctx.parsed.y || 0;
                                     const label = ctx.dataset.label;
-                                    
+
                                     if (label === 'Predicted Revenue')
                                         // These 'r2Score' and 'mape' variables are now the correct ones
                                         // from the current function scope.
                                         return [`Predicted: ₱${pred.toLocaleString()}`, `Accuracy: ${r2Score}`, `MAPE: ${mape}`];
                                     if (label === 'Higher Confidence interval (95%)') return `High CI: ₱${ciUpper.toLocaleString()}`;
                                     if (label === 'Lower Confidence interval (95%)') return `Low CI: ₱${ciLower.toLocaleString()}`;
-                                    
+
                                     return '₱' + y.toLocaleString();
                                 }
                             }
@@ -317,16 +317,16 @@ let activeOccBtn = 'all';
 
 function generateColorPalette(count) {
     const baseColors = [
-        '#0A2540', // Navy Blue 
-        '#E1AD01', 
-        '#FF851B', 
-        '#D4AF37', 
-        '#FE828C', 
-        '#F5F5DC', 
-        '#ADE8F4', 
-        '#CAF0F8', 
-        '#3A506B', 
-        '#5BC0BE'  
+        '#0A2540', // Navy Blue
+        '#E1AD01',
+        '#FF851B',
+        '#D4AF37',
+        '#FE828C',
+        '#F5F5DC',
+        '#ADE8F4',
+        '#CAF0F8',
+        '#3A506B',
+        '#5BC0BE'
     ];
 
     if (count <= baseColors.length) return baseColors.slice(0, count);
@@ -356,7 +356,7 @@ const legendContainer = document.getElementById('occupancyLegendContainer');
 const chartTypeSelect = document.getElementById('chartTypeSelect');
 
 chartTypeSelect.addEventListener('change', e => {
-    chartType = e.target.value; 
+    chartType = e.target.value;
     fetchOccupancyData(activeOccBtn);
 });
 
@@ -367,8 +367,8 @@ async function fetchOccupancyData(type) {
     };
 
     chartContainer.innerHTML = '<canvas id="occupancyChart"></canvas>';
-    legendContainer.innerHTML = ''; 
-    const newCtx = document.getElementById('occupancyChart').getContext('2d'); 
+    legendContainer.innerHTML = '';
+    const newCtx = document.getElementById('occupancyChart').getContext('2d');
 
     try {
         const res = await fetch(endpoints[type]);
@@ -429,7 +429,7 @@ async function fetchOccupancyData(type) {
             layout: { padding: { top: 10, bottom: 10, left: 10, right: 10 } },
             plugins: {
                 legend: {
-                    display: !isPieChart, 
+                    display: !isPieChart,
                     position: 'top',
                     align: 'end',
                     labels: { color: '#0D3B66', font: { weight: 'bold' }, boxWidth: 20, padding: 10 },
@@ -441,10 +441,10 @@ async function fetchOccupancyData(type) {
                             let value;
                             if (chartType === 'bar') {
                                 value = ctx.parsed.y;
-                            } else { 
+                            } else {
                                 value = ctx.parsed;
                             }
-                            
+
                             if (value === null || value === undefined) {
                                 value = 0;
                             }
@@ -459,11 +459,11 @@ async function fetchOccupancyData(type) {
                         if (value === 0) {
                             return null;
                         }
-                        
+
                         if (chartType === 'pie') {
                             const total = ctx.chart.getDatasetMeta(0).total;
                             const percentage = total > 0 ? (value / total) * 100 : 0;
-                            if (percentage < 3) return null; 
+                            if (percentage < 3) return null;
                             return isPercentage ? `${value.toFixed(1)}%` : value;
                         }
                         return isPercentage ? `${value.toFixed(1)}%` : value;
@@ -473,15 +473,37 @@ async function fetchOccupancyData(type) {
             // ✅✅✅ Y-AXIS FIX APPLIED HERE ✅✅✅
             scales: chartType === 'bar' ? {
                 x: { ticks: { color: '#0D3B66', font: { weight: '600' } }, grid: { display: false } },
-                y: { 
-                    beginAtZero: true, 
-                    ticks: { 
-                        callback: v => isPercentage ? v + '%' : v, 
-                        color: '#0D3B66' 
-                    }, 
+                y: {
+                    beginAtZero: true,
+                    ticks: (() => {
+                        // ✅ Dynamically set behavior based on max value
+                        if (isPercentage) {
+                            // For percentage charts (always 0–100)
+                            return {
+                                stepSize: 10,
+                                callback: v => v + '%',
+                                color: '#0D3B66',
+                                precision: 0,
+                            };
+                        } else if (yAxisMax <= 20) {
+                            // ✅ If total units ≤ 20 → show all numbers (1, 2, 3, ...)
+                            return {
+                                stepSize: 1,
+                                callback: v => Math.floor(v),
+                                color: '#0D3B66',
+                                precision: 0,
+                                autoSkip: false,
+                            };
+                        } else {
+                            // ✅ If above 20 → let Chart.js auto-scale
+                            return {
+                                color: '#0D3B66',
+                                precision: 0,
+                            };
+                        }
+                    })(),
                     grid: { color: '#CDEEFF' },
-                    // Set the max value dynamically
-                    max: yAxisMax, 
+                    max: yAxisMax,
                 }
             } : {}
         };
@@ -534,24 +556,24 @@ function generateCustomLegend(chart) {
         const li = document.createElement('li');
         li.style.display = 'flex';
         li.style.alignItems = 'center';
-        li.style.marginBottom = '15px'; 
+        li.style.marginBottom = '15px';
         li.style.cursor = 'pointer';
 
         const box = document.createElement('span');
         box.style.display = 'inline-block';
-        box.style.width = '30px'; 
-        box.style.height = '30px'; 
+        box.style.width = '30px';
+        box.style.height = '30px';
         box.style.backgroundColor = item.fillStyle;
         box.style.borderColor = item.strokeStyle;
         box.style.borderWidth = item.lineWidth + 'px';
         box.style.borderStyle = 'solid';
-        box.style.marginRight = '15px'; 
-        box.style.borderRadius = '5px'; 
+        box.style.marginRight = '15px';
+        box.style.borderRadius = '5px';
 
         const text = document.createElement('span');
         text.style.color = '#0D3B66';
-        text.style.fontWeight = 'bold'; 
-        text.style.fontSize = '1.1rem'; 
+        text.style.fontWeight = 'bold';
+        text.style.fontSize = '1.1rem';
         text.textContent = item.text;
 
         li.appendChild(box);
@@ -578,12 +600,12 @@ document.querySelectorAll('.occ-btn').forEach(btn => {
     btn.addEventListener('click', e => {
         const type = e.currentTarget.dataset.type;
         setActiveOccButton(type);
-        fetchOccupancyData(type); 
+        fetchOccupancyData(type);
     });
 });
 
 // Initial Load
-setActiveOccButton(activeOccBtn); 
+setActiveOccButton(activeOccBtn);
 fetchOccupancyData(activeOccBtn);
 
 </script>

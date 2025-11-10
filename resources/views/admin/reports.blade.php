@@ -658,27 +658,51 @@ console.log("✅ Filtered & Mapped Maintenance:", filteredMaintenance);
     }
 
     function renderApplicationsReport(page = 1) {
-        const tbody = document.getElementById('applicationsTable');
-        const pagination = document.getElementById('applications-pagination');
-        const data = reportData.applications || [];
-        
-        const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
-        const start = (page - 1) * ROWS_PER_PAGE;
-        const end = start + ROWS_PER_PAGE;
-        const pageData = data.slice(start, end);
+        const tbody = document.getElementById('applicationsTable');
+        const pagination = document.getElementById('applications-pagination');
+        const data = reportData.applications || [];
+        
+        const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+        const start = (page - 1) * ROWS_PER_PAGE;
+        const end = start + ROWS_PER_PAGE;
+        const pageData = data.slice(start, end);
 
-        tbody.innerHTML = pageData.length
-            ? pageData.map(r => `<tr>
-                <td>${r.tenant_name ?? 'N/A'}</td>
-                <td>${r.email ?? 'N/A'}</td>
-                <td>${r.contact_num ?? 'N/A'}</td>
-                <td>${r.unit_price ? '₱' + parseFloat(r.unit_price).toLocaleString('en-US') : 'N/A'}</td>
-                <td>${r.status ?? 'N/A'}</td>
-            </tr>`).join('')
-            : `<tr><td colspan="5" class="text-muted py-3">No records found.</td></tr>`;
-        
-        pagination.innerHTML = buildPaginationUI(totalPages, page, 'renderApplicationsReport');
-    }
+        tbody.innerHTML = pageData.length
+            ? pageData.map(r => `<tr>
+                <td>${r.tenant_name ?? 'N/A'}</td>
+                <td>${r.email ?? 'N/A'}</td>
+                <td>${r.contact_num ?? 'N/A'}</td>
+                <td>${r.unit_price ? '₱' + parseFloat(r.unit_price).toLocaleString('en-US') : 'N/A'}</td>
+                <td>${r.status ?? 'N/A'}</td>
+            </tr>`).join('')
+            : `<tr><td colspan="5" class="text-muted py-3">No records found.</td></tr>`;
+        
+        pagination.innerHTML = buildPaginationUI(totalPages, page, 'renderApplicationsReport');
+    }
+    function renderApplicationsReport(page = 1) {
+        const tbody = document.getElementById('applicationsTable');
+        const pagination = document.getElementById('applications-pagination');
+        const data = reportData.applications || [];
+        
+        const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
+        const start = (page - 1) * ROWS_PER_PAGE;
+        const end = start + ROWS_PER_PAGE;
+        const pageData = data.slice(start, end);
+
+        tbody.innerHTML = pageData.length
+            ? pageData.map(r => `<tr>
+                <td>${r.tenant_name ?? 'N/A'}</td>
+                <td>${r.email ?? 'N/A'}</td>
+                <td>${r.contact_num ?? 'N/A'}</td>
+                <td>${r.date_applied ?? 'N/A'}</td>
+                <td>${r.time_applied ?? 'N/A'}</td>
+                <td>${r.unit_price ? '₱' + parseFloat(r.unit_price).toLocaleString('en-US') : 'N/A'}</td>
+                <td>${r.status ?? 'N/A'}</td>
+            </tr>`).join('')
+            : `<tr><td colspan="7" class="text-muted py-3">No records found.</td></tr>`; // Inayos ko na rin ang colspan dito
+        
+        pagination.innerHTML = buildPaginationUI(totalPages, page, 'renderApplicationsReport');
+    }
 
     function renderContractsReport(page = 1) {
         const tbody = document.getElementById('contractsTable');
