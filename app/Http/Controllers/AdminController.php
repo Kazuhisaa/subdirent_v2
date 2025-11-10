@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Maintenance;
 
 class AdminController extends Controller
 {
@@ -14,8 +15,10 @@ class AdminController extends Controller
         $monthlyIncome = 15000;
         $latestBookings = [];
 
+        $inProgressMaintenanceCount = Maintenance::where('status', 'In Progress')->count();
+
         return view('admin.home', compact(
-            'registeredUsers','roomsForRent','unpaidRent','monthlyIncome','latestBookings'
+            'registeredUsers','roomsForRent','unpaidRent','monthlyIncome','latestBookings','inProgressMaintenanceCount'
         ));
     }
 }

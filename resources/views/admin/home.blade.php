@@ -26,12 +26,13 @@
         </div>
     </div>
 
-    {{-- Unpaid Rent --}}
+{{-- ✅ Under Maintenance --}}
     <div class="col-md-3">
         <div class="card shadow-sm border-0 rounded-3">
             <div class="card-body">
-                <h6 class="card-title text-muted text-uppercase small">Unpaid Rent</h6>
-                <h2 class="mb-0 fw-bold text-blue-800">{{ $unpaidRent ?? 0 }}</h2>
+                <h6 class="card-title text-muted text-uppercase small">Under Maintenance</h6>
+                {{-- This now uses your new variable from the controller --}}
+                <h2 class="mb-0 fw-bold text-blue-800">{{ $inProgressMaintenanceCount ?? 0 }}</h2>
             </div>
         </div>
     </div>
