@@ -36,12 +36,13 @@
         </div>
     </div>
 
-    {{-- Monthly Income --}}
+{{-- Monthly Income --}}
     <div class="col-md-3">
         <div class="card shadow-sm border-0 rounded-3">
             <div class="card-body">
                 <h6 class="card-title text-muted text-uppercase small">Monthly Income</h6>
-                <h2 class="mb-0 fw-bold text-blue-800">₱{{ number_format($monthlyIncome ?? 0,2) }}</h2>
+                {{-- ✅ Add this ID to the h2 tag --}}
+                <h2 id="monthlyIncomeValue" class="mb-0 fw-bold text-blue-800">₱0.00</h2>
             </div>
         </div>
     </div>
@@ -70,8 +71,6 @@
             <div class="card-body d-flex flex-column justify-content-center">
                 <div class="d-grid gap-3">
                     <a href="{{ route('admin.reports') }}" class="btn btn-action w-100 py-2 fw-bold">Generate Reports</a>
-                    <a href="#" class="btn btn-outline-blue w-100 py-2 fw-bold">Send Reminder Emails</a>
-                    <a href="#" class="btn btn-outline-blue w-100 py-2 fw-bold">Upload CSV</a>
                 </div>
             </div>
         </div>
@@ -122,6 +121,44 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     const token = sessionStorage.getItem('admin_api_token');
 
+    // === ✅ FETCH LATEST MONTHLY INCOME ===
+    async function fetchMonthlyIncome() {
+        const incomeElement = document.getElementById('monthlyIncomeValue');
+        try {
+            const res = await fetch('http://127.0.0.1:8000/api/revenue/latestRevenue', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!res.ok) throw new Error(`Status: ${res.status}`);
+            const data = await res.json();
+
+            // Check if data is an array and not empty
+            if (Array.isArray(data) && data.length > 0) {
+                // Get the very last item from the revenue data array
+                const latestRecord = data[data.length - 1];
+                const income = parseFloat(latestRecord.monthly_revenue);
+
+                // Format and display the income
+                incomeElement.textContent = `₱${income.toLocaleString('en-PH', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}`;
+
+            } else {
+                incomeElement.textContent = '₱0.00'; // Set default if no data
+            }
+
+        } catch (error) {
+            console.error('Error fetching monthly income:', error);
+            incomeElement.textContent = '—'; // Show dash on error
+        }
+    }
+
+
+
     // === ✅ FETCH REGISTERED TENANTS ===
     async function fetchTenantsCount() {
         try {
@@ -134,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
             if (!response.ok) throw new Error(`Status: ${response.status}`);
             const data = await response.json();
-            
+
             // Assume API returns an array of tenants
             const tenantsCount = Array.isArray(data) ? data.length : (data.total ?? 0);
             document.getElementById('registeredTenantsCount').textContent = tenantsCount.toLocaleString();
@@ -283,6 +320,7 @@ bookings
     fetchAvailableUnits();
     fetchRevenueData();
     fetchLatestBookings();
+    fetchMonthlyIncome();
 });
 </script>
 @endsection
