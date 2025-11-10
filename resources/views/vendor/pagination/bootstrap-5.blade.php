@@ -4,15 +4,17 @@
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
                 <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.previous')">
-                    <span class="page-link" aria-hidden="true">&lsaquo;</span>
+                    {{-- ✅ CHANGED from &lsaquo; to &laquo; --}}
+                    <span class="page-link" aria-hidden="true">&laquo;</span>
                 </li>
             @else
                 <li class="page-item">
-                    <a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="@lang('pagination.previous')">&lsaquo;</a>
+                    {{-- ✅ CHANGED from &lsaquo; to &laquo; --}}
+                    <a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev" aria-label="@lang('pagination.previous')">&laquo;</a>
                 </li>
             @endif
 
-            {{-- Pagination Elements --}}
+            {{-- Pagination Elements (This part is unchanged) --}}
             @foreach ($elements as $element)
                 {{-- "Three Dots" Separator --}}
                 @if (is_string($element))
@@ -34,11 +36,13 @@
             {{-- Next Page Link --}}
             @if ($paginator->hasMorePages())
                 <li class="page-item">
-                    <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="@lang('pagination.next')">&rsaquo;</a>
+                    {{-- ✅ CHANGED from &rsaquo; to &raquo; --}}
+                    <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-label="@lang('pagination.next')">&raquo;</a>
                 </li>
             @else
                 <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.next')">
-                    <span class="page-link" aria-hidden="true">&rsaquo;</span>
+                    {{-- ✅ CHANGED from &rsaquo; to &raquo; --}}
+                    <span class="page-link" aria-hidden="true">&raquo;</span>
                 </li>
             @endif
         </ul>
