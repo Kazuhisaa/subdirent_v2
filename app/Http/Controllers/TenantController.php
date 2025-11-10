@@ -339,26 +339,6 @@ public function payments()
         return view('tenant.maintenance');
     }
 
-    public function propertysearch()
-    {
-        $user = Auth::user()->load('tenant.unit', 'tenant.contracts');
-
-        // Safety check: ensure this user has a tenant record
-        if (! $user->tenant) {
-            abort(404, 'Tenant record not found.');
-        }
-
-        $tenant = $user->tenant;
-
-        // Optional: get only active/ongoing contract
-        $activeContract = $tenant->contracts->whereIn('status', ['active', 'ongoing'])->first();
-
-        return view('tenant.propertysearch', [
-            'tenant' => $user,
-            'contract' => $activeContract,
-            'unit' => $tenant->unit,
-        ]);
-    }
 
     public function account()
     {

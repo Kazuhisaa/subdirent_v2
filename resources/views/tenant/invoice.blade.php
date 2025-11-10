@@ -16,14 +16,17 @@
             margin: 0 auto;
         }
         .header {
-            display: table;
-            width: 100%;
-            margin-bottom: 30px;
-        }
-        .header-left {
-            display: table-cell;
-            width: 60%;
-        }
+    display: table;
+    width: 100%;
+    margin-bottom: 30px;
+    margin-top: 50px; /* ✅ dagdag na space sa taas para sa logo */
+}
+
+        ..header-left p:first-child {
+    margin-top: 40px; /* ✅ space bago ang text */
+}
+
+        
         .header-right {
             display: table-cell;
             width: 40%;
@@ -136,20 +139,21 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        
-        <div class="header">
-            <div class="header-left">
-                <p>Subdirent Management</p>
-                <p>subdirent@gmail.com</p>
-            </div>
-            <div class="header-right">
-                <h1>INVOICE</h1>
-                <p><strong>Invoice #:</strong> {{ $payment->invoice_no }}</p>
-                <p><strong>Date Paid:</strong> {{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}</p>
-            </div>
+
+
+   <div class="container">
+    
+    <div class="header"> <div class="header-left">
+            <p>Subdirent Management</p>
+            <p>subdirent@gmail.com</p>
         </div>
 
+        <div class="header-right">
+            <h1>INVOICE</h1>
+            <p><strong>Invoice #:</strong> {{ $payment->invoice_no }}</p>
+            <p><strong>Date Paid:</strong> {{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}</p>
+        </div>
+    </div>
         <div class="details">
             <div class="details-left">
                 <strong>Bill To:</strong>

@@ -16,9 +16,11 @@
             margin: 0 auto;
         }
         .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    display: table;
+    width: 100%;
+    margin-bottom: 30px;
+    margin-top: 50px; /* ✅ dagdag na space sa taas para sa logo */
+}
         .header h1 {
             margin: 0;
             font-size: 26px;
