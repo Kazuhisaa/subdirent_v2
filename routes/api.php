@@ -10,6 +10,7 @@ use App\Http\Controllers\RevenueController;
 use App\Http\Controllers\RevenuePredictionController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UnitsController;
+use App\Http\Controllers\Mobile\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MaintenanceController;
@@ -177,3 +178,15 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/payments', [PaymentController::class, 'showIndex']);
 
 Route::get('/maintenance', [MaintenanceController::class, 'showIndex']);
+
+
+//Route::middleware(['auth:sanctum'])->group(function () {
+      
+  Route::prefix('mobile/tenant')->group(function(){
+    Route::get('/contract',[DashboardController::class, 'showTenantContract']);
+    Route::get('/calendar-event',[DashboardController::class, 'showCalendarEvents']);
+    Route::get('/payment-summary',[DashboardController::class,'showPaymentSummary']);
+    Route::get('/maintenance-summary',[DashboardController::class,'showDashboardSummary']);
+  });
+
+//});
