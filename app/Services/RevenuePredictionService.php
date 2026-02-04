@@ -13,90 +13,122 @@ class RevenuePredictionService
     public function __construct(RevenuePrediction $revenueprediction) {
         $this->revenueprediction = $revenueprediction;
     }
-
-    /** -----------------------------
-     * 📅 MONTHLY PREDICTION
-     * ----------------------------- */
-   public function predictMonthly()
+public function predictMonthly()
 {
-    $modelManager = new ModelManager();
-    $model = $modelManager->restoreFromFile(storage_path('App/Models/revenue_prediction.model'));
-    $modelaccurancy = $this->evaluateAccuracy($model);
+    /* -----------------------------
+     * Load model safely
+     * ----------------------------- */
+    $modelPath = storage_path('app/Models/revenue_prediction.model');
 
-    // Kunin latest 12 months data
-    $retrievefeatureData = RevenuePrediction::orderBy('year_month', 'desc')->take(12)->get()->reverse()->values();
-    $retrievedates = RevenuePrediction::orderBy('year_month', 'desc')->take(12)->get(['year_month', 'monthly_revenue'])->reverse()->values();
+    if (!file_exists($modelPath)) {
+        throw new \Exception("Model file not found: " . $modelPath);
+    }
 
-    $length = count($retrievefeatureData) - 1;
-    $next_month = ($retrievefeatureData[$length]['month'] == 12) ? 1 : ($retrievefeatureData[$length]['month'] + 1);
-    $next_year = ($retrievefeatureData[$length]['month'] == 12) ? ($retrievefeatureData[$length]['year'] + 1) : ($retrievefeatureData[$length]['year']);
+    $model = (new ModelManager())->restoreFromFile($modelPath);
 
-    $active_contracts = [
-        $next_year,
-        $next_month,
-        $retrievefeatureData[$length]['active_contracts'],
-        $retrievefeatureData[$length]['new_contracts'],
-        $retrievefeatureData[$length]['expired_contracts'],
-        $retrievefeatureData[$length]['prev_month_revenue']
+    /* -----------------------------
+     * Accuracy (safe)
+     * ----------------------------- */
+    try {
+        $modelAccuracy = $this->evaluateAccuracy($model);
+    } catch (\Throwable $e) {
+        $modelAccuracy = 'Unavailable';
+    }
+
+    /* -----------------------------
+     * Fetch last 12 months
+     * ----------------------------- */
+    $data = RevenuePrediction::orderBy('year_month', 'desc')
+        ->take(12)
+        ->get()
+        ->reverse()
+        ->values();
+
+    if ($data->count() < 2) {
+        throw new \Exception("Not enough data for monthly prediction");
+    }
+
+    $dates = $data->map(fn($d) => [
+        'date' => Carbon::parse($d->year_month)->format('F Y'),
+        'monthly_revenue' => $d->monthly_revenue
+    ]);
+
+    /* -----------------------------
+     * Compute next month
+     * ----------------------------- */
+    $last = $data->last();
+
+    $nextMonth = $last->month == 12 ? 1 : $last->month + 1;
+    $nextYear  = $last->month == 12 ? $last->year + 1 : $last->year;
+
+    $featuresNext = [
+        $nextYear,
+        $nextMonth,
+        $last->active_contracts,
+        $last->new_contracts,
+        $last->expired_contracts,
+        $last->prev_month_revenue
     ];
 
-    $predictionValue = $model->predict($active_contracts);
+    $predictionValue = $model->predict($featuresNext);
 
-    // --- compute residuals for confidence ---
+    /* -----------------------------
+     * Residuals (confidence interval)
+     * ----------------------------- */
     $residuals = [];
-    foreach ($retrievefeatureData as $data) {
-        $features_i = [
-            $data['year'],
-            $data['month'],
-            $data['active_contracts'],
-            $data['new_contracts'],
-            $data['expired_contracts'],
-            $data['prev_month_revenue']
+
+    foreach ($data as $d) {
+        $features = [
+            $d->year,
+            $d->month,
+            $d->active_contracts,
+            $d->new_contracts,
+            $d->expired_contracts,
+            $d->prev_month_revenue
         ];
-        $pred_i = $model->predict($features_i);
-        $residuals[] = $data['monthly_revenue'] - $pred_i;
+
+        $residuals[] = $d->monthly_revenue - $model->predict($features);
     }
 
     $n = count($residuals);
-    $meanResidual = array_sum($residuals) / $n;
-    $sumSquares = array_sum(array_map(fn($r) => pow($r - $meanResidual, 2), $residuals));
-    $s = sqrt($sumSquares / ($n - 1));
-    $SE = $s / sqrt($n);
-    $df = $n - 1;
+    $mean = array_sum($residuals) / $n;
+
+    $variance = array_sum(
+        array_map(fn($r) => pow($r - $mean, 2), $residuals)
+    ) / ($n - 1);
+
+    $SE = sqrt($variance) / sqrt($n);
+
     $tValues = [
         5 => 2.571, 6 => 2.447, 7 => 2.365, 8 => 2.306,
-        9 => 2.262, 10 => 2.228, 11 => 2.201, 12 => 2.179,
-        15 => 2.131, 20 => 2.086, 30 => 2.042
+        9 => 2.262, 10 => 2.228, 11 => 2.201, 12 => 2.179
     ];
-    $t = $tValues[$df] ?? 1.96;
+
+    $t = $tValues[$n - 1] ?? 1.96;
     $ME = $t * $SE;
 
-    $lower = $predictionValue - $ME;
-    $upper = $predictionValue + $ME;
-
-    // Convert retrievedates to human-readable format
-    $humanReadableDates = [];
-    foreach ($retrievedates as $d) {
-        $humanReadableDates[] = [
-            'date' => Carbon::parse($d['year_month'])->format('F Y'),
-            'monthly_revenue' => $d['monthly_revenue']
-        ];
-    }
-
+    /* -----------------------------
+     * Return response
+     * ----------------------------- */
     return [
-        "date" => $humanReadableDates,
+        "date" => $dates,
         "prediction" => [
-            "prediction_date" => Carbon::parse($retrievedates[$length]['year_month'])->addMonth(1)->format('F Y'),
+            "prediction_date" => Carbon::parse($last->year_month)
+                ->addMonth()
+                ->format('F Y'),
+
             "revenue_prediction" => round($predictionValue, 2),
-            "model_Accuracy" => $modelaccurancy,
+            "model_Accuracy" => $modelAccuracy,
+
             "confidence_interval" => [
-                "lower" => round($lower, 2),
-                "upper" => round($upper, 2),
+                "lower" => round($predictionValue - $ME, 2),
+                "upper" => round($predictionValue + $ME, 2),
                 "confidence_level" => "95%"
             ],
+
             "debug" => [
-                "margin_of_error" => $ME,
                 "standard_error" => $SE,
+                "margin_of_error" => $ME,
                 "sample_size" => $n,
                 "t_value" => $t
             ]
