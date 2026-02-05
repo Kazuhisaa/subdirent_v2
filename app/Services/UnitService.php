@@ -63,6 +63,18 @@ class UnitService
         return array_values($existing);
     }
 
+    public function getAllUnits()
+    {
+        $units = Unit::all();
+        $units->transform(function ($unit) {
+            $files = is_array($unit->files) ? $unit->files : json_decode($unit->files, true);
+            $unit->files = $files ? array_map(fn($f) => asset($f), $files) : [];
+            $unit->phase = $unit->location; // Assuming 'phase' is derived from 'location' for consistency
+            return $unit;
+        });
+        return $units;
+    }
+
     public function getAvailableUnits()
     {
         $units = Unit::where('status', 'available')->get();

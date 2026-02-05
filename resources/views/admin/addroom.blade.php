@@ -44,10 +44,15 @@
                 </div>
 
                 {{-- Floor, Price, Bedrooms, Bathrooms --}}
-                <div class="row g-3 mb-4">
+                <div class="row g-4 mb-4">
                     <div class="col-md-3">
                         <label class="form-label fw-semibold text-dark">Floor Area</label>
                         <input type="number" name="floor_area" class="form-control" placeholder="m²">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold text-dark">Lot Size</label>
+                        <input type="number" name="lot_size" class="form-control" placeholder="sqm">
                     </div>
 
                     <div class="col-md-3">

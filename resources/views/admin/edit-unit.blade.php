@@ -74,6 +74,27 @@
                     <input type="number" name="contract_years" class="form-control" min="1" value="{{ $unit->contract_years ?? 1 }}">
                 </div>
 
+                {{-- Tenant Details --}}
+                @if ($unit->tenant)
+                    <h5 class="fw-bold text-blue-900 mb-3">Current Tenant Details</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Name</label>
+                            <p class="form-control-static">{{ $unit->tenant->first_name }} {{ $unit->tenant->middle_name }} {{ $unit->tenant->last_name }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Email</label>
+                            <p class="form-control-static">{{ $unit->tenant->email }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark">Contact Number</label>
+                            <p class="form-control-static">{{ $unit->tenant->contact_num }}</p>
+                        </div>
+                    </div>
+                @else
+                    <div class="mb-4 text-muted">No tenant currently assigned to this unit.</div>
+                @endif
+
                 {{-- Description --}}
                 <div class="mb-4">
                     <label class="form-label fw-semibold text-dark">Description</label>
