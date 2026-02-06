@@ -46,7 +46,7 @@
                             <input type="number"
                                 name="amount"
                                 class="form-control text-center fw-semibold"
-                                min="1000"
+                                min="0"
                                 max="{{ $amountToPay ?? 0 }}"
                                 step="0.01"
                                 placeholder="Enter payment (₱)"

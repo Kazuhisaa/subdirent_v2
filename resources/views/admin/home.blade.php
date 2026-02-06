@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     async function fetchMonthlyIncome() {
         const incomeElement = document.getElementById('monthlyIncomeValue');
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/revenue/latestRevenue', {
+            const res = await fetch('https://127.0.0.1:8000/api/revenue/latestRevenue', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'

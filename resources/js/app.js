@@ -1,4 +1,6 @@
 import './bootstrap';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
 // Import Bootstrap (likely already here, but good to ensure)
 
 // Import FullCalendar core and the DayGrid plugin

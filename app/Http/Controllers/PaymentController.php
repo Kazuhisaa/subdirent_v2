@@ -56,7 +56,7 @@ class PaymentController extends Controller
                             'tenant_id' => $tenant->id,
                             'for_month' => $forMonth,
                         ],
-                        'payment_method_types' => ['gcash', 'card'],
+                        'payment_method_types' => ['qrph'],
                     ],
                 ],
             ]);
@@ -180,7 +180,7 @@ $attributes = $checkout_attributes['payments'][0]['attributes'] ?? [];
                 'tenant_id' => $tenant->id,
                 'contract_id' => $contract->id,
                 'amount' => $amount,
-                'payment_method' => 'gcash',
+                'payment_method' => 'qrph',
                 'payment_status' => $paymentStatus,
                 'payment_date' => $now,
                 'for_month' => $forMonthDate,
