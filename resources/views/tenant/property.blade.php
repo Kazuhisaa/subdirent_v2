@@ -104,9 +104,9 @@
                 <h6 class="fw-bold text-secondary mb-3">Contract & Receipts</h6>
                 <div class="d-flex flex-wrap gap-3">
                     @if ($contract->contract_pdf)
-                        <a href="{{ asset('storage/' . $contract->contract_pdf) }}" target="_blank" class="btn btn-tenant btn-sm d-flex align-items-center">
-                            <i class="bi bi-file-earmark-text me-1"></i> View Contract
-                        </a>
+<a href="{{ route('tenant.contract.view', basename($contract->contract_pdf)) }}" target="_blank" class="btn btn-tenant btn-sm d-flex align-items-center">
+        <i class="bi bi-file-earmark-text me-1"></i> View Contract
+    </a>
                     @else
                         <button class="btn btn-outline-danger btn-sm d-flex align-items-center" disabled>
                             <i class="bi bi-x-circle me-1"></i> No Contract File

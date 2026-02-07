@@ -51,32 +51,18 @@
 
 {{-- ==== CHART AND TABLE BELOW STAYS SAME ==== --}}
 <div class="row mt-4 g-4">
-    <div class="col-md-8">
+    <div class="col-md-12">
         <div class="card shadow-sm border-0 rounded-3 h-100">
             <div class="card-header fw-bold text-white"
                  style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem .5rem 0 0;">
                 MONTHLY INCOME OVERVIEW
             </div>
-            <div class="card-body">
+            <div class="card-body" style="height: 400px;">
                 <canvas id="revenueChart"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0 rounded-3 h-100">
-            <div class="card-header fw-bold text-white"
-                 style="background: linear-gradient(90deg, #007BFF, #0A2540); border-radius: .5rem .5rem 0 0;">
-                QUICK ACTIONS
-            </div>
-            <div class="card-body d-flex flex-column justify-content-center">
-                <div class="d-grid gap-3">
-                    <a href="{{ route('admin.reports') }}" class="btn btn-action w-100 py-2 fw-bold">Generate Reports</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 {{-- Latest Bookings Table --}}
 <div class="row mt-4">
@@ -126,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     async function fetchMonthlyIncome() {
         const incomeElement = document.getElementById('monthlyIncomeValue');
         try {
-            const res = await fetch('https://127.0.0.1:8000/api/revenue/latestRevenue', {
+            const res = await fetch('https://subdirent.bscs3a.com/api/revenue/latestRevenue', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
@@ -210,7 +196,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         let revenueChart;
 
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/revenue/latestRevenue', {
+            const res = await fetch('https://subdirent.bscs3a.com/api/revenue/latestRevenue', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'

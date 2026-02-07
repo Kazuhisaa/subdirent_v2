@@ -193,7 +193,7 @@ public function property()
             'n_years' => 5
         ];
 
-        $response = Http::post('http://127.0.0.1:5000/predict', $data);
+        $response = Http::post('https://unit-api-yxz2.onrender.com/predict', $data);
 
         if ($response->successful()) {
            $predictions = $response->json();

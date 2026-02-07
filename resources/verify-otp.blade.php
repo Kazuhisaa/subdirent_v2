@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset via OTP - SubdiRent</title>
+    <title>Verify Code - SubdiRent</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/login.css') }}"> 
@@ -20,7 +20,7 @@
             align-items: center;
             justify-content: center;
             font-family: 'Poppins', 'Segoe UI', sans-serif;
-            background-image: url('../uploads/bg1.jpg');
+            background-image: url('{{ asset('uploads/bg1.jpg') }}');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
@@ -61,6 +61,10 @@
         .login-form-v4 .form-control {
              border-radius: 0.5rem;
              padding: 0.9rem;
+             text-align: center; /* Center the OTP numbers */
+             letter-spacing: 0.5em; /* Add space between numbers for readability */
+             font-size: 1.2rem;
+             font-weight: 700;
         }
     </style>
 </head>
@@ -76,39 +80,41 @@
                     <img src="{{ asset('uploads/1fc18e9c-b6b9-4f39-8462-6e4b7d594471-removebg-preview.png') }}" alt="Subdirent" class="login-logo-text-v4">
                 </div>
                 
-                {{-- === UPDATED TEXT FOR OTP === --}}
-                <h5 class="text-center fw-bold mt-3 mb-2 color-blue" style="color: #0A2540;">Reset via OTP</h5>
+                <h5 class="text-center fw-bold mt-3 mb-2 color-blue" style="color: #0A2540;">Verify it's you</h5>
                 <p class="text-center text-muted small mb-3 px-3">
-                    Enter your registered email address below. We will send you a secure <strong>One-Time Password (OTP)</strong> to verify your identity.
+                    We've sent a 6-digit code to <strong>{{ $email }}</strong>.<br>
+                    Please enter it below.
                 </p>
 
-                @if (session('status'))
-                    <div class="alert alert-success" role="alert">
-                        {{ session('status') }}
+                {{-- Display error if OTP is wrong --}}
+                @if (session('error'))
+                    <div class="alert alert-danger text-center py-2" role="alert">
+                        {{ session('error') }}
                     </div>
                 @endif
 
-                {{-- === IMPORTANT: Ensure you create this route in web.php === --}}
-                <form method="POST" action="{{ route('password.otp.send') }}" class="login-form-v4">
+                <form method="POST" action="{{ route('password.otp.verify.submit') }}" class="login-form-v4">
                     @csrf
                     
+                    {{-- Hidden field to pass email along --}}
+                    <input type="hidden" name="email" value="{{ $email }}">
+
                     <div class="mb-3">
-                        <input type="email" name="email" id="email" 
-                               class="form-control @error('email') is-invalid @enderror" 
-                               placeholder="Enter your e-mail" value="{{ old('email') }}" required>
+                        <input type="text" name="otp" id="otp" 
+                               class="form-control @error('otp') is-invalid @enderror" 
+                               placeholder="000000" maxlength="6" autocomplete="off" required>
                         
-                        @error('email')
-                            <span class="invalid-feedback" role="alert">
+                        @error('otp')
+                            <span class="invalid-feedback text-center" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
                     </div>
                     
-                    {{-- === UPDATED BUTTON TEXT === --}}
-                    <button type="submit" class="btn btn-login-v4 w-100">Send OTP Code</button>
+                    <button type="submit" class="btn btn-login-v4 w-100">Verify & Proceed</button>
                 
                     <div class="text-center mt-3">
-                        <a href="{{ route('home') }}" class="forgot-password-link">Back to Log In</a>
+                        <a href="{{ route('password.request') }}" class="forgot-password-link small text-muted">Didn't receive code? Resend</a>
                     </div>
                 </form>
             </div>
