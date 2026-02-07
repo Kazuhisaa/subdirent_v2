@@ -1,11 +1,9 @@
-{{-- resources/views/auth/forgot-password.blade.php --}}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - SubdiRent</title>
+    <title>Reset via OTP - SubdiRent</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/login.css') }}"> 
@@ -15,23 +13,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        html, body {
-            height: 100%;
-        }
+        html, body { height: 100%; }
         
         body {
             display: flex;
             align-items: center;
             justify-content: center;
-
-            
             font-family: 'Poppins', 'Segoe UI', sans-serif;
-        background-image: url('../uploads/bg1.jpg');
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center;
-        background-attachment: fixed;
-        overflow-x: hidden;
+            background-image: url('../uploads/bg1.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-attachment: fixed;
+            overflow-x: hidden;
         }
         
         .forgot-password-container {
@@ -68,7 +62,6 @@
              border-radius: 0.5rem;
              padding: 0.9rem;
         }
-
     </style>
 </head>
 <body>
@@ -83,38 +76,36 @@
                     <img src="{{ asset('uploads/1fc18e9c-b6b9-4f39-8462-6e4b7d594471-removebg-preview.png') }}" alt="Subdirent" class="login-logo-text-v4">
                 </div>
                 
-                <h5 class="text-center fw-bold mt-3 mb-2 color-blue" style="color: #0A2540;">Forgot Your Password?</h5>
+                {{-- === UPDATED TEXT FOR OTP === --}}
+                <h5 class="text-center fw-bold mt-3 mb-2 color-blue" style="color: #0A2540;">Reset via OTP</h5>
                 <p class="text-center text-muted small mb-3 px-3">
-                    No problem! Just enter your email and we'll send you a link to reset it.
+                    Enter your registered email address below. We will send you a secure <strong>One-Time Password (OTP)</strong> to verify your identity.
                 </p>
 
-                {{-- === KEY FIX #1: IDINAGDAG ITO PARA SA SUCCESS MESSAGE === --}}
                 @if (session('status'))
                     <div class="alert alert-success" role="alert">
                         {{ session('status') }}
                     </div>
                 @endif
-                {{-- === END NG DAGDAG === --}}
 
-                <form method="POST" action="{{ route('password.email') }}" class="login-form-v4">
+                {{-- === IMPORTANT: Ensure you create this route in web.php === --}}
+                <form method="POST" action="{{ route('password.otp.send') }}" class="login-form-v4">
                     @csrf
                     
                     <div class="mb-3">
-                        {{-- === KEY FIX #1: IN-UPDATE KO ANG INPUT === --}}
                         <input type="email" name="email" id="email" 
                                class="form-control @error('email') is-invalid @enderror" 
                                placeholder="Enter your e-mail" value="{{ old('email') }}" required>
                         
-                        {{-- IDINAGDAG ITO PARA SA ERROR MESSAGE --}}
                         @error('email')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
-                        {{-- === END NG DAGDAG === --}}
                     </div>
                     
-                    <button type="submit" class="btn btn-login-v4 w-100">Send Password Reset Link</button>
+                    {{-- === UPDATED BUTTON TEXT === --}}
+                    <button type="submit" class="btn btn-login-v4 w-100">Send OTP Code</button>
                 
                     <div class="text-center mt-3">
                         <a href="{{ route('home') }}" class="forgot-password-link">Back to Log In</a>

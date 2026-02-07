@@ -33,7 +33,10 @@ class UnitsController extends Controller
             'files.*' => 'nullable|file|mimes:jpeg,jpg,pdf|max:2048'
         ]);
 
-        $unit = $this->unitService->createUnit($request->all());
+        $data = $request->all();
+        $data['build_year'] = date('Y'); // Automatically set build_year to current year
+
+        $unit = $this->unitService->createUnit($data);
 
         return response()->json(['message' => 'Unit Created', 'unit' => $unit], 201);
     }

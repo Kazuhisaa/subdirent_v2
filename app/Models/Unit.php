@@ -25,7 +25,8 @@ class Unit extends Model
         'status',
         'files',
         'bathroom',
-        'bedroom'
+        'bedroom',
+        'build_year'
     ];
 
     protected $casts = [
@@ -35,6 +36,7 @@ class Unit extends Model
         'bedroom'      => 'integer',
         'monthly_rent' => 'integer',
         'unit_price'   => 'integer',
+         'build_year' => 'integer',
         'files'        => 'array',
     ];
 
