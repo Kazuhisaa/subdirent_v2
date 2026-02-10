@@ -120,8 +120,9 @@ class UnitService
 
     public function predict(array $payload)
     {
-        $flaskUrl = 'http://127.0.0.1:5000/predict';
+        $flaskUrl = 'https://unit-api-yxz2.onrender.com/predict?fbclid=IwY2xjawPPHIhleHRuA2FlbQIxMABicmlkETFOQk54NVhWalBnNEptVkl2c3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHt-wb_kyQadutzDg_hohfwt3VjunjwyQd7DUrRb_WEdMQLklYhWFdpRtHw5P_aem_mzC_Xk9stdTcQ5k-05jIqw';
         $response = Http::post($flaskUrl, $payload);
         return $response->json();
     }
 }
+    

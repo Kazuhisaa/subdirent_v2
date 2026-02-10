@@ -27,7 +27,7 @@
             <div class="col-md-4 mb-3">
                 <div class="card border-0 shadow-sm booking-card">
                     <div class="card-body">
-                        <h6 class="card-title">Total (This Page)</h6>
+                        <h6 class="card-title">Total </h6>
                         <h3 class="fw-bold">{{ $applications->count() }}</h3>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
             <div class="col-md-4 mb-3">
                 <div class="card border-0 shadow-sm booking-card approved">
                     <div class="card-body">
-                        <h6 class="card-title">Approved (This Page)</h6>
+                        <h6 class="card-title">Approved </h6>
                         <h3 class="fw-bold">{{ $applications->where('status', 'Approved')->count() }}</h3>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
             <div class="col-md-4 mb-3">
                 <div class="card border-0 shadow-sm booking-card rejected">
                     <div class="card-body">
-                        <h6 class="card-title">Rejected (This Page)</h6>
+                        <h6 class="card-title">Rejected</h6>
                         <h3 class="fw-bold">{{ $applications->where('status', 'Rejected')->count() }}</h3>
                     </div>
                 </div>

@@ -273,3 +273,8 @@ Route::patch('autopay/{autopay}/activate', [AutopayController::class, 'activate'
 Route::post('/tenant/autopay/setup', [TenantController::class, 'autopaySetup'])
     ->name('tenant.autopay.setup')
     ->middleware('auth');
+
+Route::get('/test-pdf', function() {
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML('<h1>Hello World</h1>');
+    return $pdf->stream();
+});

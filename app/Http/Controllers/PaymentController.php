@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Services\RevenueService;
 use Carbon\Carbon;
 use App\Models\Tenant;
@@ -14,20 +15,21 @@ use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
 {
-    /**
-     * CREATE PAYMENT — PayMongo Checkout
-     */
-    
     protected $service;
-    public function showIndex()
-{
-    $payment = Payment::with(['tenant.unit'])->get();
-    return response()->json($payment);
-}
-    public function __construct(RevenueService $service){
-         $this->service = $service;
+
+    public function __construct(RevenueService $service)
+    {
+        $this->service = $service;
     }
 
+    // Show all payments (JSON)
+    public function showIndex()
+    {
+        $payment = Payment::with(['tenant.unit'])->get();
+        return response()->json($payment);
+    }
+
+    // Create payment via PayMongo
     public function createPayment(Request $request, $tenantId)
     {
         try {
@@ -54,7 +56,7 @@ class PaymentController extends Controller
                             'tenant_id' => $tenant->id,
                             'for_month' => $forMonth,
                         ],
-                        'payment_method_types' => ['gcash', 'card'],
+                        'payment_method_types' => ['qrph'],
                     ],
                 ],
             ]);
@@ -74,176 +76,182 @@ class PaymentController extends Controller
         }
     }
 
+    // Handle PayMongo Webhook
+    public function handleWebhook(Request $request)
+    {
+        $payload = $request->getContent();
+        $event = json_decode($payload, true);
 
-public function handleWebhook(Request $request)
-{
-    $payload = $request->getContent();
-    $event = json_decode($payload, true);
+        Log::info('PayMongo Webhook received:', ['payload' => $payload]);
 
-    Log::info('PayMongo Webhook received:', ['payload' => $payload]);
+        $type = $event['data']['attributes']['type'] ?? null;
 
-    $type = $event['data']['attributes']['type'] ?? null;
-
-    if ($type !== 'payment.paid') {
-        return response()->json(['status' => 'ignored']);
-    }
-
-    try {
-        $attributes = $event['data']['attributes']['data']['attributes'] ?? [];
-        $metadata = $attributes['metadata'] ?? [];
-
-        $tenantId = $metadata['tenant_id'] ?? null;
-        $amount = ($attributes['amount'] ?? 0) / 100;
-      
-
-          $fromDate = Carbon::now()->startOfMonth()->toDateString(); 
-           $this->service->incrementRevenueFromDate($fromDate,$amount);
-        
-        $reference = $attributes['reference_number'] ?? uniqid('PAY-');
-
-        $tenant = $tenantId ? Tenant::find($tenantId) : null;
-        if (!$tenant) {
-            $email = $attributes['billing']['email'] ?? null;
-            $tenant = $email ? Tenant::where('email', $email)->first() : null;
-        }
-        if (!$tenant) {
-            Log::warning('Webhook: Tenant not found.', ['metadata' => $metadata]);
-            return response()->json(['status' => 'tenant_not_found']);
+    if ($type !== 'checkout_session.payment.paid') {            
+    return response()->json(['status' => 'ignored']);
         }
 
-        $contract = Contract::where('tenant_id', $tenant->id)
-            ->whereIn('status', ['active', 'ongoing'])
-            ->first();
-        if (!$contract) {
-            Log::warning('Webhook: No active contract found.', ['tenant_id' => $tenant->id]);
-            return response()->json(['status' => 'no_active_contract']);
-        }
+        try {
+$checkout_attributes = $event['data']['attributes']['data']['attributes'] ?? [];
+$metadata = $checkout_attributes['metadata'] ?? [];
+$attributes = $checkout_attributes['payments'][0]['attributes'] ?? [];
 
-        $now = now();
+            $tenantId = $metadata['tenant_id'] ?? null;
+            $amount = ($attributes['amount'] ?? 0) / 100;
 
-        $isDownpayment = stripos($attributes['description'] ?? '', 'Deposit') !== false;
+            $fromDate = Carbon::now()->startOfMonth()->toDateString(); 
+            $this->service->incrementRevenueFromDate($fromDate, $amount);
 
-        // Determine starting month
-        $downpaymentMonth = Payment::where('tenant_id', $tenant->id)
-            ->where('contract_id', $contract->id)
-            ->where('remarks', 'Downpayment')
-            ->orderBy('for_month', 'asc')
-            ->value('for_month');
+            $reference = $attributes['reference_number'] ?? uniqid('PAY-');
 
-        $currentMonth = $downpaymentMonth ? Carbon::parse($downpaymentMonth) : Carbon::parse($contract->start_date);
-
-        // Determine next month for Rent Payment
-        if ($isDownpayment) {
-            $forMonthDate = $currentMonth->copy();
-            $remarks = 'Downpayment';
-        } else {
-            // Group payments by month and find first month not fully paid
-            $monthlyPayments = Payment::where('tenant_id', $tenant->id)
-                ->where('contract_id', $contract->id)
-                ->where('remarks', 'like', 'Rent Payment%')
-                ->get()
-                ->groupBy(function($payment) {
-                    return Carbon::parse($payment->for_month)->format('Y-m');
-                });
-
-            $nextMonth = $currentMonth->copy()->addMonth()->day($contract->payment_due_date);
-
-            foreach ($monthlyPayments as $month => $payments) {
-                $totalPaid = $payments->sum('amount');
-                if ($totalPaid < $contract->monthly_payment) {
-                    $nextMonth = Carbon::parse($month)->day($contract->payment_due_date);
-                    break;
-                } else {
-                    $nextMonth = Carbon::parse($month)->addMonth()->day($contract->payment_due_date);
-                }
+            $tenant = $tenantId ? Tenant::find($tenantId) : null;
+            if (!$tenant) {
+                $email = $attributes['billing']['email'] ?? null;
+                $tenant = $email ? Tenant::where('email', $email)->first() : null;
+            }
+            if (!$tenant) {
+                Log::warning('Webhook: Tenant not found.', ['metadata' => $metadata]);
+                return response()->json(['status' => 'tenant_not_found']);
             }
 
-            $forMonthDate = $nextMonth;
-            $remarks = 'Rent Payment for ' . $forMonthDate->format('F Y');
-        }
+            $contract = Contract::where('tenant_id', $tenant->id)
+                ->whereIn('status', ['active', 'ongoing'])
+                ->first();
+            if (!$contract) {
+                Log::warning('Webhook: No active contract found.', ['tenant_id' => $tenant->id]);
+                return response()->json(['status' => 'no_active_contract']);
+            }
 
-        // Determine payment status
-        $monthlyPayment = $contract->monthly_payment;
+            $now = now();
 
-        $existingPaid = Payment::where('tenant_id', $tenant->id)
-            ->whereYear('for_month', $forMonthDate->year)
-            ->whereMonth('for_month', $forMonthDate->month)
-            ->whereIn('payment_status', ['paid','partial'])
-            ->sum('amount');
+            $isDownpayment = stripos($attributes['description'] ?? '', 'Deposit') !== false;
 
-        $totalPaid = $existingPaid + $amount;
-        $paymentStatus = $totalPaid >= $monthlyPayment ? 'paid' : 'partial';
+            // Determine starting month
+            $downpaymentMonth = Payment::where('tenant_id', $tenant->id)
+                ->where('contract_id', $contract->id)
+                ->where('remarks', 'Downpayment')
+                ->orderBy('for_month', 'asc')
+                ->value('for_month');
 
-        // Create payment record
-        $payment = Payment::create([
-            'tenant_id' => $tenant->id,
-            'contract_id' => $contract->id,
-            'amount' => $amount,
-            'payment_method' => 'gcash',
-            'payment_status' => $paymentStatus,
-            'payment_date' => $now,
-            'for_month' => $forMonthDate,
-            'reference_no' => $reference,
-            'invoice_no' => 'INV-' . $reference,
-            'remarks' => $remarks,
-        ]);
+            $currentMonth = $downpaymentMonth ? Carbon::parse($downpaymentMonth) : Carbon::parse($contract->start_date);
 
-        // Generate PDF invoice
-// --- Bago (Mas Maganda) ---
-// Generate PDF invoice
-$invoiceFilename = 'invoices/' . $payment->invoice_no . '.pdf';
+            // Determine next month for Rent Payment
+            if ($isDownpayment) {
+                $forMonthDate = $currentMonth->copy();
+                $remarks = 'Downpayment';
+            } else {
+                $monthlyPayments = Payment::where('tenant_id', $tenant->id)
+                    ->where('contract_id', $contract->id)
+                    ->where('remarks', 'like', 'Rent Payment%')
+                    ->get()
+                    ->groupBy(function($payment) {
+                        return Carbon::parse($payment->for_month)->format('Y-m');
+                    });
 
-// Siguraduhin na yung 'invoices' folder ay nage-exist
-$invoiceDirectory = storage_path('app/public/invoices');
-if (!file_exists($invoiceDirectory)) {
-    // Gumawa ng folder kung wala pa
-    mkdir($invoiceDirectory, 0775, true);
-}
-    
-$pdf = PDF::loadView('tenant.invoice', [
+                $nextMonth = $currentMonth->copy()->addMonth()->day($contract->payment_due_date);
+
+                foreach ($monthlyPayments as $month => $payments) {
+                    $totalPaid = $payments->sum('amount');
+                    if ($totalPaid < $contract->monthly_payment) {
+                        $nextMonth = Carbon::parse($month)->day($contract->payment_due_date);
+                        break;
+                    } else {
+                        $nextMonth = Carbon::parse($month)->addMonth()->day($contract->payment_due_date);
+                    }
+                }
+
+                $forMonthDate = $nextMonth;
+                $remarks = 'Rent Payment for ' . $forMonthDate->format('F Y');
+            }
+
+            // Determine payment status
+            $monthlyPayment = $contract->monthly_payment;
+
+            $existingPaid = Payment::where('tenant_id', $tenant->id)
+                ->whereYear('for_month', $forMonthDate->year)
+                ->whereMonth('for_month', $forMonthDate->month)
+                ->whereIn('payment_status', ['paid','partial'])
+                ->sum('amount');
+
+            $totalPaid = $existingPaid + $amount;
+            $paymentStatus = $totalPaid >= $monthlyPayment ? 'paid' : 'partial';
+
+            // Create payment record
+            $payment = Payment::create([
+                'tenant_id' => $tenant->id,
+                'contract_id' => $contract->id,
+                'amount' => $amount,
+                'payment_method' => 'qrph',
+                'payment_status' => $paymentStatus,
+                'payment_date' => $now,
+                'for_month' => $forMonthDate,
+                'reference_no' => $reference,
+                'invoice_no' => 'INV-' . $reference,
+                'remarks' => $remarks,
+            ]);
+
+            // Generate PDF invoice
+            $invoiceDirectory = storage_path('app/public/invoices');
+            if (!file_exists($invoiceDirectory)) {
+                mkdir($invoiceDirectory, 0775, true);
+            }
+
+            $logoPath = public_path('images/subdirentlogo.png');
+            $logoBase64 = base64_encode(file_get_contents($logoPath));
+
+           $pdf = PDF::loadView('tenant.invoice', [
     'payment' => $payment,
     'tenant' => $tenant,
     'contract' => $contract,
-])
-->setOptions(['isRemoteEnabled' => true]);
+    'logoBase64' => $logoBase64,
+])->setOptions(['isRemoteEnabled' => true]);
+$pdf->set_base_path(public_path('/'));
 
 $invoiceFilename = 'invoices/INV-PAY-' . $payment->reference_no . '.pdf';
-$pdf->save(storage_path('app/public/' . $invoiceFilename));
+$savePath = storage_path('app/public/' . $invoiceFilename);
+
+$pdf->save($savePath);
+
+if (!file_exists($savePath)) {
+    throw new \Exception("PDF not saved at: $savePath");
+}
 
 $payment->invoice_pdf = $invoiceFilename;
-
-// Optional: force save check
-if(!$payment->save()) {
-    Log::error("Failed to save invoice PDF path for payment ID: {$payment->id}");
-}
+$payment->save();
 
 
-        if ($paymentStatus === 'paid') {
-            $contract->last_billed_at = $now;
-            $contract->save();
+            $payment->invoice_pdf = $invoiceFilename;
+            if (!$payment->save()) {
+                Log::error("Failed to save invoice PDF path for payment ID: {$payment->id}");
+            }
+
+            if ($paymentStatus === 'paid') {
+                $contract->last_billed_at = $now;
+                $contract->save();
+            }
+
+            Log::info('Payment recorded successfully with invoice.', [
+                'tenant' => $tenant->id,
+                'for_month' => $forMonthDate->toDateString(),
+                'status' => $paymentStatus,
+                'invoice' => $invoiceFilename
+            ]);
+
+            return response()->json(['status' => 'ok', 'payment_status' => $paymentStatus]);
+
+        } catch (\Exception $e) {
+            Log::error('Webhook error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invoice PDF generation failed: ' . $e->getMessage()
+            ]);
         }
-
-        Log::info('Payment recorded successfully with invoice.', [
-            'tenant' => $tenant->id,
-            'for_month' => $forMonthDate->toDateString(),
-            'status' => $paymentStatus,
-            'invoice' => $invoiceFilename
-        ]);
-
-        return response()->json(['status' => 'ok', 'payment_status' => $paymentStatus]);
-
-    } catch (\Exception $e) {
-        Log::error('Webhook error: ' . $e->getMessage(), [
-            'trace' => $e->getTraceAsString(),
-        ]);
-        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
     }
-}
 
-    /**
-     * DASHBOARD — Next month & outstanding
-     */
-  public function dashboard(Tenant $tenant)
+    // Tenant dashboard
+    public function dashboard(Tenant $tenant)
     {
         try {
             $activeContract = Contract::where('tenant_id', $tenant->id)
@@ -258,21 +266,16 @@ if(!$payment->save()) {
             $billingDay = $activeContract->payment_due_date;
             $monthlyRent = $activeContract->monthly_payment;
 
-            // Kunin lahat ng payments para sa history
             $payments = Payment::where('tenant_id', $tenant->id)
                 ->whereIn('payment_status', ['paid', 'partial'])
                 ->orderBy('for_month', 'asc')
                 ->get();
 
-            // Kunin lahat ng "Rent Payment" para sa computation
             $rentPayments = $payments->where('remarks', 'like', 'Rent Payment%');
-
-            // I-group payments per month
             $paymentsByMonth = $rentPayments->groupBy(function($payment) {
                 return Carbon::parse($payment->for_month)->format('Y-m');
             });
 
-            // Simula month = next month after downpayment
             $downpayment = $payments->where('remarks', 'Downpayment')->first();
             $currentMonth = $downpayment
                 ? Carbon::parse($downpayment->for_month)->copy()->addMonth()
@@ -281,22 +284,18 @@ if(!$payment->save()) {
 
             $outstanding = $monthlyRent;
 
-            // Hanapin month na may kulang pa
             foreach ($paymentsByMonth as $month => $monthPayments) {
                 $totalPaid = $monthPayments->sum('amount');
-
                 if ($totalPaid < $monthlyRent) {
                     $outstanding = $monthlyRent - $totalPaid;
                     $currentMonth = Carbon::parse($month . '-' . $billingDay);
                     break;
                 } else {
-                    // Full payment, move to next month
                     $currentMonth->addMonth();
                     $outstanding = $monthlyRent;
                 }
             }
 
-            // Penalty kung overdue sa current month
             $penalty = 0;
             if ($now->greaterThan($currentMonth) && $outstanding > 0) {
                 $daysLate = $now->diffInDays($currentMonth);
@@ -331,6 +330,7 @@ if(!$payment->save()) {
         }
     }
 
+    // Success and Cancel pages
     public function success($tenantId)
     {
         $tenant = Tenant::findOrFail($tenantId);
@@ -343,70 +343,67 @@ if(!$payment->save()) {
         return view('tenant.cancel', compact('tenant'));
     }
 
-public function downloadInvoice(Payment $payment)
-{
-    $disk = 'public'; // dahil dine-save natin sa storage/app/public
+    // Download invoice
+    public function downloadInvoice(Payment $payment)
+    {
+        $disk = 'public';
 
-    if (!$payment->invoice_pdf || !Storage::disk($disk)->exists($payment->invoice_pdf)) {
-        abort(404, "Invoice not found for Payment #{$payment->id}");
+        if (!$payment->invoice_pdf || !Storage::disk($disk)->exists($payment->invoice_pdf)) {
+            abort(404, "Invoice not found for Payment #{$payment->id}");
+        }
+
+        return Storage::disk($disk)->download($payment->invoice_pdf, 'Invoice-' . $payment->invoice_no . '.pdf');
     }
 
-    // download method
-    return Storage::disk($disk)->download($payment->invoice_pdf, 'Invoice-' . $payment->invoice_no . '.pdf');
-}
+    // Admin listing
+    public function index()
+    {
+        $payments = Payment::with(['tenant', 'contract'])->get();
+        $archivedPayments = Payment::onlyTrashed()->with(['tenant', 'contract'])->get();
 
-
-public function index()
-{
-    $payments = Payment::with(['tenant', 'contract'])->get();
-    $archivedPayments = Payment::onlyTrashed()->with(['tenant', 'contract'])->get();
-
-    return view('admin.payments', compact('payments', 'archivedPayments'));
-}
-
-public function showInvoice($id)
-{
-    $payment = Payment::findOrFail($id);
-
-    // Fetch the 5 most recent invoices of the same tenant
-    $recentInvoices = Payment::where('tenant_id', $payment->tenant_id)
-        ->where('remarks', 'like', 'Rent Payment%')
-        ->latest()
-        ->take(5)
-        ->get();
-
-    return view('tenant.invoice', compact('payment', 'recentInvoices'));
-}
-
-public function archive($id)
-{
-    $payment = Payment::findOrFail($id);
-    $payment->delete(); // assuming SoftDeletes is used
-
-    if (request()->ajax()) {
-        return response()->json(['message' => 'Payment archived successfully.']);
+        return view('admin.payments', compact('payments', 'archivedPayments'));
     }
 
-    return redirect()->route('admin.payments')->with('success', 'Payment archived successfully.');
-}
+    public function showInvoice($id)
+    {
+        $payment = Payment::findOrFail($id);
 
-public function viewArchive()
-{
-    $archived = Payment::onlyTrashed()->with('tenant')->get();
-    return response()->json($archived);
-}
+        $recentInvoices = Payment::where('tenant_id', $payment->tenant_id)
+            ->where('remarks', 'like', 'Rent Payment%')
+            ->latest()
+            ->take(5)
+            ->get();
 
-public function restore($id)
-{
-    $payment = Payment::withTrashed()->findOrFail($id);
-    $payment->restore();
-
-    if (request()->ajax()) {
-        return response()->json(['message' => 'Payment restored successfully.']);
+        return view('tenant.invoice', compact('payment', 'recentInvoices'));
     }
 
-    return redirect()->route('admin.payments')->with('success', 'Payment restored successfully.');
-}
+    public function archive($id)
+    {
+        $payment = Payment::findOrFail($id);
+        $payment->delete();
 
+        if (request()->ajax()) {
+            return response()->json(['message' => 'Payment archived successfully.']);
+        }
 
+        return redirect()->route('admin.payments')->with('success', 'Payment archived successfully.');
+    }
+
+    public function viewArchive()
+    {
+        $archived = Payment::onlyTrashed()->with('tenant')->get();
+        return response()->json($archived);
+    }
+
+    public function restore($id)
+    {
+        $payment = Payment::withTrashed()->findOrFail($id);
+        $payment->restore();
+
+        if (request()->ajax()) {
+            return response()->json(['message' => 'Payment restored successfully.']);
+        }
+
+        return redirect()->route('admin.payments')->with('success', 'Payment restored successfully.');
+    }
 }

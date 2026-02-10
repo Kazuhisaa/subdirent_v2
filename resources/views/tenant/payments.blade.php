@@ -46,7 +46,7 @@
                             <input type="number"
                                 name="amount"
                                 class="form-control text-center fw-semibold"
-                                min="1"
+                                min="1000"
                                 max="{{ $amountToPay ?? 0 }}"
                                 step="0.01"
                                 placeholder="Enter payment (₱)"
@@ -133,7 +133,7 @@
                                         <td class="text-center pe-4">
                                             {{-- NEW / FIXED CODE --}}
                                             @if($payment->invoice_pdf)
-                                            <a href="{{ route('tenant.invoice.view', basename($payment->invoice_pdf)) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                            <a href="{{ route('tenant.payment.invoice.download', $payment->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
                                                 <i class="bi bi-file-pdf"></i>
                                             </a>
                                             @else
