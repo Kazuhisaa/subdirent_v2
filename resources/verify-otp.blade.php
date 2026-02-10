@@ -1,124 +1,46 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Code - SubdiRent</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/login.css') }}"> 
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
     <style>
-        html, body { height: 100%; }
-        
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Poppins', 'Segoe UI', sans-serif;
-            background-image: url('{{ asset('uploads/bg1.jpg') }}');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-attachment: fixed;
-            overflow-x: hidden;
-        }
-        
-        .forgot-password-container {
-            width: 100%;
-            max-width: 420px;
+        .otp-code {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            color: #3b82f6;
+            background: #f1f5f9;
             padding: 15px;
-        }
-
-        .login-modal-content-v4 {
-            background-color: rgba(255, 255, 255, 0.95); 
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-        }
-        
-        .btn-login-v4 {
-            border: none;
-            color: white;
-            padding: 0.9rem;
-            font-weight: 600;
-            font-size: 1rem;
-            border-radius: 0.75rem;
-            margin-top: 1rem;
-            transition: all 0.3s ease;
-            background-color: #3b82f6; 
-            box-shadow: 0 4px 15px rgba(13, 59, 102, 0.2);
-        }
-        .btn-login-v4:hover {
-            background-color: #93c5fd; 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(157, 170, 182, 0.3);
-        }
-
-        .login-form-v4 .form-control {
-             border-radius: 0.5rem;
-             padding: 0.9rem;
-             text-align: center; /* Center the OTP numbers */
-             letter-spacing: 0.5em; /* Add space between numbers for readability */
-             font-size: 1.2rem;
-             font-weight: 700;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 20px 0;
         }
     </style>
 </head>
-<body>
-
-    <div class="forgot-password-container">
-        <div class="modal-content login-modal-content-v4"> 
-            
-            <div class="login-body-v4">
-                
-                <div class="login-logo-group-stacked">
-                    <img src="{{ asset('uploads/ddf63450-50d1-4fd2-9994-7a08dd496ac1-removebg-preview.png') }}" alt="Logo" class="login-logo-s-v4">
-                    <img src="{{ asset('uploads/1fc18e9c-b6b9-4f39-8462-6e4b7d594471-removebg-preview.png') }}" alt="Subdirent" class="login-logo-text-v4">
+<body style="margin: 0; padding: 0; font-family: 'Poppins', Helvetica, Arial, sans-serif; background-color: #f4f7f6;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 16px; margin-top: 50px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <tr>
+            <td style="padding: 40px; text-align: center;">
+                <div style="margin-bottom: 20px;">
+                    <img src="{{ $message->embed(public_path('uploads/ddf63450-50d1-4fd2-9994-7a08dd496ac1-removebg-preview.png')) }}" alt="Logo" width="50" style="vertical-align: middle;">
+                    <img src="{{ $message->embed(public_path('uploads/1fc18e9c-b6b9-4f39-8462-6e4b7d594471-removebg-preview.png')) }}" alt="SubdiRent" width="120" style="vertical-align: middle;">
                 </div>
-                
-                <h5 class="text-center fw-bold mt-3 mb-2 color-blue" style="color: #0A2540;">Verify it's you</h5>
-                <p class="text-center text-muted small mb-3 px-3">
-                    We've sent a 6-digit code to <strong>{{ $email }}</strong>.<br>
-                    Please enter it below.
+
+                <h2 style="color: #0A2540; margin: 0;">Verify it's you</h2>
+                <p style="color: #64748b; font-size: 14px; margin-top: 10px;">
+                    We've received a request to reset your password. <br> Use the 6-digit code below to proceed.
                 </p>
 
-                {{-- Display error if OTP is wrong --}}
-                @if (session('error'))
-                    <div class="alert alert-danger text-center py-2" role="alert">
-                        {{ session('error') }}
-                    </div>
-                @endif
+                <div class="otp-code">
+                    {{ $otp }}
+                </div>
 
-                <form method="POST" action="{{ route('password.otp.verify.submit') }}" class="login-form-v4">
-                    @csrf
-                    
-                    {{-- Hidden field to pass email along --}}
-                    <input type="hidden" name="email" value="{{ $email }}">
-
-                    <div class="mb-3">
-                        <input type="text" name="otp" id="otp" 
-                               class="form-control @error('otp') is-invalid @enderror" 
-                               placeholder="000000" maxlength="6" autocomplete="off" required>
-                        
-                        @error('otp')
-                            <span class="invalid-feedback text-center" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
-                    </div>
-                    
-                    <button type="submit" class="btn btn-login-v4 w-100">Verify & Proceed</button>
-                
-                    <div class="text-center mt-3">
-                        <a href="{{ route('password.request') }}" class="forgot-password-link small text-muted">Didn't receive code? Resend</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+                <p style="color: #94a3b8; font-size: 12px; margin-top: 30px;">
+                    This code will expire shortly. If you did not request this, please ignore this email.
+                </p>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+                <p style="color: #94a3b8; font-size: 11px;">&copy; {{ date('Y') }} SubdiRent Rental Management</p>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

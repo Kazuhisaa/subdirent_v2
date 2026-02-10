@@ -133,7 +133,7 @@
                                         <td class="text-center pe-4">
                                             {{-- NEW / FIXED CODE --}}
                                             @if($payment->invoice_pdf)
-                                            <a href="{{ route('tenant.invoice.view', basename($payment->invoice_pdf)) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                            <a href="{{ route('tenant.payment.invoice.download', $payment->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
                                                 <i class="bi bi-file-pdf"></i>
                                             </a>
                                             @else

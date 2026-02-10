@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contract - {{ $tenant->first_name }} {{ $tenant->last_name }}</title>
     <style>
@@ -16,11 +17,11 @@
             margin: 0 auto;
         }
         .header {
-    display: table;
-    width: 100%;
-    margin-bottom: 30px;
-    margin-top: 50px; /* ✅ dagdag na space sa taas para sa logo */
-}
+            display: table;
+            width: 100%;
+            margin-bottom: 30px;
+            margin-top: 50px; 
+        }
         .header h1 {
             margin: 0;
             font-size: 26px;
@@ -110,11 +111,13 @@
             <tr><th>Subdivision Name</th><td>{{ $contract->subdivision_name ?? 'Subdirent Residences' }}</td></tr>
             <tr><th>Unit / House No.</th><td>{{ $contract->unit->title ?? 'N/A' }}</td></tr>
             <tr><th>Location</th><td>{{ $contract->unit->location ?? 'N/A' }}</td></tr>
-            <tr><th>Unit Price</th><td>₱{{ number_format($contract->unit_price, 2) }}</td></tr>
+            
+            <tr><th>Unit Price</th><td>PHP {{ number_format($contract->unit_price, 2) }}</td></tr>
             <tr><th>Annual Interest</th><td>8%</td></tr>
-            <tr><th>Total Price to Pay</th><td>₱{{ number_format($contract->total_price, 2) }}</td></tr>
-            <tr><th>Downpayment</th><td>₱{{ number_format($contract->downpayment, 2) }}</td></tr>
-            <tr><th>Monthly Rent</th><td>₱{{ number_format($contract->monthly_payment, 2) }}</td></tr>
+            <tr><th>Total Price to Pay</th><td>PHP {{ number_format($contract->total_price, 2) }}</td></tr>
+            <tr><th>Downpayment</th><td>PHP {{ number_format($contract->downpayment, 2) }}</td></tr>
+            <tr><th>Monthly Rent</th><td>PHP {{ number_format($contract->monthly_payment, 2) }}</td></tr>
+            
             <tr><th>Contract Duration</th><td>{{ $contract->contract_duration }} year(s)</td></tr>
             <tr><th>Contract Start</th><td>{{ \Carbon\Carbon::parse($contract->contract_start)->format('F d, Y') }}</td></tr>
             <tr><th>Contract End</th><td>{{ \Carbon\Carbon::parse($contract->contract_end)->format('F d, Y') }}</td></tr>
