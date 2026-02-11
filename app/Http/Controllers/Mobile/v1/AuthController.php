@@ -17,25 +17,21 @@ class AuthController extends Controller
 
 
     public function login(Request $request){
-        // return response()->json('test Connection');
-      
-        try{
-          $credentials  = $request->only('email','password');
-        }catch(InvalidCredentialsException $e){
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => $e->getMessage()
-                ],$e->getCode()
-            );
-           
-        }catch(\Exception $e){
-            return response->json([
-                'success' => false,
-                'message' => 'Internal server error'
-            ],500);
-        }
+        $credentials  = $request->only('email','password');
 
+        // Attempt to log in using the AuthService.
+        // The AuthService is expected to throw InvalidCredentialsException on failure.
+        $user = $this->authService->attemptLogin($credentials);
+
+        // If login is successful, return a success response with the user's token or data
+        return response()->json([
+            'success' => true,
+            'message' => 'Login successful',
+            'data' => [
+                'user' => $user, // Or just relevant user data
+                'token' => $user->createToken('authToken')->plainTextToken, // Example token generation
+            ]
+        ]);
     }
 
     

@@ -7,5 +7,10 @@ class AuthService{
 
 public function login(){
     
+
+
+  public function attemptLogin(){
+
+  }
 }
 }
