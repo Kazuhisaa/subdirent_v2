@@ -1,16 +1,24 @@
 <?php
 namespace App\Services\mobile;
 
+use App\Exceptions\Auth\InvalidCredentialsException; // Import the custom exception
+use Illuminate\Support\Facades\Auth; // Use Laravel's Auth facade
 
-class AuthService{
+class AuthService
+{
+    /**
+     * Attempt to log in the user with the given credentials.
+     *
+     * @param array $credentials
+     * @return \App\Models\User|\Illuminate\Contracts\Auth\Authenticatable
+     * @throws InvalidCredentialsException
+     */
+    public function attemptLogin(array $credentials)
+    {
+        if (! Auth::attempt($credentials)) {
+            throw new InvalidCredentialsException('Invalid login credentials', 401);
+        }
 
-
-public function login(){
-    
-
-
-  public function attemptLogin(){
-
-  }
-}
+        return Auth::user();
+    }
 }
