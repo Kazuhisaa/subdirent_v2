@@ -1,7 +1,7 @@
 <?php
 namespace App\Services\mobile;
 
-use App\Exceptions\Auth\InvalidCredentialsException; // Import the custom exception
+use App\Exceptions\Auth\InvalidCredentialsException;
 use Illuminate\Support\Facades\Auth; // Use Laravel's Auth facade
 
 class AuthService
