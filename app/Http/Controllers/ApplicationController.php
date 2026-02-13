@@ -150,6 +150,16 @@ class ApplicationController extends Controller
 
         $application->update(['status' => 'Approved']);
 
+    // --- Create User Account ---
+        $password = $application->unit->unit_code . $application->last_name;
+        $user = User::create([
+            'email'    => $application->email,
+            'name'     => $application->first_name . ' ' . $application->last_name,
+            'password' => Hash::make($password),
+            'role'     => 'tenant',
+        ]);
+
+
         // --- Create Tenant ---
         $tenant = Tenant::create([
             'first_name'  => $application->first_name,
@@ -158,6 +168,7 @@ class ApplicationController extends Controller
             'email'       => $application->email,
             'contact_num' => $application->contact_num,
             'unit_id'     => $application->unit_id,
+             'user_id'  => $user->id,
         ]);
 
         // Update unit status
@@ -213,14 +224,7 @@ class ApplicationController extends Controller
             'remarks'        => 'Downpayment'
         ]);
 
-        // --- Create User Account ---
-        $password = $application->unit->unit_code . $application->last_name;
-        $user = User::create([
-            'email'    => $tenant->email,
-            'name'     => $tenant->first_name . ' ' . $tenant->last_name,
-            'password' => Hash::make($password),
-            'role'     => 'tenant',
-        ]);
+    
 
         // Send email credentials
         Mail::to($user->email)->send(new TenantMail($user->email, $password));

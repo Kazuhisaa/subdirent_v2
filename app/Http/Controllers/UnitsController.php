@@ -23,6 +23,7 @@ class UnitsController extends Controller
             'unit_code' => 'required|string|unique:units,unit_code',
             'description' => 'nullable|string|max:10000',
             'floor_area' => 'nullable|integer|min:0',
+            'lot_size' => 'nullable|integer|min:0',
             'bathroom' => 'nullable|integer|min:0',
             'bedroom' => 'nullable|integer|min:0',
             'monthly_rent' => 'nullable|numeric|min:0',
@@ -32,7 +33,10 @@ class UnitsController extends Controller
             'files.*' => 'nullable|file|mimes:jpeg,jpg,pdf|max:2048'
         ]);
 
-        $unit = $this->unitService->createUnit($request->all());
+        $data = $request->all();
+        $data['build_year'] = date('Y'); // Automatically set build_year to current year
+
+        $unit = $this->unitService->createUnit($data);
 
         return response()->json(['message' => 'Unit Created', 'unit' => $unit], 201);
     }
@@ -77,5 +81,17 @@ class UnitsController extends Controller
     {
         $payload = $request->only(['bathroom','bedroom','floor_area','lot_size','year','n_years']);
         return response()->json($this->unitService->predict($payload));
+    }
+
+    public function rooms()
+    {
+        $units = $this->unitService->getAllUnits();
+        return view('admin.rooms', ['units' => $units]);
+    }
+
+    public function edit($id)
+    {
+        $unit = Unit::with('tenant')->findOrFail($id);
+        return view('admin.edit-unit', ['unit' => $unit]);
     }
 }

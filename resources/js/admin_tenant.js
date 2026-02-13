@@ -350,27 +350,40 @@ function buildPaginationUI(totalPages, currentPage) {
 
 
 /* ---------- Listeners ---------- */
-
 function attachEditArchiveListeners(token) {
-    // UPDATED selector to generic table body
+    // EDIT buttons
     document.querySelectorAll("#main-table-body .edit-btn").forEach((btn) => {
         if (btn.listenerAttached) return;
         btn.listenerAttached = true;
 
         btn.addEventListener("click", async (e) => {
             const id = e.currentTarget.closest("tr").dataset.id;
+
             try {
-                const res = await fetch(`${TENANTS_BASE}/${id}`, { headers: apiHeaders(token) });
-                const json = await res.json();
-                fillEditModal(Array.isArray(json) ? json[0] : json);
+                const res = await fetch(`${TENANTS_BASE}/${id}`, {
+                    headers: apiHeaders(token),
+                });
+
+                if (!res.ok) {
+                    const raw = await res.text();
+                    console.error("Tenant details failed:", res.status, raw);
+                    throw new Error(`HTTP ${res.status}`);
+                }
+
+                const tenant = await res.json();
+                fillEditModal(tenant);
+
                 new bootstrap.Modal(document.getElementById("editTenantModal")).show();
-            } catch {
-                showError("Failed to fetch tenant details.");
-            }
+           } catch (err) {
+  console.error("REAL edit error:", err);
+  console.error(err?.stack);
+  showError("Failed to fetch tenant details.");
+}
+
         });
     });
 
-    // UPDATED selector to generic table body
+    // ARCHIVE buttons
     document.querySelectorAll("#main-table-body .archive-btn").forEach((btn) => {
         if (btn.listenerAttached) return;
         btn.listenerAttached = true;
@@ -384,15 +397,18 @@ function attachEditArchiveListeners(token) {
                 "Cancel",
                 async () => {
                     try {
-                        const res = await fetch(`${TENANTS_BASE}/${id}`, { method: "DELETE", headers: apiHeaders(token) });
+                        const res = await fetch(`${TENANTS_BASE}/${id}`, {
+                            method: "DELETE",
+                            headers: apiHeaders(token),
+                        });
                         if (!res.ok) throw new Error();
                         showSuccess("Tenant archived successfully.");
-                        // Reload all data
+
                         await loadTenants(token);
                         await loadArchivedTenants(token);
-                        // Re-render the current view
-                        renderDisplay(1); // Go back to page 1 of active tenants
-                    } catch {
+                        renderDisplay(1);
+                    } catch (err) {
+                        console.error("Archive error:", err);
                         showError("Failed to archive tenant.");
                     }
                 }
@@ -400,6 +416,7 @@ function attachEditArchiveListeners(token) {
         });
     });
 }
+
 function attachRestoreListeners(token) {
     // UPDATED selector to generic table body
     document.querySelectorAll("#main-table-body .restore-btn").forEach((btn) => {

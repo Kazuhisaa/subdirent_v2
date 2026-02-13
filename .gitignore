@@ -21,6 +21,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+.zip
+*.zip
 
 # EXCEPTION: Force track the specific model file for versioning
 !storage/app/Models/revenue_prediction.model

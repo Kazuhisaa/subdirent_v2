@@ -21,9 +21,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     @vite([
+        'resources/bootstrapjs/js/bootstrap.bundle.js',
         'resources/bootstrap/css/bootstrap.css',
         'resources/css/admin.css',
-        'resources/bootstrapjs/js/bootstrap.bundle.js',
         'resources/js/app.js'
     ])
 </head>
@@ -156,6 +156,7 @@
     </script>
 
             <!-- SweetAlert2 CDN -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <!-- Your custom alerts file -->

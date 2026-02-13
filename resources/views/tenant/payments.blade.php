@@ -53,14 +53,7 @@
                                 required>
                         </div>
 
-                        <div class="mb-3">
-                            <select name="payment_method" class="form-select text-center" required>
-                                <option value="" disabled selected>-- Choose Payment Method --</option>
-                                <option value="gcash">GCash</option>
-                                <option value="card">Credit/Debit Card</option>
-                            </select>
-                        </div>
-
+                    
                         <button type="submit" class="btn btn-success w-100 fw-semibold mb-2 shadow-sm">
                             <i class="bi bi-cash-stack me-1"></i> Pay Now
                         </button>
@@ -138,8 +131,9 @@
                                             ₱{{ number_format($payment->amount, 2) }}
                                         </td>
                                         <td class="text-center pe-4">
+                                            {{-- NEW / FIXED CODE --}}
                                             @if($payment->invoice_pdf)
-                                            <a href="{{ asset('storage/' . $payment->invoice_pdf) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                            <a href="{{ route('tenant.payment.invoice.download', $payment->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
                                                 <i class="bi bi-file-pdf"></i>
                                             </a>
                                             @else
