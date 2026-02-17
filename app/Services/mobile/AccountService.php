@@ -5,6 +5,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Exceptions\common\NotFoundException;
 
+
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 class AccountService
 {
   
@@ -34,5 +38,69 @@ class AccountService
             ],
             'unit' => $user->tenant->unit,
         ];
+    }
+
+    public function updateProfile(array $data)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (!$user->tenant) {
+            throw new NotFoundException('Tenant profile not found for the authenticated user.');
+        }
+
+        $user->tenant->update($data);
+
+        return $user->tenant;
+    }
+
+
+
+    public function updatePicture(UploadedFile $file)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $tenant = $user->tenant;
+
+        if (!$tenant) {
+            throw new NotFoundException('Tenant not found.');
+        }
+
+        $uploadPath = public_path('uploads/tenants/');
+        
+        if (!File::exists($uploadPath)) {
+            File::makeDirectory($uploadPath, 0755, true);
+        }
+
+        $filename = 'tenant-' . $tenant->id . '-' . time() . '.' . $file->getClientOriginalExtension();
+        $path = 'uploads/tenants/' . $filename;
+
+        $file->move($uploadPath, $filename);
+
+        if ($user->profile_photo_path && File::exists(public_path($user->profile_photo_path))) {
+            File::delete(public_path($user->profile_photo_path));
+        }
+
+        $user->profile_photo_path = $path;
+        if (!$user->save()) {
+            throw new \Exception('Could not save user');
+        }
+
+        return $path;
+    }
+
+
+    public function updateCredentials(array $data){
+          /** @var User $user */
+          $user = Auth::user();
+
+          if (!$user) {
+              throw new NotFoundException('User not found.');
+          }
+  
+          $user->password = Hash::make($data['new_password']);
+          $user->save();
+  
+          return $user;
     }
 }

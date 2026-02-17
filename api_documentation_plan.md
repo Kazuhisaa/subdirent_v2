@@ -123,9 +123,9 @@ These endpoints manage the tenant's personal profile and login credentials.
     *   **Corresponds to:** `TenantController::updatecredentials()`
     *   **Example Request:**
         ```json
-        {
-            "email": "new.email@example.com",
-            "password": "new_secure_password",
+        { 
+            "prev_password" : "prev_pass",
+            "new_password": "new_secure_password",
             "password_confirmation": "new_secure_password"
         }
         ```
