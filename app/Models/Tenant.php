@@ -18,6 +18,7 @@ class Tenant extends Model
         'email',
         'contact_num',
         'unit_id',
+        'user_id'
     ];
 
     // Relationship: Tenant belongs to Unit
